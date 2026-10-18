@@ -547,28 +547,52 @@ app.post("/ai/query", tenantMiddleware, async (req, res) => {
   let relevantProducts: any[] = [];
 
   if (q.includes("laptop") || q.includes("programming") || q.includes("code") || q.includes("macbook")) {
-    const macbook = products.find((p) => p.category === "LAPTOPS");
-    if (macbook) {
-      relevantProducts.push(macbook);
-      responseText = `For professional programming and demanding software workflows, the **${macbook.name}** is the ideal verified model. It features the Apple M4 Max processor with 16 CPU cores, 36GB unified RAM, and a 16.2" Liquid Retina XDR display. Starting price is GHS ${macbook.variants[0]?.retailPrice.toLocaleString()} with a 12-month warranty.`;
-    }
-  } else if (q.includes("phone") || q.includes("camera") || q.includes("iphone") || q.includes("galaxy")) {
-    const iphone = products.find((p) => p.brand === "Apple" && p.category === "SMARTPHONES");
-    const samsung = products.find((p) => p.brand === "Samsung" && p.category === "SMARTPHONES");
+    const macbook = products.find((p) => p.category === "LAPTOPS" && p.slug.includes("m4"));
+    const macbookAir = products.find((p) => p.slug.includes("air"));
+    if (macbook) relevantProducts.push(macbook);
+    if (macbookAir) relevantProducts.push(macbookAir);
+    responseText = `For professional programming and creative workloads, we stock:\n\n1. **${macbook?.name}** (GHS ${macbook?.variants[0]?.retailPrice.toLocaleString()}): Apple M4 Max (16-core CPU, 40-core GPU), 36GB unified memory, and 16.2" Liquid Retina XDR.\n2. **${macbookAir?.name}** (GHS ${macbookAir?.variants[0]?.retailPrice.toLocaleString()}): Ultra-portable M3 chip, 16GB RAM, 512GB SSD with 18-hour battery life.\n\nBoth include genuine 12-month Apple warranty and instant delivery in Accra.`;
+  } else if (q.includes("starlink") || q.includes("satellite") || q.includes("internet") || q.includes("wifi")) {
+    const starlink = products.find((p) => p.slug.includes("starlink"));
+    if (starlink) relevantProducts.push(starlink);
+    responseText = `Yes! We stock the **${starlink?.name}** for **GHS ${starlink?.variants[0]?.retailPrice.toLocaleString()}**. It includes the high-performance electronic phased array antenna, kickstand, Wi-Fi 6 router, and cables for plug-and-play high-speed, low-latency satellite internet across Ghana. Available for immediate pickup at our East Legon showroom or nationwide delivery.`;
+  } else if (q.includes("ps5") || q.includes("playstation") || q.includes("game") || q.includes("console")) {
+    const ps5 = products.find((p) => p.slug.includes("playstation"));
+    if (ps5) relevantProducts.push(ps5);
+    responseText = `We have the **${ps5?.name}** in stock for **GHS ${ps5?.variants[0]?.retailPrice.toLocaleString()}**. It features a 1TB custom NVMe SSD, Ultra HD Blu-ray disc drive, ray tracing, 4K 120Hz support, and an authentic DualSense wireless controller with 12 months warranty.`;
+  } else if (q.includes("ipad") || q.includes("tablet") || q.includes("pencil")) {
+    const ipad = products.find((p) => p.category === "TABLETS");
+    if (ipad) relevantProducts.push(ipad);
+    responseText = `The **${ipad?.name}** is available for **GHS ${ipad?.variants[0]?.retailPrice.toLocaleString()}**. It is Apple's thinnest device at 5.1mm with Tandem OLED Ultra Retina XDR display, M4 chip, and support for Apple Pencil Pro.`;
+  } else if (q.includes("airpod") || q.includes("headphone") || q.includes("earbud") || q.includes("audio") || q.includes("sound")) {
+    const apPro = products.find((p) => p.slug.includes("airpods-pro"));
+    const apMax = products.find((p) => p.slug.includes("airpods-max"));
+    const buds = products.find((p) => p.slug.includes("buds"));
+    if (apPro) relevantProducts.push(apPro);
+    if (apMax) relevantProducts.push(apMax);
+    if (buds) relevantProducts.push(buds);
+    responseText = `We have verified audiophile and wireless ANC gear in stock:\n\n1. **${apPro?.name}** (GHS ${apPro?.variants[0]?.retailPrice.toLocaleString()}): 2x Pro ANC with USB-C MagSafe Case.\n2. **${apMax?.name}** (GHS ${apMax?.variants[0]?.retailPrice.toLocaleString()}): Over-ear luxury with lossless audio via USB-C.\n3. **${buds?.name}** (GHS ${buds?.variants[0]?.retailPrice.toLocaleString()}): 24-bit Hi-Fi with Blade Lights and Galaxy AI.`;
+  } else if (q.includes("phone") || q.includes("camera") || q.includes("iphone") || q.includes("galaxy") || q.includes("pixel") || q.includes("fold")) {
+    const iphone = products.find((p) => p.brand === "Apple" && p.slug.includes("16-pro-max"));
+    const samsung = products.find((p) => p.brand === "Samsung" && p.slug.includes("s24-ultra"));
+    const pixel = products.find((p) => p.brand === "Google");
     if (iphone) relevantProducts.push(iphone);
     if (samsung) relevantProducts.push(samsung);
+    if (pixel) relevantProducts.push(pixel);
 
-    responseText = `We have verified flagship options in stock:\n\n1. **${iphone?.name}** (GHS ${iphone?.variants[0]?.retailPrice.toLocaleString()}): 48MP Fusion camera with 5x optical tetraprism telephoto and aerospace Grade 5 Titanium chassis.\n2. **${samsung?.name}** (GHS ${samsung?.variants[0]?.retailPrice.toLocaleString()}): 200MP Quad Camera with Snapdragon 8 Elite and integrated S-Pen.\n\nBoth are available at our Accra Flagship (Osu Oxford St) and Kumasi branches.`;
-  } else if (q.includes("charger") || q.includes("accessory") || q.includes("compatible")) {
-    const anker = products.find((p) => p.slug.includes("anker"));
+    responseText = `We have verified flagship smartphones in stock:\n\n1. **${iphone?.name}** (From GHS ${iphone?.variants[0]?.retailPrice.toLocaleString()}): 48MP Fusion camera with 5x optical tetraprism telephoto and Grade 5 Titanium chassis.\n2. **${samsung?.name}** (GHS ${samsung?.variants[0]?.retailPrice.toLocaleString()}): 200MP Quad Camera with Snapdragon 8 Gen 3, Corning Gorilla Armor, and S-Pen.\n3. **${pixel?.name}** (GHS ${pixel?.variants[0]?.retailPrice.toLocaleString()}): Google Tensor G4 with on-device Gemini Nano AI.\n\nAll available at our East Legon Flagship Showroom (Underbridge Mall) and Osu Oxford St store.`;
+  } else if (q.includes("charger") || q.includes("accessory") || q.includes("compatible") || q.includes("powerbank")) {
+    const anker = products.find((p) => p.slug.includes("anker-prime"));
+    const powerbank = products.find((p) => p.slug.includes("737"));
     const magsafe = products.find((p) => p.slug.includes("magsafe"));
     if (anker) relevantProducts.push(anker);
+    if (powerbank) relevantProducts.push(powerbank);
     if (magsafe) relevantProducts.push(magsafe);
 
-    responseText = `For fast charging, the **Anker Prime 100W GaN Wall Charger** (GHS 1,250) is verified compatible with iPhone 16 Pro Max (30W), Galaxy S25 Ultra (45W Super Fast Charging 2.0), and MacBook Pro 16 (100W). For wireless charging, the **Apple MagSafe 25W Charger** (GHS 950) is in stock.`;
+    responseText = `For fast charging and power:\n\n1. **${anker?.name}** (GHS ${anker?.variants[0]?.retailPrice.toLocaleString()}): 3-Port 100W GaN charger verified for iPhone, MacBook, and Galaxy.\n2. **${powerbank?.name}** (GHS ${powerbank?.variants[0]?.retailPrice.toLocaleString()}): 140W two-way fast charge with smart OLED telemetry.\n3. **${magsafe?.name}** (GHS ${magsafe?.variants[0]?.retailPrice.toLocaleString()}): Official 25W MagSafe wireless fast charger.`;
   } else {
-    relevantProducts = products.slice(0, 3);
-    responseText = `Welcome to **The Gadget Master**! We stock authenticated electronics with verified hardware specs, genuine warranties, and fast delivery in Accra and Kumasi. How can I assist you with phones, laptops, or accessories today?`;
+    relevantProducts = products.slice(0, 4);
+    responseText = `Welcome to **The Gadget Master**! We stock authenticated electronics with verified hardware specs, genuine warranties, and fast delivery in Accra and Kumasi. You can find us at our East Legon Showroom (Underbridge Mall) or Osu Oxford Street. How can I assist you today?`;
   }
 
   res.json({

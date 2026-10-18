@@ -239,8 +239,13 @@ export default function StorefrontHomePage() {
               {[
                 { id: "ALL", label: "All Products" },
                 { id: "SMARTPHONES", label: "Smartphones" },
-                { id: "LAPTOPS", label: "Pro Laptops" },
-                { id: "ACCESSORIES", label: "Chargers & Gear" },
+                { id: "LAPTOPS", label: "Laptops & MacBooks" },
+                { id: "TABLETS", label: "iPads & Tablets" },
+                { id: "GAMING", label: "Gaming Consoles (PS5)" },
+                { id: "NETWORKING", label: "Starlink Satellite" },
+                { id: "WEARABLES", label: "Apple Watches" },
+                { id: "AUDIO", label: "AirPods & Audio" },
+                { id: "ACCESSORIES", label: "Chargers & Power" },
               ].map((cat) => (
                 <button
                   key={cat.id}

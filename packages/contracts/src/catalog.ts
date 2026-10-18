@@ -17,6 +17,7 @@ export const ProductCategoryEnum = z.enum([
   "SMARTWATCHES",
   "AUDIO_HEADPHONES",
   "GAMING_CONSOLES",
+  "NETWORKING_SATELLITE",
   "ACCESSORIES",
   "PARTS_COMPONENTS",
 ]);
@@ -37,14 +38,14 @@ export const TechnicalSpecsSchema = z.object({
   batteryCapacityMah: z.number().optional(),
   chargingWattage: z.number().optional(),
   cameraSpecs: z.string().optional(),
-  connectivity: z.array(z.string()).default([]), // 5G, Wi-Fi 7, Bluetooth 5.4
+  connectivity: z.array(z.string()).optional(),
   operatingSystem: z.string().optional(),
   color: z.string().optional(),
   colorHex: z.string().optional(),
   weightGrams: z.number().optional(),
   dimensionsMm: z.string().optional(),
-  inTheBox: z.array(z.string()).default([]),
-});
+  inTheBox: z.array(z.string()).optional(),
+}).passthrough();
 
 export type TechnicalSpecs = z.infer<typeof TechnicalSpecsSchema>;
 
