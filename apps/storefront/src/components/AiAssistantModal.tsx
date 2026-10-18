@@ -66,7 +66,7 @@ export function AiAssistantModal({ isOpen, onClose }: AiAssistantModalProps) {
         ...prev,
         {
           sender: "bot",
-          text: "I am currently using local catalogue guidance: For laptops, check out the **MacBook Pro 16 M4 Max** (16-core CPU, 36GB RAM). For flagship phones, the **iPhone 16 Pro Max** with A18 Pro and **Galaxy S25 Ultra** are both in stock at our Osu Oxford St store with 12-24 months warranty.",
+          text: "I am currently using verified catalogue guidance: For laptops, check out the **Lenovo IdeaPad Slim 5** or **Microsoft Surface Laptop 15**. For flagship phones, the **iPhone 17 Pro Max** and **Xiaomi Redmi Note 13** are verified products available at our East Legon Showroom (Underbridge Mall, Boundary Road) or via WhatsApp order (020 014 7950) with standard store limited warranty.",
         },
       ]);
     } finally {

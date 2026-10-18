@@ -758,7 +758,7 @@ app.post("/ai/query", tenantMiddleware, async (req, res) => {
     if (samsung) relevantProducts.push(samsung);
     if (pixel) relevantProducts.push(pixel);
 
-    responseText = `We have verified flagship smartphones in stock:\n\n1. **${iphone?.name}** (From GHS ${iphone?.variants[0]?.retailPrice.toLocaleString()}): 48MP Fusion camera with 5x optical tetraprism telephoto and Grade 5 Titanium chassis.\n2. **${samsung?.name}** (GHS ${samsung?.variants[0]?.retailPrice.toLocaleString()}): 200MP Quad Camera with Snapdragon 8 Gen 3, Corning Gorilla Armor, and S-Pen.\n3. **${pixel?.name}** (GHS ${pixel?.variants[0]?.retailPrice.toLocaleString()}): Google Tensor G4 with on-device Gemini Nano AI.\n\nAll available at our East Legon Flagship Showroom (Underbridge Mall) and Osu Oxford St store.`;
+    responseText = `We have verified flagship smartphones in stock:\n\n1. **${iphone?.name}** (From GHS ${iphone?.variants[0]?.retailPrice.toLocaleString()}): 48MP Fusion camera with 5x optical tetraprism telephoto and Grade 5 Titanium chassis.\n2. **${samsung?.name}** (GHS ${samsung?.variants[0]?.retailPrice.toLocaleString()}): 200MP Quad Camera with Snapdragon 8 Gen 3, Corning Gorilla Armor, and S-Pen.\n3. **${pixel?.name}** (GHS ${pixel?.variants[0]?.retailPrice.toLocaleString()}): Google Tensor G4 with on-device Gemini Nano AI.\n\nAvailable at our verified East Legon Showroom (Underbridge Mall, Boundary Road, Accra).`;
   } else if (q.includes("charger") || q.includes("accessory") || q.includes("compatible") || q.includes("powerbank")) {
     const anker = products.find((p) => p.slug.includes("anker-prime"));
     const powerbank = products.find((p) => p.slug.includes("737"));
@@ -770,7 +770,7 @@ app.post("/ai/query", tenantMiddleware, async (req, res) => {
     responseText = `For fast charging and power:\n\n1. **${anker?.name}** (GHS ${anker?.variants[0]?.retailPrice.toLocaleString()}): 3-Port 100W GaN charger verified for iPhone, MacBook, and Galaxy.\n2. **${powerbank?.name}** (GHS ${powerbank?.variants[0]?.retailPrice.toLocaleString()}): 140W two-way fast charge with smart OLED telemetry.\n3. **${magsafe?.name}** (GHS ${magsafe?.variants[0]?.retailPrice.toLocaleString()}): Official 25W MagSafe wireless fast charger.`;
   } else {
     relevantProducts = products.slice(0, 4);
-    responseText = `Welcome to **The Gadget Master**! We stock authenticated electronics with verified hardware specs, genuine warranties, and fast delivery in Accra and Kumasi. You can find us at our East Legon Showroom (Underbridge Mall) or Osu Oxford Street. How can I assist you today?`;
+    responseText = `Welcome to **The Gadget Master**! We stock authenticated electronics with verified hardware specs, limited store warranty, and reliable delivery in Greater Accra. You can visit our verified showroom at East Legon (Underbridge Mall, Boundary Road, Accra) or call 020 014 7950. How can I assist you today?`;
   }
 
   res.json({

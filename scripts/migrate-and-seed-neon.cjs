@@ -390,7 +390,7 @@ async function migrateAndSeed() {
     {
       id: "usr-cashier-01",
       tenantId: "the-gadget-master-gh",
-      email: "cashier.osu@thegadgetmaster.gh",
+      email: "cashier.eastlegon@thegadgetmaster.gh",
       fullName: "Kofi Boateng",
       phone: "+233 20 014 7950",
       role: "CASHIER",

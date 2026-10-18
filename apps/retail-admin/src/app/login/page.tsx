@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { LoginPhoneDissectionVisual } from "@gcp/animation-engine";
+import { LoginRotatingProductVisual } from "@gcp/animation-engine";
 import { Lock, Mail, Eye, EyeOff, ShieldCheck, ArrowRight, AlertCircle, Sparkles } from "lucide-react";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -65,10 +65,10 @@ export default function RetailAdminLoginPage() {
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
         
-        {/* Left Side: Interactive 3D Phone Dissection Visual */}
+        {/* Left Side: Interactive 3D Intact Assembled Product Visual */}
         <div className="lg:col-span-7 order-2 lg:order-1">
-          <LoginPhoneDissectionVisual
-            modelName="iPhone 16 Pro Max • Staff Dissection View"
+          <LoginRotatingProductVisual
+            modelName="Apple iMac 24-inch M4 • Retail Display Unit"
             className="h-[480px] lg:h-[620px]"
           />
         </div>
@@ -202,10 +202,10 @@ export default function RetailAdminLoginPage() {
               </button>
               <button
                 type="button"
-                onClick={() => handlePresetSelect("cashier.osu@thegadgetmaster.gh")}
+                onClick={() => handlePresetSelect("cashier.eastlegon@thegadgetmaster.gh")}
                 className="px-2.5 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/60 transition-colors text-center"
               >
-                POS Cashier
+                East Legon Cashier
               </button>
             </div>
           </div>

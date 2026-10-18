@@ -4,7 +4,7 @@ import { MultiTenantRepository } from "@gcp/database";
 describe("Inventory Concurrency & Overselling Prevention", () => {
   let repo: MultiTenantRepository;
   const tenantId = "the-gadget-master-gh";
-  const branchId = "branch-accra-flagship";
+  const branchId = "branch-east-legon-flagship";
   const variantId = "var-test-exclusive-stock";
 
   beforeEach(async () => {

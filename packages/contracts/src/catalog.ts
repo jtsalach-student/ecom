@@ -18,6 +18,8 @@ export const ProductCategoryEnum = z.enum([
   "AUDIO_HEADPHONES",
   "GAMING_CONSOLES",
   "NETWORKING_SATELLITE",
+  "TELEVISIONS",
+  "HOME_APPLIANCES",
   "ACCESSORIES",
   "PARTS_COMPONENTS",
 ]);
@@ -45,6 +47,7 @@ export const TechnicalSpecsSchema = z.object({
   weightGrams: z.number().optional(),
   dimensionsMm: z.string().optional(),
   inTheBox: z.array(z.string()).optional(),
+  capacityBtu: z.string().optional(),
 }).passthrough();
 
 export type TechnicalSpecs = z.infer<typeof TechnicalSpecsSchema>;
@@ -91,6 +94,14 @@ export const ProductListingSchema = z.object({
   isFeatured: z.boolean().default(false),
   warrantyMonths: z.number().default(12),
   tags: z.array(z.string()).default([]),
+  advertisementProvenance: z.object({
+    sourceUrl: z.string().optional(),
+    retrievalDate: z.string().optional(),
+    advertisedPriceGhs: z.number().optional(),
+    priceConfirmed: z.boolean().optional(),
+    availabilityStatus: z.enum(["IN_STOCK", "CALL_FOR_STOCK", "SPECIAL_ORDER"]).optional(),
+    notes: z.string().optional(),
+  }).optional(),
   variants: z.array(ProductVariantSchema).default([]),
   createdAt: z.string().or(z.date()),
   updatedAt: z.string().or(z.date()),

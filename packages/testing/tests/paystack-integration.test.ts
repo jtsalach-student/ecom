@@ -27,7 +27,7 @@ describe("Paystack Payment Integration", () => {
 
   it("should process webhook, mark order as paid, and maintain idempotency", async () => {
     const tenantId = "the-gadget-master-gh";
-    const branchId = "branch-accra-flagship";
+    const branchId = "branch-east-legon-flagship";
     const variantId = "var-iph16pm-256-nat";
     const orderId = "ord-paystack-test-01";
     const reference = "TGM_ORD_TEST_9999";

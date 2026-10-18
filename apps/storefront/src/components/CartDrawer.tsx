@@ -283,12 +283,12 @@ export function CartDrawer() {
                   onClick={() => setDeliveryMethod("BRANCH_PICKUP")}
                   className={`p-2 rounded-lg border text-left transition-all ${
                     deliveryMethod === "BRANCH_PICKUP"
-                      ? "border-blue-500 bg-blue-500/10 text-white"
+                      ? "border-orange-500 bg-orange-500/10 text-white"
                       : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700"
                   }`}
                 >
                   <div className="text-[11px] font-bold">Store Pickup</div>
-                  <div className="text-[10px] text-emerald-400">Free (Osu/Kms)</div>
+                  <div className="text-[10px] text-emerald-400">Free (East Legon Showroom)</div>
                 </button>
               </div>
             </div>
@@ -305,17 +305,17 @@ export function CartDrawer() {
                   placeholder="Full Name"
                   value={recipientName}
                   onChange={(e) => setRecipientName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500"
                 />
               </div>
               <div>
                 <input
                   required
                   type="tel"
-                  placeholder="Ghana Phone (e.g. 024 456 7890)"
+                  placeholder="Ghana Phone (e.g. 020 014 7950)"
                   value={recipientPhone}
                   onChange={(e) => setRecipientPhone(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500"
                 />
               </div>
               {deliveryMethod !== "BRANCH_PICKUP" && (
@@ -323,10 +323,10 @@ export function CartDrawer() {
                   <input
                     required
                     type="text"
-                    placeholder="Delivery Address / GPS (e.g. Osu / East Legon)"
+                    placeholder="Delivery Address / GPS (e.g. East Legon, Accra)"
                     value={deliveryAddress}
                     onChange={(e) => setDeliveryAddress(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500"
                   />
                 </div>
               )}
