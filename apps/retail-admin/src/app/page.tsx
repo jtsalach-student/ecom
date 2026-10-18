@@ -8,6 +8,7 @@ import {
   SEED_BRANCH_INVENTORIES,
   SEED_TENANT,
 } from "@gcp/database";
+import { useTheme, UniversalThemeSelector } from "@gcp/ui";
 import {
   ShoppingBag,
   Store,
@@ -37,6 +38,7 @@ const DEFAULT_TENANT_ID = process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID || "the-gadg
 
 export default function RetailAdminPage() {
   const router = useRouter();
+  const { tenant } = useTheme();
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<"POS" | "INVENTORY" | "ORDERS" | "REPAIRS" | "ANALYTICS" | "SETTINGS">("POS");
   const [selectedBranch, setSelectedBranch] = useState(SEED_BRANCHES[0]);
@@ -187,48 +189,52 @@ export default function RetailAdminPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
       {/* Top Admin Header */}
-      <header className="h-16 border-b border-slate-800 bg-slate-900/80 backdrop-blur-md px-6 flex items-center justify-between">
+      <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80 backdrop-blur-md px-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white text-sm">
-            GM
-          </div>
+          <img
+            src={tenant.logoUrl || "/logo-oval.png"}
+            alt={tenant.name}
+            className="h-9 w-auto object-contain"
+          />
           <div>
-            <span className="font-bold text-sm text-white">The Gadget Master</span>
+            <span className="font-bold text-sm text-slate-900 dark:text-white">{tenant.name}</span>
             <span className="text-[10px] text-slate-400 block -mt-1 font-mono">
-              Retail Terminal • v1.0 Production
+              Retail Terminal • {tenant.domain}
             </span>
           </div>
         </div>
 
         {/* Branch Selector & Active Shift Indicator */}
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs">
-            <Store className="w-3.5 h-3.5 text-blue-400" />
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
+            <Store className="w-3.5 h-3.5 text-orange-500" />
             <select
               value={selectedBranch.id}
               onChange={(e) => {
                 const b = SEED_BRANCHES.find((x) => x.id === e.target.value);
                 if (b) setSelectedBranch(b);
               }}
-              className="bg-transparent text-white font-medium focus:outline-none cursor-pointer"
+              className="bg-transparent text-slate-800 dark:text-white font-medium focus:outline-none cursor-pointer"
             >
               {SEED_BRANCHES.map((b) => (
-                <option key={b.id} value={b.id} className="bg-slate-900 text-white">
+                <option key={b.id} value={b.id} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
                   {b.name}
                 </option>
               ))}
             </select>
           </div>
 
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-400 font-semibold">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Shift #01 Active</span>
           </div>
 
-          <div className="hidden sm:flex items-center gap-2 text-xs text-slate-300 pl-2 border-l border-slate-800">
-            <User className="w-3.5 h-3.5 text-blue-400" />
+          <UniversalThemeSelector />
+
+          <div className="hidden sm:flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 pl-2 border-l border-slate-200 dark:border-slate-800">
+            <User className="w-3.5 h-3.5 text-orange-500" />
             <span>{currentUser ? `${currentUser.fullName} (${currentUser.role})` : "Kwame Mensah (Owner)"}</span>
           </div>
 
@@ -240,7 +246,7 @@ export default function RetailAdminPage() {
               }
               router.push("/login");
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-950/40 border border-red-800/50 text-xs text-red-300 hover:text-white hover:bg-red-900/60 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/50 text-xs text-red-600 dark:text-red-300 hover:text-red-700 dark:hover:text-white hover:bg-red-100 dark:hover:bg-red-900/60 transition-colors"
             title="Sign out of Retail Terminal"
           >
             <LogOut className="w-3.5 h-3.5" />

@@ -13,9 +13,11 @@ import {
   RotateCw,
   ShieldCheck,
   Zap,
+  Headphones,
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { ProductListing } from "@gcp/contracts";
+import { SonyHeadphonesInteractiveViewer } from "@gcp/animation-engine";
 
 export interface CarouselSlide {
   id: string;
@@ -47,25 +49,29 @@ export function InteractiveRotatingHeroCarousel({
   const { addItem, setIsCartOpen } = useCart();
 
   // Find matching researched products from props
-  const imacProduct = products.find((p) => p.id === "prod-apple-imac-24-m4") || products[0];
-  const surfaceProduct = products.find((p) => p.id === "prod-surface-laptop-15-snapdragon");
-  const jblBarProduct = products.find((p) => p.id === "prod-jbl-bar-800-mk2");
-  const iphoneProduct = products.find((p) => p.id === "prod-iphone-16-pro-max");
-  const tvProduct = products.find((p) => p.id === "prod-lg-qned70-75");
-  const acProduct = products.find((p) => p.id === "prod-tcl-ac-12csd");
+  // Find matching catalogue products strictly from props
+  const imacProduct = products.find((p) => p.slug.includes("imac") || p.id === "prod-apple-imac-24-m4") || products[0];
+  const surfaceProduct = products.find((p) => p.slug.includes("surface") || p.id === "prod-surface-laptop-15-snapdragon");
+  const jblBarProduct = products.find((p) => p.slug.includes("jbl-bar") || p.id === "prod-jbl-bar-800-mk2");
+  const iphoneProduct = products.find((p) => p.slug.includes("16-pro-max") || p.id === "prod-iphone-16-pro-max");
+  const tvProduct = products.find((p) => p.slug.includes("qned") || p.id === "prod-lg-qned70-75");
+  const acProduct = products.find((p) => p.slug.includes("tcl") || p.id === "prod-tcl-ac-12csd");
+
+  // State to toggle dedicated 3D hardware inspection for Sony WH-1000XM6
+  const [showSony3DInspector, setShowSony3DInspector] = useState(false);
 
   const slides: CarouselSlide[] = [
     {
       id: "slide-imac",
       badge: "Apple M4 Silicon",
-      title: "Apple iMac 24-inch M4",
-      subtitle: "All-in-One Power with 4.5K Retina Brilliance",
-      benefit: "The ultimate desktop centerpiece. 16GB unified memory, 12MP Center Stage camera with Desk View, and Studio-quality acoustics.",
+      title: imacProduct?.name || "Apple iMac 24-inch M4",
+      subtitle: imacProduct?.shortDescription || "All-in-One Power with 4.5K Retina Brilliance",
+      benefit: imacProduct?.description || "The ultimate desktop centerpiece. 16GB unified memory, 12MP Center Stage camera with Desk View, and Studio-quality acoustics.",
       category: "Desktop Computing",
-      priceGhs: 24500,
+      priceGhs: imacProduct?.variants[0]?.retailPrice || 24500,
       isConfirmedPrice: true,
       status: "IN_STOCK",
-      imageUrl: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=1200&q=80",
+      imageUrl: imacProduct?.featuredImage || imacProduct?.images[0] || "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=1200&q=80",
       deviceType: "imac",
       accentColor: "#FF8A00",
       specs: [
@@ -79,14 +85,14 @@ export function InteractiveRotatingHeroCarousel({
     {
       id: "slide-surface",
       badge: "Copilot+ PC Intelligence",
-      title: "Surface Laptop 7th Edition 15\"",
-      subtitle: "Snapdragon X Elite 12-Core Ultrabook",
-      benefit: "Ultra-fast on-device AI acceleration, 120Hz PixelSense Flow Touchscreen, 1TB Gen 4 SSD, and unprecedented 22-hour battery life.",
+      title: surfaceProduct?.name || "Surface Laptop 7th Edition 15\"",
+      subtitle: surfaceProduct?.shortDescription || "Snapdragon X Elite 12-Core Ultrabook",
+      benefit: surfaceProduct?.description || "Ultra-fast on-device AI acceleration, 120Hz PixelSense Flow Touchscreen, 1TB Gen 4 SSD, and unprecedented 22-hour battery life.",
       category: "Pro Laptops",
-      priceGhs: 22000,
+      priceGhs: surfaceProduct?.variants[0]?.retailPrice || 22000,
       isConfirmedPrice: true,
       status: "IN_STOCK",
-      imageUrl: "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=1200&q=80",
+      imageUrl: surfaceProduct?.featuredImage || surfaceProduct?.images[0] || "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=1200&q=80",
       deviceType: "laptop",
       accentColor: "#0284C7",
       specs: [
@@ -100,14 +106,14 @@ export function InteractiveRotatingHeroCarousel({
     {
       id: "slide-jbl-bar",
       badge: "True Dolby Atmos 3D",
-      title: "JBL Bar 800 MK2 Surround",
-      subtitle: "720W 5.1.2-Channel Cinema System",
-      benefit: "Pure cinema immersion with detachable wireless battery-powered rear surround speakers and massive 10-inch down-firing wireless subwoofer.",
+      title: jblBarProduct?.name || "JBL Bar 800 MK2 Surround",
+      subtitle: jblBarProduct?.shortDescription || "720W 5.1.2-Channel Cinema System",
+      benefit: jblBarProduct?.description || "Pure cinema immersion with detachable wireless battery-powered rear surround speakers and massive 10-inch down-firing wireless subwoofer.",
       category: "Home Theatre & Audio",
-      priceGhs: 12500,
+      priceGhs: jblBarProduct?.variants[0]?.retailPrice || 12500,
       isConfirmedPrice: true,
       status: "IN_STOCK",
-      imageUrl: "https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=1200&q=80",
+      imageUrl: jblBarProduct?.featuredImage || jblBarProduct?.images[0] || "https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=1200&q=80",
       deviceType: "soundbar",
       accentColor: "#F59E0B",
       specs: [
@@ -121,14 +127,15 @@ export function InteractiveRotatingHeroCarousel({
     {
       id: "slide-iphone",
       badge: "Aerospace Grade 5 Titanium",
-      title: "Apple iPhone 16 Pro Max",
-      subtitle: "A18 Pro 3nm Silicon & 5x Optical Periscope",
-      benefit: "Lightweight titanium construction, 6.9\" Super Retina XDR ProMotion, Camera Control sensor button, and 48MP Fusion imaging.",
+      title: iphoneProduct?.name || "Apple iPhone 16 Pro Max",
+      subtitle: iphoneProduct?.shortDescription || "A18 Pro 3nm Silicon & 5x Optical Periscope",
+      benefit: iphoneProduct?.description || "Lightweight titanium construction, 6.9\" Super Retina XDR ProMotion, Camera Control sensor button, and 48MP Fusion imaging.",
       category: "Flagship Smartphones",
-      priceGhs: 14800,
+      // Accurately synchronized with catalogue variant price
+      priceGhs: iphoneProduct?.variants[0]?.retailPrice || 15900,
       isConfirmedPrice: true,
       status: "IN_STOCK",
-      imageUrl: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=1200&q=80",
+      imageUrl: iphoneProduct?.featuredImage || iphoneProduct?.images[0] || "https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=1200&q=80",
       deviceType: "phone",
       accentColor: "#10B981",
       specs: [
@@ -142,14 +149,14 @@ export function InteractiveRotatingHeroCarousel({
     {
       id: "slide-lg-qned",
       badge: "Quantum Dot NanoCell",
-      title: "LG 75\" QNED70 4K Smart TV",
-      subtitle: "α5 Gen6 AI Processor & webOS 23",
-      benefit: "Expansive 75-inch living room theatre with richer, deeper colors, Game Optimizer, Active HDR10 Pro, and Magic Remote voice control.",
+      title: tvProduct?.name || "LG 75\" QNED70 4K Smart TV",
+      subtitle: tvProduct?.shortDescription || "α5 Gen6 AI Processor & webOS 23",
+      benefit: tvProduct?.description || "Expansive 75-inch living room theatre with richer, deeper colors, Game Optimizer, Active HDR10 Pro, and Magic Remote voice control.",
       category: "4K Televisions",
-      priceGhs: 16800,
+      priceGhs: tvProduct?.variants[0]?.retailPrice || 16800,
       isConfirmedPrice: true,
       status: "IN_STOCK",
-      imageUrl: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=1200&q=80",
+      imageUrl: tvProduct?.featuredImage || tvProduct?.images[0] || "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=1200&q=80",
       deviceType: "tv",
       accentColor: "#8B5CF6",
       specs: [
@@ -163,14 +170,14 @@ export function InteractiveRotatingHeroCarousel({
     {
       id: "slide-tcl-ac",
       badge: "Smart Inverter Energy Saving",
-      title: "TCL 1.5HP Smart Inverter AC",
-      subtitle: "Fast 30-Second Cooling & TitanGold Protection",
-      benefit: "12,000 BTU cooling efficiency with AI inverter energy savings up to 60%, TitanGold anti-corrosion condenser fins, and quiet operation.",
+      title: acProduct?.name || "TCL 1.5HP Smart Inverter AC",
+      subtitle: acProduct?.shortDescription || "Fast 30-Second Cooling & TitanGold Protection",
+      benefit: acProduct?.description || "12,000 BTU cooling efficiency with AI inverter energy savings up to 60%, TitanGold anti-corrosion condenser fins, and quiet operation.",
       category: "Climate & Appliances",
-      priceGhs: 4200,
+      priceGhs: acProduct?.variants[0]?.retailPrice || 4200,
       isConfirmedPrice: true,
       status: "IN_STOCK",
-      imageUrl: "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=1200&q=80",
+      imageUrl: acProduct?.featuredImage || acProduct?.images[0] || "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=1200&q=80",
       deviceType: "ac",
       accentColor: "#06B6D4",
       specs: [
@@ -337,22 +344,50 @@ export function InteractiveRotatingHeroCarousel({
 
             {/* Right Column: Intact 3D Product Interactive Stage */}
             <div className="lg:col-span-6 p-4 sm:p-6 lg:p-10 flex flex-col items-center justify-center relative min-h-[360px] sm:min-h-[440px] lg:min-h-[540px]">
+              {/* 3D Hardware Mode Switcher */}
+              <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowSony3DInspector(!showSony3DInspector)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md transition-all shadow-sm ${
+                    showSony3DInspector
+                      ? "bg-[#FF8A00] text-white shadow-orange-500/20"
+                      : "bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-[#FF8A00]"
+                  }`}
+                  title="Toggle between slide product and Sony WH-1000XM6 3D inspection"
+                >
+                  <Headphones className="w-3.5 h-3.5 text-current" />
+                  <span>{showSony3DInspector ? "Show Slide Showcase" : "3D Inspect: Sony WH-1000XM6"}</span>
+                </button>
+              </div>
+
               {/* Product 3D Interactive Canvas */}
               <div className="relative w-full h-[320px] sm:h-[400px] lg:h-[480px] flex items-center justify-center">
-                <RotatingProduct3DStage
-                  key={activeSlide.id}
-                  deviceType={activeSlide.deviceType}
-                  imageUrl={activeSlide.imageUrl}
-                  title={activeSlide.title}
-                  accentColor={activeSlide.accentColor}
-                  onInteractionChange={setIsInteracting}
-                />
+                {showSony3DInspector ? (
+                  <SonyHeadphonesInteractiveViewer
+                    onInteractionChange={setIsInteracting}
+                    className="w-full h-full"
+                  />
+                ) : (
+                  <RotatingProduct3DStage
+                    key={activeSlide.id}
+                    deviceType={activeSlide.deviceType}
+                    imageUrl={activeSlide.imageUrl}
+                    title={activeSlide.title}
+                    accentColor={activeSlide.accentColor}
+                    onInteractionChange={setIsInteracting}
+                  />
+                )}
               </div>
 
               {/* Interactive Hint Indicator */}
               <div className="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800 pointer-events-none">
                 <RotateCw className="w-3 h-3 text-[#FF8A00] animate-spin-slow" />
-                <span>Hover or drag product to rotate in 3D</span>
+                <span>
+                  {showSony3DInspector
+                    ? "Drag to rotate 360° • Arrow keys to inspect • Press R to reset"
+                    : "Hover or drag to reveal product angles in perspective"}
+                </span>
               </div>
             </div>
           </div>

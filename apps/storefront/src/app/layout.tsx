@@ -31,7 +31,9 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
-                  var saved = localStorage.getItem('gcp-storefront-theme');
+                  var params = new URLSearchParams(window.location.search);
+                  var urlTheme = params.get('theme');
+                  var saved = urlTheme || localStorage.getItem('gcp_theme_preference') || localStorage.getItem('gcp-storefront-theme');
                   var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                   if (saved === 'dark' || (!saved && prefersDark) || (saved === 'system' && prefersDark)) {
                     document.documentElement.classList.add('dark');
@@ -45,7 +47,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen antialiased selection:bg-[#FF8A00] selection:text-white">
-        <ThemeProvider>
+        <ThemeProvider defaultTenantId="the-gadget-master-gh">
           <CartProvider>
             {children}
           </CartProvider>

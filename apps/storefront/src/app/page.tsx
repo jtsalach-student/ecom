@@ -216,22 +216,22 @@ export default function StorefrontHomePage() {
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
             <div>
               <span className="text-xs font-bold text-[#FF8A00] uppercase tracking-wider">
-                Substantiated Inventory
+                Shop Our Collection
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-0.5">
                 {selectedCategory === "ALL"
-                  ? "Researched Gadget Master Catalogue"
+                  ? "Featured Products"
                   : categories.find((c) => c.id === selectedCategory)?.label}
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                Showing {filteredProducts.length} substantiated products advertised by Gadget Master Ghana.
+                Showing {filteredProducts.length} authentic products available from Gadget Master.
               </p>
             </div>
 
             {/* In-stock count indicator */}
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-300 shadow-sm">
               <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span>East Legon Verified Inventory</span>
+              <span>In Stock at East Legon Showroom</span>
             </div>
           </div>
 
@@ -325,7 +325,7 @@ export default function StorefrontHomePage() {
                         <div className="flex items-baseline justify-between mb-3">
                           <div>
                             <div className="text-[10px] font-semibold text-slate-400 uppercase">
-                              Verified Price
+                              Price
                             </div>
                             {primaryVariant?.retailPrice ? (
                               <div className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white font-mono">
@@ -787,7 +787,7 @@ export default function StorefrontHomePage() {
             {activeModalProduct.specs && Object.keys(activeModalProduct.specs).length > 0 && (
               <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800">
                 <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-3">
-                  Verified Technical Specifications
+                  Technical Specifications
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
                   {Object.entries(activeModalProduct.specs).map(([key, value]) => {

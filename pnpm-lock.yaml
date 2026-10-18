@@ -525,6 +525,9 @@ importers:
       '@gcp/payments':
         specifier: workspace:*
         version: link:../payments
+      '@gcp/ui':
+        specifier: workspace:*
+        version: link:../ui
     devDependencies:
       typescript:
         specifier: ^5.8.2

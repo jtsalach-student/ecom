@@ -11,7 +11,8 @@
     "@gcp/domain": "workspace:*",
     "@gcp/database": "workspace:*",
     "@gcp/auth": "workspace:*",
-    "@gcp/payments": "workspace:*"
+    "@gcp/payments": "workspace:*",
+    "@gcp/ui": "workspace:*"
   },
   "devDependencies": {
     "vitest": "^3.0.7",

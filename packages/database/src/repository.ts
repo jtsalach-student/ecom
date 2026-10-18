@@ -71,12 +71,20 @@ export class MultiTenantRepository {
    * Helper to execute tagged template SQL queries against Neon PostgreSQL returning typed arrays
    */
   private async runSql<T = any>(strings: TemplateStringsArray, ...values: any[]): Promise<T[]> {
-    if (!this.sql) return [];
+    if (!this.sql) {
+      if (process.env.NODE_ENV === "production" && process.env.DATABASE_URL) {
+        throw new Error("Neon Database Client uninitialized: production requires durable database connection.");
+      }
+      return [];
+    }
     try {
       const result = await (this.sql as any)(strings, ...values);
       if (Array.isArray(result)) return result as T[];
       return [];
-    } catch (err) {
+    } catch (err: any) {
+      if (process.env.NODE_ENV === "production") {
+        throw new Error(`Neon SQL execution failed: ${err.message || String(err)}`);
+      }
       console.warn("Neon SQL execution error:", err);
       return [];
     }

@@ -3,24 +3,26 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { LoginRotatingProductVisual } from "@gcp/animation-engine";
-import { Lock, Mail, Eye, EyeOff, ShieldCheck, ArrowRight, AlertCircle, ShoppingBag, Sparkles } from "lucide-react";
+import { LoginAnimatedCharacter } from "@gcp/animation-engine";
+import { Lock, Mail, Eye, EyeOff, ArrowRight, AlertCircle, ShoppingBag } from "lucide-react";
+import { UniversalThemeSelector } from "@gcp/ui";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const DEFAULT_TENANT_ID = process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID || "the-gadget-master-gh";
 
 export default function StorefrontLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("customer@example.gh");
-  const [password, setPassword] = useState("GadgetMaster2026!");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [focusedField, setFocusedField] = useState<"email" | "password" | "other" | null>(null);
+  const [authStatus, setAuthStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
-    setLoading(true);
+    setAuthStatus("submitting");
 
     try {
       const res = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -39,25 +41,34 @@ export default function StorefrontLoginPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Authentication failed. Please check your email and password.");
+        throw new Error(data.error || "Authentication failed. Please verify your credentials.");
       }
+
+      setAuthStatus("success");
 
       if (typeof window !== "undefined") {
         localStorage.setItem("gcp_customer_token", data.accessToken);
         localStorage.setItem("gcp_customer_user", JSON.stringify(data.user));
       }
 
-      router.push("/");
+      setTimeout(() => {
+        router.push("/");
+      }, 700);
     } catch (err: any) {
-      setErrorMessage(err.message || "Unable to sign in. Please try again.");
-    } finally {
-      setLoading(false);
+      setAuthStatus("error");
+      setErrorMessage(err.message || "Unable to sign in. Please verify your details.");
     }
+  };
+
+  const handleDevAutofill = () => {
+    setEmail("customer@example.gh");
+    setPassword("GadgetMaster2026!");
+    setErrorMessage(null);
   };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F17] text-slate-900 dark:text-slate-100 flex flex-col justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
-      {/* Return to Storefront Header Link */}
+      {/* Return to Storefront Header Link & Theme Selector */}
       <div className="max-w-6xl w-full mx-auto mb-4 flex items-center justify-between">
         <Link
           href="/"
@@ -65,16 +76,26 @@ export default function StorefrontLoginPage() {
         >
           &larr; Return to Storefront
         </Link>
-        <span className="text-xs font-mono text-slate-400">East Legon Customer Portal</span>
+
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-mono text-slate-400 hidden sm:inline">
+            East Legon Customer Portal
+          </span>
+          <UniversalThemeSelector />
+        </div>
       </div>
 
       <div className="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-        {/* Left Side: Intact 3D Rotating Product Visual (NO Dissection) */}
+        {/* Left Side: Interactive 3D Animated Character */}
         <div className="lg:col-span-7 order-2 lg:order-1 rounded-3xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 shadow-card dark:shadow-cardDark overflow-hidden">
-          <LoginRotatingProductVisual
-            modelName="iPhone 16 Pro Max • Titanium Showcase"
-            className="h-[420px] sm:h-[480px] lg:h-[560px]"
-            accentColor="#FF8A00"
+          <LoginAnimatedCharacter
+            variant="customer"
+            focusedField={focusedField}
+            isPasswordRevealed={showPassword}
+            authStatus={authStatus}
+            tenantName="The Gadget Master"
+            tenantColor="#FF8A00"
+            className="h-[460px] lg:h-[580px]"
           />
         </div>
 
@@ -89,7 +110,7 @@ export default function StorefrontLoginPage() {
               Customer Sign In
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1.5">
-              Access verified order history, live delivery status, and warranty claims.
+              Access your order history, delivery status, and warranty records.
             </p>
           </div>
 
@@ -125,7 +146,9 @@ export default function StorefrontLoginPage() {
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="customer@example.gh"
+                  onFocus={() => setFocusedField("email")}
+                  onBlur={() => setFocusedField(null)}
+                  placeholder="your.email@example.com"
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF8A00] focus:border-transparent transition-all"
                 />
               </div>
@@ -139,7 +162,7 @@ export default function StorefrontLoginPage() {
                 >
                   Password
                 </label>
-                <span className="text-[11px] text-slate-400">Bcrypt Protected</span>
+                <span className="text-[11px] text-slate-400">Secure Authentication</span>
               </div>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -152,6 +175,8 @@ export default function StorefrontLoginPage() {
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onFocus={() => setFocusedField("password")}
+                  onBlur={() => setFocusedField(null)}
                   placeholder="••••••••••••"
                   className="w-full pl-10 pr-11 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF8A00] focus:border-transparent transition-all font-mono"
                 />
@@ -168,10 +193,10 @@ export default function StorefrontLoginPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={authStatus === "submitting"}
               className="w-full mt-2 py-3 px-4 rounded-xl font-bold text-sm bg-[#FF8A00] hover:bg-[#EA580C] text-white shadow-md hover:shadow-orangeGlow transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {loading ? (
+              {authStatus === "submitting" ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   <span>Signing In...</span>
@@ -185,13 +210,19 @@ export default function StorefrontLoginPage() {
             </button>
           </form>
 
-          {/* Quick Credential Hint */}
-          <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800/80 text-[11px] text-slate-500">
-            <span className="font-semibold text-slate-700 dark:text-slate-300">Demo Customer Account:</span>
-            <div className="mt-1 font-mono text-slate-600 dark:text-slate-400">
-              customer@example.gh / GadgetMaster2026!
+          {/* Development Helper Boundary */}
+          {process.env.NODE_ENV !== "production" && (
+            <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 text-[11px] flex items-center justify-between text-slate-400">
+              <span>Local Dev Sandbox</span>
+              <button
+                type="button"
+                onClick={handleDevAutofill}
+                className="underline hover:text-[#FF8A00]"
+              >
+                Fill Test Credentials
+              </button>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

@@ -64,21 +64,31 @@ export class PaystackPaymentProvider {
             accessCode: data.data.access_code,
             reference: data.data.reference || reference,
           };
+        } else {
+          // Gateway returned error response
+          if (!this.isTestMode || process.env.NODE_ENV === "production" || !this.secretKey.includes("mock")) {
+            throw new Error(`Paystack transaction initialization failed: ${data.message || "Gateway rejected request"}`);
+          }
         }
-      } catch (err) {
-        console.warn("Paystack live API unreachable, falling back to sandbox descriptor:", err);
+      } catch (err: any) {
+        if (!this.isTestMode || process.env.NODE_ENV === "production" || !this.secretKey.includes("mock")) {
+          throw new Error(`Paystack API error: ${err.message || "Unreachable payment gateway"}`);
+        }
+        console.warn("Paystack test key offline, utilizing test double for unit verification:", err.message);
       }
     }
 
-    // Explicit sandbox initialization
-    const accessCode = `acc_${Math.random().toString(36).substring(2, 12)}`;
-    const authorizationUrl = `https://checkout.paystack.com/${accessCode}?reference=${reference}&amount=${amountInSubunits}&currency=${order.currency || "GHS"}`;
+    // Only allow mock descriptor when running strictly in test environment with mock keys
+    if (process.env.NODE_ENV === "test" || this.secretKey.includes("mock")) {
+      const accessCode = `acc_test_${Math.random().toString(36).substring(2, 10)}`;
+      return {
+        authorizationUrl: `https://checkout.paystack.com/${accessCode}?reference=${reference}&amount=${amountInSubunits}&currency=${order.currency || "GHS"}`,
+        accessCode,
+        reference,
+      };
+    }
 
-    return {
-      authorizationUrl,
-      accessCode,
-      reference,
-    };
+    throw new Error("Paystack transaction initialization failed: Missing or invalid API credentials.");
   }
 
   /**
