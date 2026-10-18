@@ -5,3 +5,4 @@ export * from "./LoginPhoneDissectionVisual.js";
 export * from "./LoginRotatingProductVisual.js";
 export * from "./LoginAnimatedCharacter.js";
 export * from "./SonyHeadphonesInteractiveViewer.js";
+export * from "./RiggedCharacterPipeline.js";
