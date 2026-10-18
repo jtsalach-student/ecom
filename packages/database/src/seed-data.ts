@@ -153,6 +153,19 @@ export const SEED_USERS: User[] = [
     createdAt: new Date("2026-01-01T00:00:00Z"),
     updatedAt: new Date("2026-01-01T00:00:00Z"),
   },
+  {
+    id: "usr-platform-admin",
+    tenantId: null,
+    email: "superadmin@gadgetcommerce.io",
+    fullName: "Platform Super Admin",
+    phone: "+233 20 000 0000",
+    role: "PLATFORM_SUPER_ADMIN",
+    branchId: null,
+    isActive: true,
+    mfaEnabled: true,
+    createdAt: new Date("2026-01-01T00:00:00Z"),
+    updatedAt: new Date("2026-01-01T00:00:00Z"),
+  },
 ];
 
 export const SEED_ANIMATION_PACKAGE_IPHONE16: AnimationPackage = {

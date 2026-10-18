@@ -25,26 +25,20 @@ export function WarrantyLookupModal({ isOpen, onClose }: WarrantyLookupModalProp
     setResult(null);
 
     try {
-      const res = await fetch(`http://localhost:4000/aftersales/warranties/${encodeURIComponent(serial.trim())}`);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+      const tenantId = process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID || "the-gadget-master-gh";
+      const res = await fetch(`${apiUrl}/aftersales/warranties/${encodeURIComponent(serial.trim())}`, {
+        headers: {
+          "x-tenant-id": tenantId,
+        },
+      });
       if (!res.ok) {
         throw new Error("No active warranty record found for this serial/IMEI.");
       }
       const data = await res.json();
       setResult(data);
     } catch (err: any) {
-      // Local fallback lookup for seed device
-      if (serial.trim().toUpperCase() === "H8G92P1Q89") {
-        setResult({
-          serialNumber: "H8G92P1Q89",
-          customerName: "Kwame Mensah",
-          startDate: "2026-02-01",
-          endDate: "2027-02-01",
-          status: "ACTIVE",
-          warrantyTerms: "12-Month Official Apple Authorized Warranty covering hardware defects and battery replacement.",
-        });
-      } else {
-        setError(err.message || "Device serial not found in our database");
-      }
+      setError(err.message || "Device serial not found in our database");
     } finally {
       setIsLoading(false);
     }

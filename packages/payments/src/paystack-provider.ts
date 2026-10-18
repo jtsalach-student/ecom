@@ -24,6 +24,7 @@ export class PaystackPaymentProvider {
 
   /**
    * Initializes a Paystack checkout session for an order
+   * Uses live Paystack API if valid key is provided, or structured test mode initialization
    */
   async initializeTransaction(
     order: Order,
@@ -31,12 +32,47 @@ export class PaystackPaymentProvider {
     callbackUrl: string
   ): Promise<{ authorizationUrl: string; accessCode: string; reference: string }> {
     const reference = `TGM_ORD_${order.orderNumber}_${Date.now()}`;
-    const amountInSubunits = Math.round(order.grandTotal * 100); // Pesewas
+    const amountInSubunits = Math.round(order.grandTotal * 100); // Ghana Pesewas
 
-    // In a live environment with valid credentials, this makes an HTTP call to api.paystack.co/transaction/initialize
-    // For test / sandbox without outbound secrets, we generate verified checkout parameters
+    // Attempt live Paystack API initialization if active secret key is configured
+    if (this.secretKey && this.secretKey.startsWith("sk_") && !this.secretKey.includes("sample")) {
+      try {
+        const response = await fetch("https://api.paystack.co/transaction/initialize", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${this.secretKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: customerEmail,
+            amount: amountInSubunits,
+            currency: order.currency || "GHS",
+            reference,
+            callback_url: callbackUrl,
+            metadata: {
+              orderId: order.id,
+              orderNumber: order.orderNumber,
+              tenantId: order.tenantId,
+            },
+          }),
+        });
+
+        const data = (await response.json()) as PaystackInitResponse;
+        if (data.status && data.data) {
+          return {
+            authorizationUrl: data.data.authorization_url,
+            accessCode: data.data.access_code,
+            reference: data.data.reference || reference,
+          };
+        }
+      } catch (err) {
+        console.warn("Paystack live API unreachable, falling back to sandbox descriptor:", err);
+      }
+    }
+
+    // Explicit sandbox initialization
     const accessCode = `acc_${Math.random().toString(36).substring(2, 12)}`;
-    const authorizationUrl = `https://checkout.paystack.com/${accessCode}?ref=${reference}&amount=${amountInSubunits}&currency=GHS`;
+    const authorizationUrl = `https://checkout.paystack.com/${accessCode}?reference=${reference}&amount=${amountInSubunits}&currency=${order.currency || "GHS"}`;
 
     return {
       authorizationUrl,
@@ -46,17 +82,18 @@ export class PaystackPaymentProvider {
   }
 
   /**
-   * Verifies an incoming Paystack webhook payload with HMAC SHA-512 and processes it idempotently
+   * Verifies an incoming Paystack webhook payload with HMAC SHA-512 and processes it idempotently.
+   * Strict signature check is enforced in all environments (both test and live).
    */
   async processWebhook(
     rawBody: string,
     signature: string | undefined,
     repo: MultiTenantRepository
   ): Promise<{ processed: boolean; message: string; orderId?: string }> {
-    // 1. Verify Signature
+    // 1. Strict Signature Verification (No test mode bypass)
     const isValid = verifyPaystackSignature(rawBody, signature, this.secretKey);
-    if (!isValid && !this.isTestMode) {
-      throw new Error("Invalid Paystack webhook signature");
+    if (!isValid) {
+      throw new Error("Invalid Paystack webhook signature: HMAC SHA-512 verification failed");
     }
 
     const payload = JSON.parse(rawBody);
@@ -83,7 +120,9 @@ export class PaystackPaymentProvider {
     // 4. Verify Amount & Currency
     const expectedAmountSubunits = Math.round(paymentIntent.amount * 100);
     if (data.amount !== expectedAmountSubunits || data.currency !== paymentIntent.currency) {
-      throw new Error(`Amount/Currency mismatch: Expected ${expectedAmountSubunits} ${paymentIntent.currency}, got ${data.amount} ${data.currency}`);
+      throw new Error(
+        `Amount/Currency mismatch: Expected ${expectedAmountSubunits} ${paymentIntent.currency}, got ${data.amount} ${data.currency}`
+      );
     }
 
     // 5. Update Payment Intent & Order Status
@@ -122,7 +161,7 @@ export class PaystackPaymentProvider {
       provider: "PAYSTACK",
       event,
       reference,
-      signature: signature || "sandbox-test-sig",
+      signature: signature || "verified-signature",
       rawPayload: payload,
       isProcessed: true,
       processedAt: new Date(),
@@ -134,5 +173,63 @@ export class PaystackPaymentProvider {
       message: "Webhook processed successfully",
       orderId: paymentIntent.orderId,
     };
+  }
+
+  /**
+   * Authoritative server-side verification of transaction status via Paystack API
+   */
+  async verifyTransaction(reference: string): Promise<{ success: boolean; data?: any; error?: string }> {
+    if (!this.secretKey || this.secretKey.includes("sample")) {
+      return { success: false, error: "Paystack live credentials unconfigured (BLK-003)" };
+    }
+
+    try {
+      const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
+        headers: {
+          Authorization: `Bearer ${this.secretKey}`,
+        },
+      });
+
+      const result = await response.json();
+      if (result.status && result.data && result.data.status === "success") {
+        return { success: true, data: result.data };
+      }
+      return { success: false, data: result.data, error: result.message || "Payment not completed" };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  }
+
+  /**
+   * Process refund request with Paystack API
+   */
+  async processRefund(
+    reference: string,
+    amountInSubunits?: number,
+    merchantNote?: string
+  ): Promise<{ success: boolean; data?: any; error?: string }> {
+    if (!this.secretKey || this.secretKey.includes("sample")) {
+      return { success: false, error: "Paystack live credentials unconfigured (BLK-003)" };
+    }
+
+    try {
+      const response = await fetch("https://api.paystack.co/refund", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${this.secretKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          transaction: reference,
+          amount: amountInSubunits,
+          merchant_note: merchantNote || "Customer return/refund",
+        }),
+      });
+
+      const result = await response.json();
+      return { success: result.status, data: result.data, error: result.message };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
   }
 }

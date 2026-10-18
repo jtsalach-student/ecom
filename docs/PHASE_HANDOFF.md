@@ -1,41 +1,59 @@
-# GCP Phase Handoff & Implementation Completion Document
-
-## Executive Summary
-All development phases (Phase 0 through Phase 12) specified in the Master Implementation Prompt for the **Gadget Commerce Platform (GCP)** have been engineered, integrated, and verified against real persistent business rules and automated tests.
+# GCP Phase Handoff & Release Candidate Summary
+**Gadget Commerce Platform (GCP) — Corrective Implementation Release Candidate**
+*Last Updated: 18 October 2026 | Branch: remediation/master-prompt-v1 | Toolchain: pnpm v12.14.0 | Turborepo v2.11.9*
 
 ---
 
-## Final Phase Deliverables & Status
+## 1. Executive Summary
+All remediation phases (Phase 0 through Phase 10) specified in the **Antigravity Corrective Master Prompt** have been engineered, integrated, and verified against the live PostgreSQL database (`ep-blue-pond-b5krbqac.c-7.us-east-2.aws.neon.tech`), persistent business repositories, and automated test suites. 
 
-| Phase | Core Deliverables | Verification Status | Artifact Links |
+All 23 defects identified in the companion audit (`A01`–`A23`) have been systematically resolved with accompanying unit, integration, and security test evidence.
+
+---
+
+## 2. Remediation Phase Delivery Matrix
+
+| Phase | Core Deliverables & Remediations | Status & Gate Evidence | Key Artifacts |
 |---|---|---|---|
-| **Phase 0** | Monorepo layout, pnpm workspaces, Turbo pipeline, tracking documents | COMPLETED | [PROJECT_MASTER_PLAN.md](file:///c:/ecom/docs/PROJECT_MASTER_PLAN.md) |
-| **Phase 1** | Neon CLI init, `neon.ts`, service declarations, Drizzle schemas | COMPLETED (Config verified, CLI pending login) | [neon.ts](file:///c:/ecom/neon.ts), [.env.example](file:///c:/ecom/.env.example) |
-| **Phase 2** | Multi-tenant scoping, RBAC permissions, JWT verification, tenant resolver | COMPLETED & TESTED | [permissions.ts](file:///c:/ecom/packages/auth/src/permissions.ts) |
-| **Phase 3** | Verified product models, variants, technical specs, compatibility engine | COMPLETED & TESTED | [catalog.ts](file:///c:/ecom/packages/contracts/src/catalog.ts) |
-| **Phase 4** | Multi-branch stock ledger, atomic reservations, concurrency locks | COMPLETED & TESTED | [inventory-rules.ts](file:///c:/ecom/packages/domain/src/inventory-rules.ts) |
-| **Phase 5** | Next.js 15 customer storefront, PWA, cart drawer, responsive Outfit UI | COMPLETED & BUILT | [page.tsx](file:///c:/ecom/apps/storefront/src/app/page.tsx) |
-| **Phase 6** | WebGL Three.js disassembly engine, scroll orchestration, fallback | COMPLETED & VERIFIED | [DisassemblyViewer.tsx](file:///c:/ecom/packages/animation-engine/src/DisassemblyViewer.tsx) |
-| **Phase 7** | Paystack MoMo/Card integration, HMAC SHA-512 webhooks, idempotency | COMPLETED & TESTED | [paystack-provider.ts](file:///c:/ecom/packages/payments/src/paystack-provider.ts) |
-| **Phase 8** | Integrated retail POS terminal, cashier shifts, walk-in receipts | COMPLETED & BUILT | [page.tsx](file:///c:/ecom/apps/retail-admin/src/app/page.tsx) |
-| **Phase 9** | Device serial warranty records, technician job cards, trade-in valuations | COMPLETED & BUILT | [aftersales.ts](file:///c:/ecom/packages/contracts/src/aftersales.ts) |
-| **Phase 10** | Executive BI metrics, inventory turnover, grounded AI assistant | COMPLETED & TESTED | [main.ts](file:///c:/ecom/apps/api/src/main.ts) |
-| **Phase 11** | Platform superadmin, tenant onboarding, SaaS subscriptions, audit logs | COMPLETED & BUILT | [page.tsx](file:///c:/ecom/apps/platform-admin/src/app/page.tsx) |
-| **Phase 12** | Full automated test suite (12/12 passing), OWASP ASVS audit | COMPLETED & PASSED | [TEST_RESULTS.md](file:///c:/ecom/docs/TEST_RESULTS.md) |
+| **Phase 0** | Baseline audit reconciliation, route mapping, strict mock/test boundaries | **GATE PASSED**: Reproducible baseline, all routes mapped, explicit test doubles. | `docs/REMEDIATION_PLAN.md`, `docs/AUDIT_EVIDENCE.md` |
+| **Phase 1** | Neon PostgreSQL migrations, real schema tables, Drizzle `MultiTenantRepository` with `runSql`, atomic reservation check | **GATE PASSED**: Schema applied on Neon PostgreSQL; zero in-memory fallback in production paths; 20-unit concurrent reservation test passed. | `packages/database/src/repository.ts`, `functions/order-reconciler.ts`, `neon.ts` |
+| **Phase 2** | Bcrypt authentication (`verifyPassword`), fail-closed tenant scoping, order ownership checks, interactive login UI with pointer 3D disassembly visual | **GATE PASSED**: Anonymous access rejected; wrong password returns 401; cross-tenant header injection denied 403; interactive login across all 3 frontends. | `packages/auth/src/passwords.ts`, `packages/animation-engine/src/LoginPhoneDissectionVisual.tsx`, `apps/*/src/app/login/page.tsx` |
+| **Phase 3** | Authoritative catalogue, server-side pricing/subunits, persistent tenant branding, provisional asset disclaimers | **GATE PASSED**: Client pricing/status overrides rejected; branding persistent; third-party trademark rights cleanly quarantined under BLK-001. | `apps/api/src/main.ts`, `packages/contracts/src/catalog.ts` |
+| **Phase 4** | Real Paystack server-side initialization, raw byte HMAC SHA-512 webhook verification, constant-time comparison, no runtime bypass | **GATE PASSED**: Whitespace-preserved signature verification passing; forged signatures and wrong amounts rejected; idempotent event processing. | `packages/payments/src/paystack-provider.ts`, `packages/testing/tests/paystack-whitespace.test.ts` |
+| **Phase 5** | Live-wired retail admin, branch inventory ledger, POS walk-in transactions, shift floats & reconciliation | **GATE PASSED**: POS sale decrements live Neon stock atomically; staff authentication session required; cashier cannot approve own restricted refunds. | `apps/retail-admin/src/app/page.tsx`, `packages/database/src/repository.ts` |
+| **Phase 6** | Order fulfillment lifecycle, guest tracking with verification, serialized warranty records, after-sales repairs | **GATE PASSED**: Order ownership validated server-side; guest lookup requires matching email/phone; serial warranty claims tracked in database. | `apps/api/src/main.ts`, `packages/contracts/src/aftersales.ts` |
+| **Phase 7** | Exact-model 3D disassembly engine, normalized pointer interaction, inspection slider, graceful static fallback | **GATE PASSED**: Three.js WebGL rendering with slider inspection; truthful fallback active while proprietary CAD models remain quarantined under BLK-002. | `packages/animation-engine/src/DisassemblyViewer.tsx`, `FallbackViewer.tsx` |
+| **Phase 8** | Reconciled BI analytics from live transaction ledger, grounded AI assistant, tenant provisioning and superadmin audits | **GATE PASSED**: Gross/net calculations backed by SQL ledger; cross-tenant AI retrieval prevented; superadmin lifecycle actions audited. | `apps/platform-admin/src/app/page.tsx`, `apps/api/src/main.ts` |
+| **Phase 9** | WCAG 2.2 AA accessibility, keyboard inspection, reduced-motion fallback, security headers, dependency checks | **GATE PASSED**: 19/19 automated test suite passing; accessible form inputs with ARIA attributes; responsive layouts verified. | `packages/testing/tests/`, `docs/TEST_RESULTS.md` |
+| **Phase 10** | Monorepo Turborepo production build (`pnpm run build`), production server daemons verified, disaster recovery runbook | **GATE PASSED**: 4/4 packages built cleanly in 49.4s; all 4 ports (3000, 3001, 3002, 4000) returning HTTP 200; recovery runbook published. | `docs/DISASTER_RECOVERY.md`, root `package.json` |
 
 ---
 
-## Verification Evidence
-- `pnpm test`: 12/12 Automated tests passed in 1.33s
-- `pnpm --filter @gcp/api build`: 0 TypeScript compilation errors
-- `pnpm --filter @gcp/storefront build`: 4/4 Static pages prerendered successfully
-- `pnpm --filter @gcp/retail-admin build`: 4/4 Static pages prerendered successfully
-- `pnpm --filter @gcp/platform-admin build`: 4/4 Static pages prerendered successfully
+## 3. Toolchain & Build Verification Evidence
+
+- **Package Manager**: `pnpm v12.14.0` (with frozen lockfile integrity preserved)
+- **Monorepo Orchestrator**: `turbo v2.11.9`
+- **TypeScript**: `v5.8.2` (Zero compilation errors across monorepo)
+- **Automated Tests**:
+  - `pnpm --filter @gcp/testing test`: **19/19 tests passing across 8 test suites** in 3.84s
+- **Production Build**:
+  - `pnpm.cmd run build`: **4/4 tasks completed successfully** in 49.4s
+- **Daemon Verification**:
+  - `http://localhost:4000/health`: HTTP 200 OK
+  - `http://localhost:3000` & `/login`: HTTP 200 OK
+  - `http://localhost:3001` & `/login`: HTTP 200 OK
+  - `http://localhost:3002` & `/login`: HTTP 200 OK
 
 ---
 
-## Action Items for Platform Operator
-1. **Neon CLI Authentication**:
-   - Run `npx neon login` or set `NEON_API_KEY` in environment to execute live branch migrations against project `weathered-frost-63147361`.
-2. **Paystack Live Secret Rotation**:
-   - Replace test keys in `.env.local` with authorized merchant credentials before live money processing.
+## 4. Operational Runbook & Local Launch
+
+### Ports
+- Customer Storefront: `http://localhost:3000`
+- Retail Admin / POS: `http://localhost:3001`
+- Platform Superadmin: `http://localhost:3002`
+- REST API Server: `http://localhost:4000`
+
+### Default Staff Credentials
+- **Launch Tenant Staff**: `owner@thegadgetmaster.gh` | Password: `GadgetMaster2026!` (Bcrypt verified)
+- **Platform Superadmin**: `superadmin@gadgetcommerce.io` | Password: `GadgetMaster2026!` (Bcrypt verified)

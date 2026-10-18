@@ -56,4 +56,38 @@ describe("Inventory Concurrency & Overselling Prevention", () => {
     expect(finalInv?.quantityReserved).toBe(1);
     expect(finalInv?.quantityAvailable).toBe(0);
   });
+
+  it("should ensure 20 simultaneous attempts at 1 unit yield exactly one committed allocation", async () => {
+    // Reset to 1 unit available
+    const invMap = (repo as any).branchInventories as Map<string, any>;
+    invMap.set(`${branchId}_${variantId}`, {
+      id: "inv-test-exclusive",
+      tenantId,
+      branchId,
+      variantId,
+      quantityOnHand: 1,
+      quantityReserved: 0,
+      quantityAvailable: 1,
+      reorderPoint: 1,
+      reorderQuantity: 5,
+      updatedAt: new Date(),
+    });
+
+    const attempts = Array.from({ length: 20 }, (_, idx) =>
+      repo.reserveStock(tenantId, branchId, variantId, 1, `ord-race-${idx}`)
+    );
+
+    const results = await Promise.all(attempts);
+
+    const successfulAttempts = results.filter((r) => r.success);
+    const failedAttempts = results.filter((r) => !r.success);
+
+    expect(successfulAttempts.length).toBe(1);
+    expect(failedAttempts.length).toBe(19);
+
+    const finalInv = await repo.getBranchInventory(tenantId, branchId, variantId);
+    expect(finalInv?.quantityOnHand).toBe(1);
+    expect(finalInv?.quantityReserved).toBe(1);
+    expect(finalInv?.quantityAvailable).toBe(0);
+  });
 });

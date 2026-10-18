@@ -5,7 +5,7 @@ export default defineConfig({
   auth: true,
   aiGateway: true,
   functions: {
-    hello: { name: "Hello World", source: "./hello.ts" },
+    orderReconciler: { name: "Order Reconciler", source: "./functions/order-reconciler.ts" },
   },
   buckets: {
     // "private" is the default; use "public_read" for anonymous reads

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { SEED_TENANT } from "@gcp/database";
 import {
   Globe,
@@ -14,38 +15,54 @@ import {
   ExternalLink,
   Users,
   Search,
+  LogOut,
+  ShieldAlert,
 } from "lucide-react";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
 export default function PlatformAdminPage() {
-  const [tenants, setTenants] = useState([
+  const router = useRouter();
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  // Auth Guard: Require authenticated superadmin token or redirect to /login
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("gcp_superadmin_token");
+      if (!token) {
+        router.push("/login");
+        return;
+      }
+      const saved = localStorage.getItem("gcp_superadmin_user");
+      if (saved) {
+        try {
+          setCurrentUser(JSON.parse(saved));
+        } catch (e) {}
+      }
+    }
+  }, [router]);
+
+  const [tenants, setTenants] = useState<any[]>([
     SEED_TENANT,
-    {
-      id: "ten-accra-elec",
-      name: "Accra Electronics Ltd",
-      slug: "accra-electronics",
-      primaryDomain: "accraelectronics.com.gh",
-      additionalDomains: [],
-      currency: "GHS",
-      locale: "en-GH",
-      timezone: "Africa/Accra",
-      taxRatePercent: 0,
-      subscriptionPlan: "growth" as const,
-      subscriptionStatus: "active" as const,
-      branding: {
-        primaryColor: "#0F172A",
-        accentColor: "#F59E0B",
-        secondaryColor: "#10B981",
-        fontFamily: "Inter, sans-serif",
-        heroTitle: "Premium Audio & Gaming",
-        heroSubtitle: "Accra's premier audio store.",
-        supportEmail: "info@accraelec.com",
-        supportPhone: "+233 20 123 4567",
-        socialLinks: {},
-      },
-      createdAt: new Date("2026-02-01"),
-      updatedAt: new Date("2026-02-01"),
-    },
   ]);
+
+  // Fetch real tenants from API
+  useEffect(() => {
+    const fetchTenants = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/tenants`);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setTenants(data);
+          }
+        }
+      } catch (err) {
+        console.warn("Unable to fetch tenants from API:", err);
+      }
+    };
+    fetchTenants();
+  }, []);
 
   const [auditLogs] = useState([
     {
@@ -137,6 +154,21 @@ export default function PlatformAdminPage() {
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span>All Services Operational</span>
           </div>
+
+          <button
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                localStorage.removeItem("gcp_superadmin_token");
+                localStorage.removeItem("gcp_superadmin_user");
+              }
+              router.push("/login");
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-950/40 border border-red-800/50 text-xs text-red-300 hover:text-white hover:bg-red-900/60 transition-colors ml-2"
+            title="Sign out of Superadmin"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Sign Out</span>
+          </button>
         </div>
       </header>
 

@@ -18,19 +18,21 @@ export async function resolveTenantContext(
   // 1. Explicit Header
   if (options.tenantHeader) {
     const tenant = await repo.getTenant(options.tenantHeader);
-    if (tenant) {
-      assertTenantActive(tenant);
-      return { tenant, tenantId: tenant.id };
+    if (!tenant) {
+      throw new Error(`Tenant '${options.tenantHeader}' not found.`);
     }
+    assertTenantActive(tenant);
+    return { tenant, tenantId: tenant.id };
   }
 
   // 2. Query parameter (e.g. for preview or API tests)
   if (options.tenantQuery) {
     const tenant = await repo.getTenant(options.tenantQuery);
-    if (tenant) {
-      assertTenantActive(tenant);
-      return { tenant, tenantId: tenant.id };
+    if (!tenant) {
+      throw new Error(`Tenant '${options.tenantQuery}' not found.`);
     }
+    assertTenantActive(tenant);
+    return { tenant, tenantId: tenant.id };
   }
 
   // 3. Domain lookup

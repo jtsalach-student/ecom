@@ -38,9 +38,14 @@ export function AiAssistantModal({ isOpen, onClose }: AiAssistantModalProps) {
     setIsLoading(true);
 
     try {
-      const res = await fetch("http://localhost:4000/ai/query", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+      const tenantId = process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID || "the-gadget-master-gh";
+      const res = await fetch(`${apiUrl}/ai/query`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-tenant-id": tenantId,
+        },
         body: JSON.stringify({ question: userText }),
       });
 

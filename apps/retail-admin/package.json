@@ -12,6 +12,7 @@
     "@gcp/contracts": "workspace:*",
     "@gcp/domain": "workspace:*",
     "@gcp/database": "workspace:*",
+    "@gcp/animation-engine": "workspace:*",
     "@gcp/ui": "workspace:*",
     "next": "^15.2.0",
     "react": "^19.0.0",

@@ -47,13 +47,16 @@ export function CartDrawer() {
 
     setIsSubmitting(true);
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+      const tenantId = process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID || "the-gadget-master-gh";
+
       const orderPayload = {
         customerName: recipientName,
         customerEmail: `${recipientPhone.replace(/\D/g, "")}@customer.thegadgetmaster.gh`,
         customerPhone: recipientPhone,
         channel: "STOREFRONT",
-        branchId: "branch-accra-flagship",
-        status: "PAID", // Test mode auto-confirm
+        branchId: "branch-east-legon-flagship",
+        status: "PENDING_PAYMENT",
         subtotal: pricing.subtotal,
         discountTotal: pricing.discountTotal,
         taxTotal: pricing.taxTotal,
@@ -83,9 +86,12 @@ export function CartDrawer() {
         })),
       };
 
-      const res = await fetch("http://localhost:4000/orders", {
+      const res = await fetch(`${apiUrl}/orders`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-tenant-id": tenantId,
+        },
         body: JSON.stringify(orderPayload),
       });
 
@@ -95,7 +101,29 @@ export function CartDrawer() {
       }
 
       const orderData = await res.json();
-      setCompletedOrder(orderData);
+
+      // Initialize Paystack Payment Intent
+      let payData: any = null;
+      try {
+        const payRes = await fetch(`${apiUrl}/payments/initialize`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-tenant-id": tenantId,
+          },
+          body: JSON.stringify({
+            orderId: orderData.id,
+            callbackUrl: typeof window !== "undefined" ? `${window.location.origin}/order-confirmed` : undefined,
+          }),
+        });
+        if (payRes.ok) {
+          payData = await payRes.json();
+        }
+      } catch (e) {
+        console.warn("Payment initialization offline/pending:", e);
+      }
+
+      setCompletedOrder({ ...orderData, paymentIntent: payData });
       clearCart();
     } catch (err: any) {
       alert(`Checkout Error: ${err.message}`);

@@ -9,6 +9,7 @@ import {
   resolveTenantContext,
   issueAccessToken,
   verifyAccessToken,
+  verifyPassword,
   hasPermission,
   Permission,
 } from "@gcp/auth";
@@ -28,7 +29,14 @@ const app = express();
 const port = process.env.PORT_API ? parseInt(process.env.PORT_API) : 4000;
 
 app.use(cors({ origin: true, credentials: true }));
-app.use(express.json({ limit: "10mb" }));
+app.use(
+  express.json({
+    limit: "10mb",
+    verify: (req, _res, buf) => {
+      (req as any).rawBody = buf;
+    },
+  })
+);
 
 // --- Tenant Middleware ---
 async function tenantMiddleware(req: Request, res: Response, next: NextFunction) {
@@ -42,6 +50,28 @@ async function tenantMiddleware(req: Request, res: Response, next: NextFunction)
       tenantHeader,
       tenantQuery,
     });
+
+    // Check if token is present to validate tenant boundary (A02)
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      try {
+        const token = authHeader.substring(7);
+        const user = verifyAccessToken(token);
+        (req as any).user = user;
+        // If user is not platform super admin, token tenant must match resolved tenant!
+        if (
+          user.role !== "PLATFORM_SUPER_ADMIN" &&
+          user.tenantId &&
+          user.tenantId !== context.tenantId
+        ) {
+          return res.status(403).json({
+            error: `Cross-tenant access denied: Token belongs to tenant '${user.tenantId}', but request targets '${context.tenantId}'`,
+          });
+        }
+      } catch (err: any) {
+        // Handled by authGuard if endpoint is protected
+      }
+    }
 
     (req as any).tenant = context.tenant;
     (req as any).tenantId = context.tenantId;
@@ -63,6 +93,19 @@ function authGuard(requiredPermission?: string) {
     try {
       const user = verifyAccessToken(token);
       (req as any).user = user;
+
+      // Cross-tenant check against resolved tenant (A02)
+      const resolvedTenantId = (req as any).tenantId;
+      if (
+        resolvedTenantId &&
+        user.role !== "PLATFORM_SUPER_ADMIN" &&
+        user.tenantId &&
+        user.tenantId !== resolvedTenantId
+      ) {
+        return res.status(403).json({
+          error: `Cross-tenant access denied: User belongs to '${user.tenantId}', attempted access to '${resolvedTenantId}'`,
+        });
+      }
 
       if (requiredPermission) {
         if (!hasPermission(user.role, requiredPermission as any)) {
@@ -119,16 +162,25 @@ app.patch("/tenants/:id/branding", tenantMiddleware, authGuard(Permission.MANAGE
 app.post("/auth/login", async (req, res) => {
   try {
     const parsed = LoginRequestSchema.parse(req.body);
-    const user = await repo.findUserByEmail(parsed.email, parsed.tenantId);
+    const userCredentials = await repo.findUserWithPasswordByEmail(parsed.email, parsed.tenantId);
 
-    if (!user) {
-      return res.status(401).json({ error: "Invalid credentials" });
+    if (!userCredentials) {
+      return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    const token = issueAccessToken(user);
+    const isMatch = await verifyPassword(parsed.password, userCredentials.passwordHash);
+    if (!isMatch) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    if (!userCredentials.user.isActive) {
+      return res.status(401).json({ error: "Account is disabled. Please contact administrator." });
+    }
+
+    const token = issueAccessToken(userCredentials.user);
     res.json({
       accessToken: token,
-      user,
+      user: userCredentials.user,
       expiresIn: 86400,
     });
   } catch (err: any) {
@@ -227,45 +279,101 @@ app.post("/orders/calculate-pricing", tenantMiddleware, (req, res) => {
 app.post("/orders", tenantMiddleware, async (req, res) => {
   try {
     const tenantId = (req as any).tenantId;
+    const tenant = (req as any).tenant;
     const orderId = `ord-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
 
-    const items = (req.body.items || []).map((it: any, idx: number) => ({
-      id: it.id || `item-${Date.now()}-${idx}`,
-      orderId,
-      variantId: it.variantId,
-      productId: it.productId || "prod-iphone-16-pro-max",
-      name: it.name,
-      sku: it.sku || `SKU-${idx}`,
-      unitPrice: it.unitPrice,
-      quantity: it.quantity || 1,
-      totalPrice: it.totalPrice || (it.unitPrice * (it.quantity || 1)),
-      discountAmount: it.discountAmount || 0,
-      serialNumbers: it.serialNumbers || [],
-    }));
+    // 1. Validate items and compute authoritative prices from catalogue (A04)
+    const rawItems = req.body.items || [];
+    if (!Array.isArray(rawItems) || rawItems.length === 0) {
+      return res.status(400).json({ error: "Order must contain at least one item" });
+    }
 
-    const deliveryDetails = req.body.deliveryDetails || {
-      deliveryMethod: req.body.deliveryMethod === "BRANCH_PICKUP" ? "BRANCH_PICKUP" : "STANDARD_DELIVERY",
+    const authoritativeItems: any[] = [];
+    let calculatedSubtotal = 0;
+
+    for (let idx = 0; idx < rawItems.length; idx++) {
+      const raw = rawItems[idx];
+      const quantity = Math.max(1, Math.floor(Number(raw.quantity) || 1));
+
+      // Look up product and variant
+      const product = await repo.getProduct(tenantId, raw.productId || "");
+      if (!product) {
+        return res.status(400).json({
+          error: `Product '${raw.productId}' not found in catalogue for tenant '${tenantId}'`,
+        });
+      }
+
+      const variant = product.variants.find((v) => v.id === raw.variantId);
+      if (!variant) {
+        return res.status(400).json({
+          error: `Variant '${raw.variantId}' not found on product '${product.name}'`,
+        });
+      }
+
+      const unitPrice = variant.retailPrice; // Authoritative price from catalogue
+      const totalPrice = unitPrice * quantity;
+      calculatedSubtotal += totalPrice;
+
+      authoritativeItems.push({
+        id: `item-${Date.now()}-${idx}`,
+        orderId,
+        variantId: variant.id,
+        productId: product.id,
+        name: `${product.name} (${variant.name})`,
+        sku: variant.sku,
+        unitPrice,
+        quantity,
+        totalPrice,
+        discountAmount: 0,
+        serialNumbers: [],
+      });
+    }
+
+    // 2. Authoritative Delivery Fee and Tax calculation
+    const isPickup = req.body.deliveryMethod === "BRANCH_PICKUP";
+    const deliveryFee = isPickup ? 0 : 50; // Standard delivery fee in GHS
+    const taxRatePercent = tenant.taxRatePercent || 0;
+    const taxTotal = Math.round(calculatedSubtotal * (taxRatePercent / 100) * 100) / 100;
+    const grandTotal = calculatedSubtotal + deliveryFee + taxTotal;
+
+    const deliveryDetails = {
+      deliveryMethod: isPickup ? "BRANCH_PICKUP" : "STANDARD_DELIVERY",
       recipientName: req.body.shippingAddress?.recipientName || req.body.customerName || "Customer",
-      recipientPhone: req.body.shippingAddress?.phone || req.body.customerPhone || "+233000000000",
+      recipientPhone: req.body.shippingAddress?.phone || req.body.customerPhone || "+233244776621",
       deliveryAddress: req.body.shippingAddress?.addressLine1 || "Accra",
       city: req.body.shippingAddress?.city || "Accra",
       region: req.body.shippingAddress?.region || "Greater Accra",
     };
 
-    const body = {
-      ...req.body,
-      tenantId,
+    const orderData = {
       id: orderId,
-      orderNumber: req.body.orderNumber || `ORD-${Math.floor(100000 + Math.random() * 900000)}`,
-      items,
+      tenantId,
+      orderNumber: `ORD-${Math.floor(100000 + Math.random() * 900000)}`,
+      customerId: req.body.customerId || null,
+      customerEmail: req.body.customerEmail || "customer@example.gh",
+      customerName: req.body.customerName || "Valued Customer",
+      customerPhone: req.body.customerPhone || "+233244776621",
+      channel: (req.body.channel || "STOREFRONT") as any,
+      branchId: req.body.branchId || "branch-east-legon-flagship",
+      status: "PENDING_PAYMENT" as const, // Forced initial status, reject any client PAID override!
+      subtotal: calculatedSubtotal,
+      discountTotal: 0,
+      taxTotal,
+      deliveryFee,
+      grandTotal,
+      currency: tenant.currency || "GHS",
+      notes: req.body.notes || undefined,
       deliveryDetails,
+      items: authoritativeItems,
+      reservationExpiresAt: new Date(Date.now() + 30 * 60 * 1000), // 30 min reservation window
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
-    const parsedOrder = OrderSchema.parse(body);
+    const parsedOrder = OrderSchema.parse(orderData);
 
-    // Reserve stock for items
+    // 3. Atomic multi-item stock reservation with rollback on failure
+    const reservedItems: { branchId: string; variantId: string; quantity: number }[] = [];
     if (parsedOrder.branchId) {
       for (const item of parsedOrder.items) {
         const reserveResult = await repo.reserveStock(
@@ -276,10 +384,25 @@ app.post("/orders", tenantMiddleware, async (req, res) => {
           parsedOrder.id
         );
         if (!reserveResult.success) {
+          // Rollback any items reserved so far
+          for (const rollbackItem of reservedItems) {
+            await repo.releaseStockReservation(
+              tenantId,
+              rollbackItem.branchId,
+              rollbackItem.variantId,
+              rollbackItem.quantity,
+              parsedOrder.id
+            );
+          }
           return res.status(409).json({
             error: `Unable to reserve stock for ${item.name}. Remaining available: ${reserveResult.remainingAvailable}`,
           });
         }
+        reservedItems.push({
+          branchId: parsedOrder.branchId,
+          variantId: item.variantId,
+          quantity: item.quantity,
+        });
       }
     }
 
@@ -294,10 +417,42 @@ app.get("/orders/:idOrNumber", tenantMiddleware, async (req, res) => {
   const tenantId = (req as any).tenantId;
   const order = await repo.getOrder(tenantId, req.params.idOrNumber as string);
   if (!order) return res.status(404).json({ error: "Order not found" });
-  res.json(order);
+
+  // Order ownership protection (A03)
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    try {
+      const user = verifyAccessToken(authHeader.substring(7));
+      const isStaff = hasPermission(user.role, Permission.VIEW_ORDERS);
+      const isOwner =
+        user.sub === order.customerId ||
+        user.email.toLowerCase() === order.customerEmail.toLowerCase();
+      if (isStaff || isOwner) {
+        return res.json(order);
+      }
+      return res.status(403).json({ error: "Forbidden: You do not have access to view this order" });
+    } catch (err) {
+      // Invalid token falls through to guest verification
+    }
+  }
+
+  // Guest lookup: Requires matching email or phone parameter to prevent enumerable scraping
+  const queryEmail = (req.query.email as string | undefined)?.toLowerCase();
+  const queryPhone = req.query.phone as string | undefined;
+  if (
+    (queryEmail && order.customerEmail.toLowerCase() === queryEmail) ||
+    (queryPhone && order.customerPhone === queryPhone)
+  ) {
+    return res.json(order);
+  }
+
+  return res.status(401).json({
+    error:
+      "Authentication required to view order details, or provide verified customer email/phone query parameter",
+  });
 });
 
-app.get("/orders", tenantMiddleware, async (req, res) => {
+app.get("/orders", tenantMiddleware, authGuard(Permission.VIEW_ORDERS), async (req, res) => {
   const tenantId = (req as any).tenantId;
   const customerId = req.query.customerId as string | undefined;
   const orders = await repo.listOrders(tenantId, customerId);
@@ -349,10 +504,33 @@ app.post("/payments/initialize", tenantMiddleware, async (req, res) => {
 
 app.post("/payments/webhook", async (req, res) => {
   try {
-    const rawBody = JSON.stringify(req.body);
+    // Preserve exact raw bytes from incoming request before JSON parsing (A05, A06)
+    const rawBody = (req as any).rawBody
+      ? (req as any).rawBody.toString("utf8")
+      : JSON.stringify(req.body);
     const signature = req.headers["x-paystack-signature"] as string | undefined;
 
     const result = await paystackProvider.processWebhook(rawBody, signature, repo);
+    res.json(result);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.get("/payments/verify/:reference", tenantMiddleware, async (req, res) => {
+  try {
+    const reference = req.params.reference as string;
+    const result = await paystackProvider.verifyTransaction(reference);
+    res.json(result);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.post("/payments/refund", tenantMiddleware, authGuard(Permission.APPROVE_REFUND), async (req, res) => {
+  try {
+    const { reference, amount, reason } = req.body;
+    const result = await paystackProvider.processRefund(reference, amount, reason);
     res.json(result);
   } catch (err: any) {
     res.status(400).json({ error: err.message });

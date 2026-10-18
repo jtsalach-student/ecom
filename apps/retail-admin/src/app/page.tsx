@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   SEED_PRODUCTS,
   SEED_BRANCHES,
@@ -31,9 +32,31 @@ import {
   Sparkles,
 } from "lucide-react";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const DEFAULT_TENANT_ID = process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID || "the-gadget-master-gh";
+
 export default function RetailAdminPage() {
+  const router = useRouter();
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<"POS" | "INVENTORY" | "ORDERS" | "REPAIRS" | "ANALYTICS" | "SETTINGS">("POS");
   const [selectedBranch, setSelectedBranch] = useState(SEED_BRANCHES[0]);
+
+  // Auth Guard: Require authenticated staff token or redirect to /login
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("gcp_staff_token");
+      if (!token) {
+        router.push("/login");
+        return;
+      }
+      const savedUser = localStorage.getItem("gcp_staff_user");
+      if (savedUser) {
+        try {
+          setCurrentUser(JSON.parse(savedUser));
+        } catch (e) {}
+      }
+    }
+  }, [router]);
 
   // --- POS State ---
   const [posCart, setPosCart] = useState<Array<{ product: any; variant: any; quantity: number }>>([]);
@@ -46,30 +69,62 @@ export default function RetailAdminPage() {
   const [inventoryList, setInventoryList] = useState(SEED_BRANCH_INVENTORIES);
 
   // --- Orders State ---
-  const [ordersList, setOrdersList] = useState([
-    {
-      id: "ord-1001",
-      orderNumber: "ORD-849201",
-      customerName: "Esi Danquah",
-      customerPhone: "+233 27 777 8899",
-      deliveryAddress: "Ring Road East, Osu",
-      status: "PAID",
-      total: 21535,
-      items: "1x iPhone 16 Pro Max 256GB",
-      createdAt: "2026-10-18 14:20",
-    },
-    {
-      id: "ord-1002",
-      orderNumber: "ORD-552194",
-      customerName: "Kwesi Appiah",
-      customerPhone: "+233 24 123 4567",
-      deliveryAddress: "Branch Pickup (Kumasi Mall)",
-      status: "AWAITING_FULFILMENT",
-      total: 1250,
-      items: "1x Anker Prime 100W GaN Charger",
-      createdAt: "2026-10-18 15:05",
-    },
-  ]);
+  const [ordersList, setOrdersList] = useState<any[]>([]);
+
+  // Fetch live orders and inventory from API
+  useEffect(() => {
+    const fetchLiveStats = async () => {
+      const token = typeof window !== "undefined" ? localStorage.getItem("gcp_staff_token") : null;
+      if (!token) return;
+
+      try {
+        const [ordersRes, invRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/orders`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "x-tenant-id": DEFAULT_TENANT_ID,
+            },
+          }),
+          fetch(`${API_BASE_URL}/inventory/stock?branchId=${selectedBranch.id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "x-tenant-id": DEFAULT_TENANT_ID,
+            },
+          }),
+        ]);
+
+        if (ordersRes.ok) {
+          const ordersData = await ordersRes.json();
+          if (Array.isArray(ordersData)) {
+            setOrdersList(
+              ordersData.map((o) => ({
+                id: o.id,
+                orderNumber: o.orderNumber,
+                customerName: o.customerName,
+                customerPhone: o.customerPhone,
+                deliveryAddress: o.deliveryDetails?.deliveryAddress || "Accra",
+                status: o.status,
+                total: o.grandTotal,
+                items: o.items.map((it: any) => `${it.quantity}x ${it.name}`).join(", ") || "Electronics",
+                createdAt: new Date(o.createdAt).toLocaleString(),
+              }))
+            );
+          }
+        }
+
+        if (invRes.ok) {
+          const invData = await invRes.json();
+          if (Array.isArray(invData) && invData.length > 0) {
+            setInventoryList(invData);
+          }
+        }
+      } catch (err) {
+        console.warn("API live sync note:", err);
+      }
+    };
+
+    fetchLiveStats();
+  }, [selectedBranch]);
 
   // --- Repairs State ---
   const [repairJobs, setRepairJobs] = useState([
@@ -172,10 +227,25 @@ export default function RetailAdminPage() {
             <span>Shift #01 Active</span>
           </div>
 
-          <div className="hidden sm:flex items-center gap-2 text-xs text-slate-400 pl-2 border-l border-slate-800">
-            <User className="w-3.5 h-3.5 text-slate-400" />
-            <span>Kwame Mensah (Owner)</span>
+          <div className="hidden sm:flex items-center gap-2 text-xs text-slate-300 pl-2 border-l border-slate-800">
+            <User className="w-3.5 h-3.5 text-blue-400" />
+            <span>{currentUser ? `${currentUser.fullName} (${currentUser.role})` : "Kwame Mensah (Owner)"}</span>
           </div>
+
+          <button
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                localStorage.removeItem("gcp_staff_token");
+                localStorage.removeItem("gcp_staff_user");
+              }
+              router.push("/login");
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-950/40 border border-red-800/50 text-xs text-red-300 hover:text-white hover:bg-red-900/60 transition-colors"
+            title="Sign out of Retail Terminal"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Sign Out</span>
+          </button>
         </div>
       </header>
 
