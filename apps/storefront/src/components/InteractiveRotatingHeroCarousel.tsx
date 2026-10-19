@@ -55,6 +55,7 @@ export function InteractiveRotatingHeroCarousel({
   const surfaceProduct = products.find((p) => p.slug.includes("surface") || p.id === "prod-surface-laptop-15-snapdragon");
   const jblBarProduct = products.find((p) => p.slug.includes("jbl-bar") || p.id === "prod-jbl-bar-800-mk2");
   const iphoneProduct = products.find((p) => p.slug.includes("16-pro-max") || p.id === "prod-iphone-16-pro-max");
+  const foldProduct = products.find((p) => p.slug.includes("fold") || p.id === "prod-samsung-z-fold6");
   const tvProduct = products.find((p) => p.slug.includes("qned") || p.id === "prod-lg-qned70-75");
   const acProduct = products.find((p) => p.slug.includes("tcl") || p.id === "prod-tcl-ac-12csd");
 
@@ -62,6 +63,28 @@ export function InteractiveRotatingHeroCarousel({
   const [stageMode, setStageMode] = useState<"photo3d" | "cad3d">("photo3d");
 
   const slides: CarouselSlide[] = [
+    {
+      id: "slide-fold6",
+      badge: "Galaxy AI & Dual AMOLED",
+      title: foldProduct?.name || "Samsung Galaxy Z Fold6",
+      subtitle: foldProduct?.shortDescription || "7.6\" Foldable 120Hz Dynamic AMOLED & Snapdragon 8 Gen 3",
+      benefit: foldProduct?.description || "Ultra-slim foldable engineering with dual displays, Armor Aluminum hinge, and Galaxy AI multi-window productivity.",
+      category: "Foldable Flagships",
+      priceGhs: foldProduct?.variants[0]?.retailPrice || 14800,
+      isConfirmedPrice: true,
+      status: "IN_STOCK",
+      imageUrl: "/products/samsung-z-fold6-front.jpg",
+      backImageUrl: "/products/samsung-z-fold6-back.jpg",
+      deviceType: "phone",
+      accentColor: "#3B82F6",
+      specs: [
+        { label: "Main Screen", value: "7.6\" 120Hz AMOLED" },
+        { label: "Cover Screen", value: "6.3\" Dynamic AMOLED" },
+        { label: "Processor", value: "Snapdragon 8 Gen 3" },
+        { label: "Durability", value: "Armor Aluminum Hinge" },
+      ],
+      matchedProduct: foldProduct,
+    },
     {
       id: "slide-imac",
       badge: "Apple M4 Silicon",
@@ -94,8 +117,8 @@ export function InteractiveRotatingHeroCarousel({
       priceGhs: surfaceProduct?.variants[0]?.retailPrice || 22000,
       isConfirmedPrice: true,
       status: "IN_STOCK",
-      imageUrl: surfaceProduct?.featuredImage || surfaceProduct?.images[0] || "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=1200&q=80",
-      backImageUrl: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?auto=format&fit=crop&w=1200&q=80",
+      imageUrl: "/products/surface-laptop-7.jpg",
+      backImageUrl: "/products/surface-laptop-7.jpg",
       deviceType: "laptop",
       accentColor: "#0284C7",
       specs: [
@@ -116,8 +139,8 @@ export function InteractiveRotatingHeroCarousel({
       priceGhs: jblBarProduct?.variants[0]?.retailPrice || 12500,
       isConfirmedPrice: true,
       status: "IN_STOCK",
-      imageUrl: jblBarProduct?.featuredImage || jblBarProduct?.images[0] || "https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=1200&q=80",
-      backImageUrl: "https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=1200&q=80",
+      imageUrl: "/products/jbl-bar-800-mk2.jpg",
+      backImageUrl: "/products/jbl-bar-800-mk2.jpg",
       deviceType: "soundbar",
       accentColor: "#F59E0B",
       specs: [
