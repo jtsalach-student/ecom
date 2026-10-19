@@ -57,16 +57,27 @@ export function Navbar({
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#FF8A00] animate-pulse" />
-            <span className="text-slate-200">
-              East Legon Showroom Open (Underbridge Mall, Accra)
-            </span>
+            <a
+              href="/#map-directions"
+              className="text-slate-200 hover:text-[#FF8A00] transition-colors flex items-center gap-1"
+            >
+              <MapPin className="w-3 h-3 text-[#FF8A00]" />
+              <span>East Legon Showroom (Underbridge Mall, Accra)</span>
+            </a>
             <span className="hidden md:inline text-neutral-600">•</span>
             <span className="hidden md:inline text-slate-400">
               Mon - Sat: 8:30 AM - 7:30 PM
             </span>
           </div>
 
-          <div className="flex items-center gap-4 text-slate-300">
+          <div className="flex items-center gap-3 sm:gap-4 text-slate-300">
+            <a
+              href="/faq"
+              className="hidden sm:inline text-slate-400 hover:text-[#FF8A00] transition-colors"
+            >
+              FAQ
+            </a>
+            <span className="text-neutral-700 hidden sm:inline">|</span>
             <a
               href="tel:+233200147950"
               className="inline-flex items-center gap-1.5 hover:text-[#FF8A00] transition-colors font-mono"
@@ -93,7 +104,7 @@ export function Navbar({
             {!logoError ? (
               <img
                 src="/logo-oval.png"
-                alt="The Gadget Master - Your Trusted Choice"
+                alt="The Gadget Master Ltd - Authentic Electronics Showroom Underbridge Mall East Legon Accra"
                 className="h-12 w-auto max-w-[140px] sm:max-w-[160px] object-contain group-hover:scale-105 transition-transform"
                 onError={() => setLogoError(true)}
               />

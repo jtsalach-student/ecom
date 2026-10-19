@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   Zap,
   Box,
+  Compass,
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { ProductListing } from "@gcp/contracts";
@@ -30,6 +31,7 @@ export interface CarouselSlide {
   status: "IN_STOCK" | "CALL_FOR_STOCK";
   ctaUrl?: string;
   imageUrl: string;
+  backImageUrl?: string;
   deviceType: "imac" | "laptop" | "soundbar" | "phone" | "tv" | "ac";
   accentColor: string;
   specs: { label: string; value: string }[];
@@ -71,6 +73,7 @@ export function InteractiveRotatingHeroCarousel({
       isConfirmedPrice: true,
       status: "IN_STOCK",
       imageUrl: imacProduct?.featuredImage || imacProduct?.images[0] || "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=1200&q=80",
+      backImageUrl: "https://images.unsplash.com/photo-1517059224940-d4af9eec41b7?auto=format&fit=crop&w=1200&q=80",
       deviceType: "imac",
       accentColor: "#FF8A00",
       specs: [
@@ -92,6 +95,7 @@ export function InteractiveRotatingHeroCarousel({
       isConfirmedPrice: true,
       status: "IN_STOCK",
       imageUrl: surfaceProduct?.featuredImage || surfaceProduct?.images[0] || "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=1200&q=80",
+      backImageUrl: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?auto=format&fit=crop&w=1200&q=80",
       deviceType: "laptop",
       accentColor: "#0284C7",
       specs: [
@@ -113,6 +117,7 @@ export function InteractiveRotatingHeroCarousel({
       isConfirmedPrice: true,
       status: "IN_STOCK",
       imageUrl: jblBarProduct?.featuredImage || jblBarProduct?.images[0] || "https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=1200&q=80",
+      backImageUrl: "https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=1200&q=80",
       deviceType: "soundbar",
       accentColor: "#F59E0B",
       specs: [
@@ -135,6 +140,7 @@ export function InteractiveRotatingHeroCarousel({
       isConfirmedPrice: true,
       status: "IN_STOCK",
       imageUrl: iphoneProduct?.featuredImage || iphoneProduct?.images[0] || "https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=1200&q=80",
+      backImageUrl: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=1200&q=80",
       deviceType: "phone",
       accentColor: "#10B981",
       specs: [
@@ -156,6 +162,7 @@ export function InteractiveRotatingHeroCarousel({
       isConfirmedPrice: true,
       status: "IN_STOCK",
       imageUrl: tvProduct?.featuredImage || tvProduct?.images[0] || "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=1200&q=80",
+      backImageUrl: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=1200&q=80",
       deviceType: "tv",
       accentColor: "#8B5CF6",
       specs: [
@@ -177,6 +184,7 @@ export function InteractiveRotatingHeroCarousel({
       isConfirmedPrice: true,
       status: "IN_STOCK",
       imageUrl: acProduct?.featuredImage || acProduct?.images[0] || "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=1200&q=80",
+      backImageUrl: "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=1200&q=80",
       deviceType: "ac",
       accentColor: "#06B6D4",
       specs: [
@@ -379,6 +387,7 @@ export function InteractiveRotatingHeroCarousel({
                   <PhotorealisticFloatingProduct
                     key={`photo-${activeSlide.id}`}
                     imageUrl={activeSlide.imageUrl}
+                    backImageUrl={activeSlide.backImageUrl}
                     title={activeSlide.title}
                     accentColor={activeSlide.accentColor}
                     specs={activeSlide.specs}
@@ -389,6 +398,7 @@ export function InteractiveRotatingHeroCarousel({
                     key={`cad-${activeSlide.id}`}
                     deviceType={activeSlide.deviceType}
                     imageUrl={activeSlide.imageUrl}
+                    backImageUrl={activeSlide.backImageUrl}
                     title={activeSlide.title}
                     accentColor={activeSlide.accentColor}
                     onInteractionChange={setIsInteracting}
@@ -401,8 +411,8 @@ export function InteractiveRotatingHeroCarousel({
                 <RotateCw className="w-3 h-3 text-[#FF8A00] animate-spin-slow" />
                 <span>
                   {stageMode === "photo3d"
-                    ? "Photorealistic 3D Float • Hover or drag for 3D perspective tilt & studio glare"
-                    : "Interactive 3D CAD Mesh • Drag to rotate 360° on all axes"}
+                    ? "Photorealistic 3D Float • Hover or drag for 3D tilt • Click 'Turn Around' for rear hardware"
+                    : "Interactive 3D CAD Mesh • Drag horizontally to turn real product 360° on all sides"}
                 </span>
               </div>
             </div>
@@ -463,9 +473,11 @@ export function InteractiveRotatingHeroCarousel({
 // 1. PHOTOREALISTIC FLOATING PRODUCT STAGE
 // True-to-life authentic hardware photography with interactive 3D perspective
 // tilt, dynamic studio specular reflection glare, and reactive levitation shadow.
+// Supports flipping 180° to inspect authentic rear camera & chassis photography.
 // =============================================================================
 interface PhotorealisticFloatingProductProps {
   imageUrl: string;
+  backImageUrl?: string;
   title: string;
   accentColor: string;
   specs: { label: string; value: string }[];
@@ -474,6 +486,7 @@ interface PhotorealisticFloatingProductProps {
 
 function PhotorealisticFloatingProduct({
   imageUrl,
+  backImageUrl,
   title,
   accentColor,
   specs,
@@ -484,7 +497,10 @@ function PhotorealisticFloatingProduct({
   const [glarePos, setGlarePos] = useState({ x: 50, y: 50, opacity: 0 });
   const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [isRearView, setIsRearView] = useState(false);
   const dragStartRef = useRef({ x: 0, y: 0, rotX: 0, rotY: 0 });
+
+  const activePhoto = isRearView ? (backImageUrl || imageUrl) : imageUrl;
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!containerRef.current) return;
@@ -555,6 +571,24 @@ function PhotorealisticFloatingProduct({
       className="relative w-full h-full flex flex-col items-center justify-center cursor-grab active:cursor-grabbing select-none"
       style={{ perspective: "1200px" }}
     >
+      {/* View Orientation Badge */}
+      <div className="absolute top-2 left-2 z-30 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-slate-900/80 text-white backdrop-blur-md border border-slate-700/60 shadow-sm">
+        {isRearView ? "Viewing Rear Hardware" : "Viewing Front Display"}
+      </div>
+
+      {/* Flip Between Front & Back Real Photo Button */}
+      {backImageUrl && (
+        <button
+          type="button"
+          onClick={() => setIsRearView(!isRearView)}
+          className="absolute bottom-2 right-2 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-[#FF8A00] transition-all shadow-md active:scale-95"
+          title="Flip between front screen and rear camera hardware photography"
+        >
+          <RotateCw className="w-3.5 h-3.5 text-[#FF8A00]" />
+          <span>{isRearView ? "Show Front Display" : "Turn Around (Rear Hardware)"}</span>
+        </button>
+      )}
+
       {/* 3D Floating Stage with Multi-Axis Perspective */}
       <div
         className="relative flex items-center justify-center transition-transform duration-150 ease-out"
@@ -594,14 +628,14 @@ function PhotorealisticFloatingProduct({
 
         {/* Authentic Product Photography Card with Specular Glare */}
         <div
-          className="relative max-w-[280px] sm:max-w-[380px] lg:max-w-[440px] max-h-[340px] sm:max-h-[380px] rounded-2xl overflow-hidden group/product"
+          className="relative max-w-[280px] sm:max-w-[380px] lg:max-w-[440px] max-h-[340px] sm:max-h-[380px] rounded-2xl overflow-hidden group/product transition-transform duration-300"
           style={{
             transform: "translateZ(20px)",
             filter: "drop-shadow(0 25px 35px rgba(0, 0, 0, 0.35))",
           }}
         >
           <img
-            src={imageUrl}
+            src={activePhoto}
             alt={title}
             className="w-full h-auto max-h-[320px] sm:max-h-[360px] object-contain transition-transform duration-300 pointer-events-none"
             loading="eager"
@@ -631,28 +665,41 @@ function PhotorealisticFloatingProduct({
 }
 
 // =============================================================================
-// 2. INTERACTIVE 3D CAD STAGE (Three.js WebGL with 360° drag & textured face)
-// Fully assembled 3D CAD chassis with authentic device screen graphics mapped
-// onto geometry, studio PBR lighting, and 360° interactive drag rotation.
+// 2. INTERACTIVE 3D CAD STAGE (Three.js WebGL with 360° Real Turnaround)
+// Fully assembled double-sided 3D CAD chassis: front display screen, metallic
+// side profiles with buttons and ports, and authentic rear hardware with camera
+// modules. Continuous 360° horizontal drag with live degree orientation dial.
 // =============================================================================
 interface RotatingProduct3DStageProps {
   deviceType: "imac" | "laptop" | "soundbar" | "phone" | "tv" | "ac";
   imageUrl: string;
+  backImageUrl?: string;
   title: string;
   accentColor: string;
   onInteractionChange?: (active: boolean) => void;
 }
 
+function getAngleDescription(deg: number): string {
+  if (deg >= 315 || deg < 45) return "Front Display View";
+  if (deg >= 45 && deg < 135) return "Right Profile & Frame";
+  if (deg >= 135 && deg < 225) return "Rear Hardware & Camera Module";
+  return "Left Profile & Buttons";
+}
+
 function RotatingProduct3DStage({
   deviceType,
   imageUrl,
+  backImageUrl,
   title,
   accentColor,
   onInteractionChange,
 }: RotatingProduct3DStageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [webGlFailed, setWebGlFailed] = useState(false);
-  const resetAngleRef = useRef<(() => void) | null>(null);
+  const [viewAngleDeg, setViewAngleDeg] = useState(0);
+  const [isAutoSpinning, setIsAutoSpinning] = useState(false);
+  const autoSpinRef = useRef(false);
+  const resetAngleRef = useRef<((targetDeg?: number) => void) | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -687,17 +734,24 @@ function RotatingProduct3DStage({
 
       container.appendChild(renderer.domElement);
 
-      // Studio Lighting
+      // Studio Lighting for Double-Sided Hardware Inspection
       const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
       scene.add(ambientLight);
 
+      // Front Key Light
       const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
       keyLight.position.set(2, 3, 3);
       keyLight.castShadow = true;
       scene.add(keyLight);
 
-      const rimLight = new THREE.DirectionalLight(new THREE.Color(accentColor), 1.8);
-      rimLight.position.set(-3, -2, -2);
+      // Rear Fill Light to illuminate back hardware and cameras when turned around
+      const rearLight = new THREE.DirectionalLight(0xffffff, 1.8);
+      rearLight.position.set(-2, 2, -3);
+      scene.add(rearLight);
+
+      // Rim Light matching device accent color
+      const rimLight = new THREE.DirectionalLight(new THREE.Color(accentColor), 1.6);
+      rimLight.position.set(3, -2, -2);
       scene.add(rimLight);
 
       // Floor Shadow Plane
@@ -709,9 +763,9 @@ function RotatingProduct3DStage({
       shadowPlane.receiveShadow = true;
       scene.add(shadowPlane);
 
-      // Build Intact Device Geometry with Textured Face
+      // Build Intact Double-Sided Device Geometry
       productGroup = new THREE.Group();
-      buildIntactDeviceModel(productGroup, deviceType, accentColor, imageUrl);
+      buildIntactDeviceModel(productGroup, deviceType, accentColor, imageUrl, backImageUrl);
       scene.add(productGroup);
 
       // 360° Interactive Drag State
@@ -721,6 +775,8 @@ function RotatingProduct3DStage({
 
       const handlePointerDown = (e: PointerEvent) => {
         isDragging = true;
+        autoSpinRef.current = false;
+        setIsAutoSpinning(false);
         prevPointerPos = { x: e.clientX, y: e.clientY };
         velocity = { x: 0, y: 0 };
         onInteractionChange?.(true);
@@ -732,8 +788,8 @@ function RotatingProduct3DStage({
         const deltaY = e.clientY - prevPointerPos.y;
 
         productGroup.rotation.y += deltaX * 0.012;
-        productGroup.rotation.x += deltaY * 0.01;
-        velocity = { x: deltaY * 0.006, y: deltaX * 0.007 };
+        productGroup.rotation.x = Math.max(-0.4, Math.min(0.4, productGroup.rotation.x + deltaY * 0.008));
+        velocity = { x: deltaY * 0.004, y: deltaX * 0.008 };
 
         prevPointerPos = { x: e.clientX, y: e.clientY };
       };
@@ -743,9 +799,12 @@ function RotatingProduct3DStage({
         onInteractionChange?.(false);
       };
 
-      resetAngleRef.current = () => {
+      resetAngleRef.current = (targetDeg: number = 0) => {
         if (productGroup) {
-          productGroup.rotation.set(0, 0, 0);
+          autoSpinRef.current = false;
+          setIsAutoSpinning(false);
+          productGroup.rotation.y = (targetDeg * Math.PI) / 180;
+          productGroup.rotation.x = 0;
           velocity = { x: 0, y: 0 };
         }
       };
@@ -754,23 +813,30 @@ function RotatingProduct3DStage({
       window.addEventListener("pointermove", handlePointerMove);
       window.addEventListener("pointerup", handlePointerUp);
 
-      // Rendering Loop with smooth momentum & gentle idle oscillation
+      // Rendering Loop with smooth inertia & gentle idle floating
       const render = () => {
         animationFrameId = requestAnimationFrame(render);
 
         if (productGroup) {
-          if (!isDragging) {
+          if (autoSpinRef.current) {
+            productGroup.rotation.y += 0.015;
+          } else if (!isDragging) {
             productGroup.rotation.y += velocity.y;
             productGroup.rotation.x += velocity.x;
             velocity.x *= 0.92;
             velocity.y *= 0.92;
 
-            // Gentle continuous idle rotation when pointer is released
+            // Subtle continuous idle rotation when pointer is released
             if (Math.abs(velocity.y) < 0.0005) {
-              productGroup.rotation.y += 0.003;
+              productGroup.rotation.y += 0.002;
             }
-            productGroup.position.y = Math.sin(Date.now() * 0.0015) * 0.035;
           }
+
+          productGroup.position.y = Math.sin(Date.now() * 0.0015) * 0.035;
+
+          // Compute normalized degrees 0-360
+          const rawDeg = Math.round((((productGroup.rotation.y % (Math.PI * 2)) + (Math.PI * 2)) % (Math.PI * 2)) * (180 / Math.PI));
+          setViewAngleDeg(rawDeg);
         }
 
         if (renderer && scene && camera) {
@@ -803,7 +869,7 @@ function RotatingProduct3DStage({
     } catch {
       setWebGlFailed(true);
     }
-  }, [deviceType, accentColor, imageUrl, onInteractionChange]);
+  }, [deviceType, accentColor, imageUrl, backImageUrl, onInteractionChange]);
 
   if (webGlFailed) {
     return (
@@ -819,26 +885,65 @@ function RotatingProduct3DStage({
 
   return (
     <div className="relative w-full h-full">
+      {/* 360° Orientation Dial Badge */}
+      <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-slate-900/85 text-white backdrop-blur-md border border-slate-700/60 shadow-lg pointer-events-none">
+        <Compass className="w-3 h-3 text-[#FF8A00] animate-spin-slow" />
+        <span>{viewAngleDeg}° &bull; {getAngleDescription(viewAngleDeg)}</span>
+      </div>
+
       <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
-      <button
-        type="button"
-        onClick={() => resetAngleRef.current?.()}
-        className="absolute bottom-2 left-2 z-10 flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm"
-        title="Reset 3D camera angle to front"
-      >
-        <RotateCw className="w-3 h-3 text-[#FF8A00]" />
-        <span>Reset Angle</span>
-      </button>
+
+      {/* 360° Quick Action Toolbar */}
+      <div className="absolute bottom-2 left-2 right-2 z-10 flex items-center justify-between gap-2 pointer-events-auto">
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => {
+              const next = !isAutoSpinning;
+              setIsAutoSpinning(next);
+              autoSpinRef.current = next;
+            }}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold backdrop-blur-md border transition-all shadow-sm ${
+              isAutoSpinning
+                ? "bg-[#FF8A00] text-white border-orange-500 shadow-orange-500/20"
+                : "bg-white/85 dark:bg-slate-900/85 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+            }`}
+            title="Auto spin real product 360 degrees"
+          >
+            <RotateCw className={`w-3 h-3 ${isAutoSpinning ? "animate-spin" : "text-[#FF8A00]"}`} />
+            <span>{isAutoSpinning ? "Pause 360°" : "Auto 360° Spin"}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => resetAngleRef.current?.(180)}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm"
+            title="Rotate directly to rear hardware view"
+          >
+            <span>Rear (180°)</span>
+          </button>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => resetAngleRef.current?.(0)}
+          className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm"
+          title="Reset to front display view"
+        >
+          <span>Front (0°)</span>
+        </button>
+      </div>
     </div>
   );
 }
 
-// Helper: Build 3D Intact Electronics Geometries with Authentic Product Face Mapping
+// Helper: Build True Double-Sided 3D Intact Electronics Geometries
 function buildIntactDeviceModel(
   group: THREE.Group,
   deviceType: "imac" | "laptop" | "soundbar" | "phone" | "tv" | "ac",
   accentHex: string,
-  imageUrl: string
+  imageUrl: string,
+  backImageUrl?: string
 ) {
   const aluminumMat = new THREE.MeshStandardMaterial({
     color: 0xd8d8d8,
@@ -852,36 +957,114 @@ function buildIntactDeviceModel(
     roughness: 0.5,
   });
 
-  // Texture loader to display authentic product face on the 3D model
+  // Texture loader for authentic double-sided mapping
   const textureLoader = new THREE.TextureLoader();
-  const screenTexture = textureLoader.load(imageUrl, (tex) => {
+
+  // Front Screen Texture
+  const frontTexture = textureLoader.load(imageUrl, (tex) => {
     tex.colorSpace = THREE.SRGBColorSpace;
     tex.minFilter = THREE.LinearFilter;
   });
-
-  const screenPhotoMat = new THREE.MeshStandardMaterial({
-    map: screenTexture,
+  const frontPhotoMat = new THREE.MeshStandardMaterial({
+    map: frontTexture,
     metalness: 0.1,
     roughness: 0.2,
   });
 
+  // Rear Hardware Texture
+  const rearTexture = textureLoader.load(backImageUrl || imageUrl, (tex) => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.minFilter = THREE.LinearFilter;
+  });
+  const rearPhotoMat = new THREE.MeshStandardMaterial({
+    map: rearTexture,
+    metalness: 0.2,
+    roughness: 0.35,
+  });
+
   switch (deviceType) {
+    case "phone": {
+      // Grade 5 Titanium Frame
+      const titaniumMat = new THREE.MeshStandardMaterial({
+        color: 0xc4b7a6,
+        metalness: 0.9,
+        roughness: 0.25,
+      });
+
+      const bodyGeo = new THREE.BoxGeometry(1.0, 1.95, 0.08);
+      const body = new THREE.Mesh(bodyGeo, titaniumMat);
+      body.castShadow = true;
+
+      // Front OLED Glass Screen
+      const frontGlassGeo = new THREE.PlaneGeometry(0.94, 1.88);
+      const frontGlass = new THREE.Mesh(frontGlassGeo, frontPhotoMat);
+      frontGlass.position.z = 0.041;
+      body.add(frontGlass);
+
+      // Rear Authentic Frosted Matte Titanium Glass Back
+      const rearGlassGeo = new THREE.PlaneGeometry(0.94, 1.88);
+      const rearGlass = new THREE.Mesh(rearGlassGeo, rearPhotoMat);
+      rearGlass.position.z = -0.041;
+      rearGlass.rotation.y = Math.PI; // Correctly faces rearward
+      body.add(rearGlass);
+
+      // Raised Triple Camera Island on Back
+      const cameraIslandGeo = new THREE.BoxGeometry(0.44, 0.46, 0.035);
+      const cameraIsland = new THREE.Mesh(cameraIslandGeo, titaniumMat);
+      cameraIsland.position.set(-0.22, 0.62, -0.052);
+      cameraIsland.rotation.y = Math.PI;
+
+      // 3 Sapphire Camera Lenses with Metallic Rings
+      const lensGeo = new THREE.CylinderGeometry(0.085, 0.085, 0.025, 24);
+      const lensMat = new THREE.MeshStandardMaterial({
+        color: 0x0a0c10,
+        metalness: 0.95,
+        roughness: 0.05,
+      });
+
+      const lens1 = new THREE.Mesh(lensGeo, lensMat);
+      lens1.rotation.x = Math.PI / 2;
+      lens1.position.set(-0.1, 0.1, 0.02);
+      cameraIsland.add(lens1);
+
+      const lens2 = new THREE.Mesh(lensGeo, lensMat);
+      lens2.rotation.x = Math.PI / 2;
+      lens2.position.set(-0.1, -0.1, 0.02);
+      cameraIsland.add(lens2);
+
+      const lens3 = new THREE.Mesh(lensGeo, lensMat);
+      lens3.rotation.x = Math.PI / 2;
+      lens3.position.set(0.1, 0.0, 0.02);
+      cameraIsland.add(lens3);
+
+      body.add(cameraIsland);
+      group.add(body);
+      break;
+    }
+
     case "imac": {
       const screenGeo = new THREE.BoxGeometry(2.2, 1.4, 0.05);
       const screen = new THREE.Mesh(screenGeo, aluminumMat);
       screen.castShadow = true;
 
-      // Authentic display face
+      // Front Display
       const glassGeo = new THREE.PlaneGeometry(2.1, 1.25);
-      const glass = new THREE.Mesh(glassGeo, screenPhotoMat);
+      const glass = new THREE.Mesh(glassGeo, frontPhotoMat);
       glass.position.z = 0.026;
       screen.add(glass);
 
-      // Chin with Apple metallic tint
+      // Front Chin
       const chinGeo = new THREE.BoxGeometry(2.1, 0.25, 0.052);
       const chin = new THREE.Mesh(chinGeo, aluminumMat);
       chin.position.y = -0.55;
       screen.add(chin);
+
+      // Rear Anodized Aluminum Housing with Rear Image Mapping
+      const rearGeo = new THREE.PlaneGeometry(2.1, 1.35);
+      const rear = new THREE.Mesh(rearGeo, rearPhotoMat);
+      rear.position.z = -0.026;
+      rear.rotation.y = Math.PI;
+      screen.add(rear);
 
       // Stand
       const standPoleGeo = new THREE.BoxGeometry(0.35, 0.7, 0.04);
@@ -924,11 +1107,18 @@ function buildIntactDeviceModel(
       lid.rotation.x = -0.35;
       lid.castShadow = true;
 
-      // Authentic laptop screen face
+      // Open Display Screen Face
       const lidScreenGeo = new THREE.PlaneGeometry(1.9, 1.25);
-      const lidScreen = new THREE.Mesh(lidScreenGeo, screenPhotoMat);
+      const lidScreen = new THREE.Mesh(lidScreenGeo, frontPhotoMat);
       lidScreen.position.z = 0.016;
       lid.add(lidScreen);
+
+      // Rear Exterior Lid
+      const lidRearGeo = new THREE.PlaneGeometry(1.9, 1.25);
+      const lidRear = new THREE.Mesh(lidRearGeo, rearPhotoMat);
+      lidRear.position.z = -0.016;
+      lidRear.rotation.y = Math.PI;
+      lid.add(lidRear);
 
       group.add(base);
       group.add(lid);
@@ -941,7 +1131,7 @@ function buildIntactDeviceModel(
       bar.castShadow = true;
 
       const grillGeo = new THREE.BoxGeometry(2.35, 0.18, 0.02);
-      const grill = new THREE.Mesh(grillGeo, screenPhotoMat);
+      const grill = new THREE.Mesh(grillGeo, frontPhotoMat);
       grill.position.z = 0.15;
       bar.add(grill);
 
@@ -955,27 +1145,6 @@ function buildIntactDeviceModel(
       break;
     }
 
-    case "phone": {
-      const bodyGeo = new THREE.BoxGeometry(1.0, 1.95, 0.08);
-      const body = new THREE.Mesh(bodyGeo, aluminumMat);
-      body.castShadow = true;
-
-      // Front authentic screen
-      const frontGlassGeo = new THREE.PlaneGeometry(0.94, 1.88);
-      const frontGlass = new THREE.Mesh(frontGlassGeo, screenPhotoMat);
-      frontGlass.position.z = 0.041;
-      body.add(frontGlass);
-
-      // Camera bump
-      const bumpGeo = new THREE.BoxGeometry(0.42, 0.45, 0.04);
-      const bump = new THREE.Mesh(bumpGeo, aluminumMat);
-      bump.position.set(-0.25, 0.65, -0.05);
-      body.add(bump);
-
-      group.add(body);
-      break;
-    }
-
     case "tv": {
       const tvGeo = new THREE.BoxGeometry(2.6, 1.5, 0.04);
       const tv = new THREE.Mesh(tvGeo, darkPolymerMat);
@@ -983,9 +1152,16 @@ function buildIntactDeviceModel(
 
       // Screen with authentic display
       const tvScreenGeo = new THREE.PlaneGeometry(2.54, 1.44);
-      const tvScreen = new THREE.Mesh(tvScreenGeo, screenPhotoMat);
+      const tvScreen = new THREE.Mesh(tvScreenGeo, frontPhotoMat);
       tvScreen.position.z = 0.021;
       tv.add(tvScreen);
+
+      // Rear Panel Housing
+      const tvRearGeo = new THREE.PlaneGeometry(2.54, 1.44);
+      const tvRear = new THREE.Mesh(tvRearGeo, rearPhotoMat);
+      tvRear.position.z = -0.021;
+      tvRear.rotation.y = Math.PI;
+      tv.add(tvRear);
 
       const footGeo = new THREE.BoxGeometry(0.04, 0.2, 0.4);
       const leftFoot = new THREE.Mesh(footGeo, darkPolymerMat);
@@ -1011,7 +1187,7 @@ function buildIntactDeviceModel(
       ac.castShadow = true;
 
       const frontFaceGeo = new THREE.PlaneGeometry(2.1, 0.5);
-      const frontFace = new THREE.Mesh(frontFaceGeo, screenPhotoMat);
+      const frontFace = new THREE.Mesh(frontFaceGeo, frontPhotoMat);
       frontFace.position.set(0, 0, 0.201);
       ac.add(frontFace);
 
@@ -1026,4 +1202,5 @@ function buildIntactDeviceModel(
     }
   }
 }
+
 

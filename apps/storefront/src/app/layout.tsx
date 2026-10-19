@@ -4,9 +4,51 @@ import { CartProvider } from "../context/CartContext";
 import { ThemeProvider } from "../context/ThemeContext";
 
 export const metadata: Metadata = {
-  title: "The Gadget Master | Your Trusted Choice for Authentic Technology",
+  metadataBase: new URL('https://thegadgetmaster.online'),
+  title: {
+    default: "The Gadget Master | Genuine Electronics Showroom Accra",
+    template: "%s | The Gadget Master",
+  },
   description:
-    "Accra's established electronics showroom at East Legon. Authentic smartphones, computing, home audio, 4K televisions, and inverter climate control with verified store warranties.",
+    "Accra's established electronics showroom at Underbridge Mall, East Legon. Authentic smartphones, computing, home audio, 4K televisions, and inverter climate control with verified store warranties.",
+  keywords: [
+    "Gadget Master",
+    "electronics showroom Accra",
+    "authentic iPhone Ghana",
+    "MacBook Accra",
+    "East Legon electronics",
+    "Underbridge Mall gadgets",
+    "1 year warranty Ghana",
+    "genuine gadgets Accra",
+  ],
+  authors: [{ name: "The Gadget Master Ltd" }],
+  creator: "The Gadget Master Ghana",
+  openGraph: {
+    type: "website",
+    locale: "en_GH",
+    url: "https://thegadgetmaster.online",
+    siteName: "The Gadget Master",
+    title: "The Gadget Master | Genuine Electronics Showroom Accra",
+    description:
+      "Accra's established electronics showroom at Underbridge Mall, East Legon. 100% genuine smartphones, laptops, home audio, and 4K displays with verified store warranties.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "The Gadget Master | Genuine Electronics Showroom Accra",
+    description:
+      "Accra's established electronics showroom at Underbridge Mall, East Legon. 100% genuine electronics with verified store warranties.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 export default function RootLayout({

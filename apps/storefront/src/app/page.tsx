@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import Link from "next/link";
 import { Navbar } from "../components/Navbar";
 import { CartDrawer } from "../components/CartDrawer";
 import { AiAssistantModal } from "../components/AiAssistantModal";
@@ -34,6 +35,12 @@ import {
   Sparkles,
   X,
   Search,
+  Share2,
+  Copy,
+  Check,
+  Navigation,
+  Car,
+  ChevronDown,
 } from "lucide-react";
 
 export default function StorefrontHomePage() {
@@ -43,6 +50,8 @@ export default function StorefrontHomePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("ALL");
   const [activeModalProduct, setActiveModalProduct] = useState<ProductListing | null>(null);
+  const [copiedModalLink, setCopiedModalLink] = useState(false);
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   // Category navigation definitions
   const categories = [
@@ -254,7 +263,7 @@ export default function StorefrontHomePage() {
                     <div className="relative p-6 bg-slate-50/80 dark:bg-slate-900/40 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-center min-h-[240px] overflow-hidden">
                       <img
                         src={primaryVariant?.imageUrl || product.featuredImage}
-                        alt={product.name}
+                        alt={`${product.name} - Genuine ${product.brand} (${product.modelNumber}) available at The Gadget Master East Legon showroom`}
                         className="max-h-48 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
                         loading="lazy"
                       />
@@ -402,125 +411,140 @@ export default function StorefrontHomePage() {
         </section>
 
         {/* ========================================================================= */}
-        {/* 4. VERIFIED EAST LEGON SHOWROOM SECTION (Truthful Single Location)         */}
+        {/* 4. MAP AND STEP-BY-STEP DIRECTIONS SECTION                                 */}
         {/* ========================================================================= */}
-        <section className="py-12 sm:py-16 bg-white dark:bg-[#111827] border-t border-slate-200 dark:border-slate-800 transition-colors duration-200">
+        <section id="map-directions" className="py-12 sm:py-16 bg-white dark:bg-[#111827] border-t border-slate-200 dark:border-slate-800 transition-colors duration-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              {/* Location Information Card */}
-              <div className="lg:col-span-7">
-                <span className="text-xs font-bold text-[#FF8A00] uppercase tracking-wider">
-                  Established Physical Outlet
-                </span>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
-                  Visit The Gadget Master Showroom
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-2 max-w-xl leading-relaxed">
-                  Established in East Legon, Accra. Experience hands-on device demonstrations, discuss corporate procurement, appraise device trade-ins, or collect verified online orders.
-                </p>
+            <div className="text-center max-w-3xl mx-auto mb-10">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#FF8A00]/10 text-[#FF8A00] border border-[#FF8A00]/20 mb-3">
+                <MapPin className="w-3.5 h-3.5" />
+                <span>East Legon Flagship Showroom</span>
+              </span>
+              <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                Map &amp; Driving Directions to Underbridge Mall
+              </h2>
+              <p className="mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                Experience authentic smartphones, computing, soundbars, and climate control in person. Visit our showroom located on Boundary Road, directly adjacent to the East Legon Underbridge.
+              </p>
+            </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-                  {/* Address */}
-                  <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center gap-2 text-xs font-bold text-slate-900 dark:text-white mb-1">
-                      <MapPin className="w-4 h-4 text-[#FF8A00]" />
-                      <span>Showroom Location</span>
-                    </div>
-                    <p className="text-xs text-slate-600 dark:text-slate-300">
-                      Underbridge Mall, Boundary Road, East Legon
-                    </p>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                      Accra, Greater Accra Region, Ghana
-                    </p>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              {/* Left Column: Interactive Map & Instant Direction Actions */}
+              <div className="lg:col-span-7 space-y-4">
+                <div className="relative overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl bg-slate-100 dark:bg-slate-900">
+                  <iframe
+                    src="https://maps.google.com/maps?q=Underbridge+Mall+Boundary+Road+East+Legon+Accra+Ghana&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                    className="w-full h-[320px] sm:h-[400px] border-0"
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="The Gadget Master Underbridge Mall East Legon Accra Map"
+                  />
+                  <div className="absolute top-3 left-3 bg-slate-900/90 text-white backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-700/80 text-[11px] font-semibold flex items-center gap-2 shadow">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                    <span>Underbridge Mall, Boundary Rd, East Legon</span>
                   </div>
+                </div>
 
-                  {/* Hours */}
-                  <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center gap-2 text-xs font-bold text-slate-900 dark:text-white mb-1">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                      <span>Opening Hours</span>
-                    </div>
-                    <p className="text-xs text-slate-600 dark:text-slate-300">
-                      Monday &ndash; Saturday: 8:30 AM &ndash; 7:30 PM
-                    </p>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                      Sunday: Closed
-                    </p>
-                  </div>
-
-                  {/* Telephone Contacts */}
-                  <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center gap-2 text-xs font-bold text-slate-900 dark:text-white mb-1">
-                      <PhoneCall className="w-4 h-4 text-[#FF8A00]" />
-                      <span>Telephone & WhatsApp</span>
-                    </div>
-                    <a
-                      href="tel:+233200147950"
-                      className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200 hover:text-[#FF8A00]"
-                    >
-                      020 014 7950
-                    </a>
-                    <span className="text-xs text-slate-500 block mt-0.5">
-                      Direct Showroom Line
-                    </span>
-                  </div>
-
-                  {/* Email Support */}
-                  <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center gap-2 text-xs font-bold text-slate-900 dark:text-white mb-1">
-                      <Mail className="w-4 h-4 text-[#FF8A00]" />
-                      <span>Email Support</span>
-                    </div>
-                    <a
-                      href="mailto:support@thegadgetmaster.online"
-                      className="text-xs text-slate-800 dark:text-slate-200 hover:text-[#FF8A00] break-all"
-                    >
-                      support@thegadgetmaster.online
-                    </a>
-                    <span className="text-[11px] text-slate-500 block mt-0.5">
-                      Customer Service
-                    </span>
-                  </div>
+                {/* Map Quick Action Buttons */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <a
+                    href="https://www.google.com/maps/dir/?api=1&destination=Underbridge+Mall+Boundary+Road+East+Legon+Accra+Ghana"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold bg-[#FF8A00] hover:bg-[#EA580C] text-white shadow-md transition-all hover:scale-[1.02]"
+                  >
+                    <Navigation className="w-4 h-4" />
+                    <span>Open in Google Maps</span>
+                  </a>
+                  <a
+                    href="tel:+233200147950"
+                    className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 transition-colors"
+                  >
+                    <PhoneCall className="w-4 h-4 text-[#FF8A00]" />
+                    <span>Call: 020 014 7950</span>
+                  </a>
+                  <a
+                    href="https://wa.me/233200147950?text=Hello%20Gadget%20Master%2C%20I%20am%20driving%20to%20your%20Underbridge%20Mall%20showroom%20and%20need%20assistance."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors shadow-md"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>WhatsApp Showroom</span>
+                  </a>
                 </div>
               </div>
 
-              {/* Verified Suburbs & Coverage */}
-              <div className="lg:col-span-5 p-6 sm:p-8 rounded-3xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80">
-                <span className="text-xs font-bold text-[#FF8A00] uppercase tracking-wider">
-                  Service Coverage
-                </span>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mt-1">
-                  Greater Accra Courier & Pickup
-                </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
-                  Serving residents and businesses across East Legon, Madina, North Legon, Atomic, Legon, and surrounding Greater Accra suburbs with dispatch courier service.
-                </p>
+              {/* Right Column: Step-by-Step Driving Routes & Amenities */}
+              <div className="lg:col-span-5 space-y-4">
+                <div className="p-6 rounded-3xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
+                  <h3 className="font-extrabold text-slate-900 dark:text-white text-base flex items-center gap-2">
+                    <Car className="w-4 h-4 text-[#FF8A00]" />
+                    <span>Step-by-Step Driving Directions</span>
+                  </h3>
 
-                <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 space-y-2 text-xs">
-                  <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>In-store pickup available during working hours</span>
+                  {/* Route 1: From Shiashie / Tetteh Quarshie */}
+                  <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80">
+                    <div className="flex items-center justify-between text-xs font-bold text-slate-900 dark:text-white mb-1">
+                      <span>From Shiashie &amp; Tetteh Quarshie</span>
+                      <span className="text-[10px] text-emerald-500 font-mono">~3 mins</span>
+                    </div>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                      Head north on Liberation Road toward Legon. Take the right exit onto the East Legon Underbridge into Boundary Road. Underbridge Mall is situated immediately on your right.
+                    </p>
                   </div>
-                  <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Courier dispatch across Greater Accra</span>
+
+                  {/* Route 2: From A&C Mall / American House */}
+                  <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80">
+                    <div className="flex items-center justify-between text-xs font-bold text-slate-900 dark:text-white mb-1">
+                      <span>From A&amp;C Mall &amp; American House</span>
+                      <span className="text-[10px] text-emerald-500 font-mono">~4 mins</span>
+                    </div>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                      Head south along Boundary Road past Galaxy International School toward the Underbridge. Drive straight for 1.2km; Underbridge Mall is on your left before reaching the bridge.
+                    </p>
                   </div>
-                  <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Trade-in appraisal for pre-owned electronics</span>
+
+                  {/* Route 3: From Tema Motorway / Spintex */}
+                  <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80">
+                    <div className="flex items-center justify-between text-xs font-bold text-slate-900 dark:text-white mb-1">
+                      <span>From Tema Motorway &amp; Spintex Bypass</span>
+                      <span className="text-[10px] text-emerald-500 font-mono">~6 mins</span>
+                    </div>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                      Exit at the East Legon Underbridge bypass directly into Boundary Road. Direct access to secure customer parking is available on ground and underground levels.
+                    </p>
                   </div>
                 </div>
 
-                <div className="mt-6">
-                  <a
-                    href="https://wa.me/233200147950?text=Hello%20Gadget%20Master%2C%20I%20would%20like%20directions%20to%20your%20East%20Legon%20showroom."
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-bold text-xs bg-[#FF8A00] hover:bg-[#EA580C] text-white shadow transition-all"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    <span>Get Directions via WhatsApp</span>
-                  </a>
+                {/* Showroom Amenities & Operating Hours */}
+                <div className="p-5 rounded-3xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800">
+                  <div className="grid grid-cols-2 gap-3 text-xs mb-4">
+                    <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+                      <span className="text-base">🅿️</span>
+                      <span className="font-medium">Free Customer Parking</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+                      <span className="text-base">⚡</span>
+                      <span className="font-medium">Live Device Unboxing</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+                      <span className="text-base">🛡️</span>
+                      <span className="font-medium">Warranty Registration Desk</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+                      <span className="text-base">💳</span>
+                      <span className="font-medium">MoMo &amp; Card POS</span>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+                    <span className="text-slate-500 dark:text-slate-400">Showroom Hours:</span>
+                    <span className="font-bold text-slate-900 dark:text-white">
+                      Mon – Sat: 8:30 AM – 7:30 PM
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -551,7 +575,7 @@ export default function StorefrontHomePage() {
                   Accra Courier Delivery
                 </h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  Standard courier dispatch across Greater Accra & surrounding areas.
+                  Standard courier dispatch across Greater Accra &amp; surrounding areas.
                 </p>
               </div>
             </div>
@@ -560,7 +584,7 @@ export default function StorefrontHomePage() {
               <CheckCircle2 className="w-6 h-6 text-blue-500 shrink-0 mt-0.5" />
               <div>
                 <h4 className="font-bold text-sm text-slate-900 dark:text-white">
-                  Verified MoMo & Cards
+                  Verified MoMo &amp; Cards
                 </h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                   Paystack-secured MTN MoMo, Telecel Cash, and Visa/Mastercard payments.
@@ -578,6 +602,83 @@ export default function StorefrontHomePage() {
                   Bring pre-owned devices to the showroom for appraisal and upgrade credit.
                 </p>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ========================================================================= */}
+        {/* 5.5 INTERACTIVE HOMEPAGE FAQ SECTION                                      */}
+        {/* ========================================================================= */}
+        <section id="faq" className="py-12 sm:py-16 bg-white dark:bg-[#111827] border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-10">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 mb-3">
+                <Info className="w-3.5 h-3.5" />
+                <span>Customer Help &amp; FAQs</span>
+              </span>
+              <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                Frequently Asked Questions
+              </h2>
+              <p className="mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                Got questions before purchasing? Here is everything you need to know about our genuine stock and warranty.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {[
+                {
+                  q: "Are all products at The Gadget Master brand new and 100% genuine?",
+                  a: "Yes. Every phone, laptop, TV, audio system, and appliance is 100% brand new, sealed in original manufacturer packaging with verifiable serial and IMEI numbers.",
+                },
+                {
+                  q: "How does the 1-Year Official Warranty work?",
+                  a: "All brand new purchases include our 1-Year Gadget Master Warranty against factory defects, plus an immediate 7-day hassle-free replacement period if an issue is verified.",
+                },
+                {
+                  q: "What payment options do you support?",
+                  a: "We support secure online checkout via Paystack with MTN Mobile Money, Telecel Cash, and Visa/Mastercard. At our Underbridge Mall showroom, we also accept POS card swipe and direct transfer.",
+                },
+                {
+                  q: "Can I place an order online and pick it up at the East Legon showroom?",
+                  a: "Absolutely. Select showroom pickup during checkout or reserve via WhatsApp. Your order will be staged at our collection counter for you to unbox, inspect, and test.",
+                },
+              ].map((faq, idx) => {
+                const isOpen = openFaqIndex === idx;
+                return (
+                  <div
+                    key={idx}
+                    className="rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 overflow-hidden transition-all duration-200"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                      className="w-full px-5 py-4 text-left flex items-center justify-between gap-4 font-bold text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none"
+                    >
+                      <span>{faq.q}</span>
+                      <ChevronDown
+                        className={`w-4 h-4 text-[#FF8A00] transition-transform duration-200 shrink-0 ${
+                          isOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+                    {isOpen && (
+                      <div className="px-5 pb-4 pt-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed border-t border-slate-200/60 dark:border-slate-800/60">
+                        {faq.a}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Link to Dedicated FAQ Page */}
+            <div className="mt-8 text-center">
+              <Link
+                href="/faq"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs sm:text-sm font-bold border border-slate-200 dark:border-slate-700 transition-all shadow-sm"
+              >
+                <span>📚 Browse Full FAQ Knowledgebase &rarr;</span>
+              </Link>
             </div>
           </div>
         </section>
@@ -633,7 +734,7 @@ export default function StorefrontHomePage() {
           {/* Customer Service & Policies */}
           <div>
             <h5 className="font-bold text-slate-900 dark:text-white mb-3 text-xs uppercase tracking-wider">
-              Customer Services
+              Customer Services &amp; Help
             </h5>
             <ul className="space-y-2">
               <li>
@@ -645,6 +746,21 @@ export default function StorefrontHomePage() {
                 <button onClick={() => setIsAiOpen(true)} className="hover:text-[#FF8A00] transition-colors">
                   AI Product Advisor
                 </button>
+              </li>
+              <li>
+                <Link href="/faq" className="hover:text-[#FF8A00] transition-colors">
+                  Frequently Asked Questions (FAQ)
+                </Link>
+              </li>
+              <li>
+                <a href="#map-directions" className="hover:text-[#FF8A00] transition-colors">
+                  Showroom Map &amp; Driving Directions
+                </a>
+              </li>
+              <li>
+                <Link href="/privacy" className="hover:text-[#FF8A00] transition-colors">
+                  Privacy Policy (Act 843)
+                </Link>
               </li>
               <li>
                 <a
@@ -664,10 +780,10 @@ export default function StorefrontHomePage() {
             </ul>
           </div>
 
-          {/* Admin Portals */}
+          {/* Admin Portals & Crawler Specs */}
           <div>
             <h5 className="font-bold text-slate-900 dark:text-white mb-3 text-xs uppercase tracking-wider">
-              Operations & Admin
+              Operations &amp; Admin
             </h5>
             <ul className="space-y-2">
               <li>
@@ -682,7 +798,7 @@ export default function StorefrontHomePage() {
                   rel="noopener noreferrer"
                   className="hover:text-[#FF8A00] transition-colors font-semibold flex items-center gap-1"
                 >
-                  <span>Retailer Admin & POS (3001)</span>
+                  <span>Retailer Admin &amp; POS (3001)</span>
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </li>
@@ -697,21 +813,30 @@ export default function StorefrontHomePage() {
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </li>
+              <li>
+                <a href="/robots.txt" className="hover:text-[#FF8A00] transition-colors text-[11px] text-slate-400">
+                  Search Crawler (Robots.txt)
+                </a>
+              </li>
             </ul>
           </div>
         </div>
 
         <div className="pt-8 border-t border-slate-200 dark:border-slate-800 max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-[11px] text-slate-400">
           <div>
-            &copy; {new Date().getFullYear()} The Gadget Master. All Rights Reserved. East Legon Showroom, Accra.
+            &copy; {new Date().getFullYear()} The Gadget Master Ltd. All Rights Reserved. Underbridge Mall, East Legon, Accra.
           </div>
           <div className="flex items-center gap-4">
+            <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
+            <span>&bull;</span>
+            <Link href="/faq" className="hover:underline">FAQ</Link>
+            <span>&bull;</span>
             <span>Powered by GCP Multi-Tenant SaaS</span>
           </div>
         </div>
       </footer>
 
-      {/* Product Details Modal */}
+      {/* Product Details Modal with Social Sharing */}
       {activeModalProduct && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
@@ -731,7 +856,7 @@ export default function StorefrontHomePage() {
               <div className="p-6 bg-slate-50 dark:bg-slate-900 rounded-2xl flex items-center justify-center">
                 <img
                   src={activeModalProduct.variants[0]?.imageUrl || activeModalProduct.featuredImage}
-                  alt={activeModalProduct.name}
+                  alt={`${activeModalProduct.name} - Genuine ${activeModalProduct.brand} (${activeModalProduct.modelNumber}) at The Gadget Master East Legon Showroom`}
                   className="max-h-60 object-contain"
                 />
               </div>
@@ -780,6 +905,68 @@ export default function StorefrontHomePage() {
                     WhatsApp
                   </a>
                 </div>
+              </div>
+            </div>
+
+            {/* Social Sharing Component */}
+            <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-800">
+              <div className="flex items-center justify-between mb-2.5">
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                  <Share2 className="w-3.5 h-3.5 text-[#FF8A00]" />
+                  <span>Share This Gadget:</span>
+                </span>
+                {copiedModalLink && (
+                  <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <Check className="w-3 h-3" /> Link Copied!
+                  </span>
+                )}
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <a
+                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
+                    `Check out ${activeModalProduct.name} at The Gadget Master Ghana: https://thegadgetmaster.online/#catalogue`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="py-2 px-2.5 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-500 text-xs font-semibold flex items-center justify-center gap-1.5 border border-emerald-500/20 transition-colors"
+                  title="Share on WhatsApp"
+                >
+                  <span>💬 WhatsApp</span>
+                </a>
+                <a
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                    `Check out ${activeModalProduct.name} at The Gadget Master Ghana:`
+                  )}&url=${encodeURIComponent('https://thegadgetmaster.online/#catalogue')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="py-2 px-2.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 text-xs font-semibold flex items-center justify-center gap-1.5 border border-sky-500/20 transition-colors"
+                  title="Share on X / Twitter"
+                >
+                  <span>🐦 X (Twitter)</span>
+                </a>
+                <a
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://thegadgetmaster.online')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="py-2 px-2.5 rounded-xl bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 text-xs font-semibold flex items-center justify-center gap-1.5 border border-blue-500/20 transition-colors"
+                  title="Share on Facebook"
+                >
+                  <span>👥 Facebook</span>
+                </a>
+                <button
+                  onClick={() => {
+                    if (typeof window !== "undefined") {
+                      navigator.clipboard.writeText(`${window.location.origin}/#${activeModalProduct.id}`);
+                    }
+                    setCopiedModalLink(true);
+                    setTimeout(() => setCopiedModalLink(false), 2500);
+                  }}
+                  className="py-2 px-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center justify-center gap-1.5 border border-slate-200 dark:border-slate-700 transition-colors"
+                  title="Copy Product Link"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy Link</span>
+                </button>
               </div>
             </div>
 

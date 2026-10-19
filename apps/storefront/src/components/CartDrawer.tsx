@@ -172,12 +172,18 @@ export function CartDrawer() {
             <p className="text-xs text-slate-400 mt-3 max-w-xs leading-relaxed">
               We received your payment of <strong className="text-white">GHS {completedOrder.grandTotal.toLocaleString()}</strong> via Paystack. Your devices are reserved at the Accra Flagship store.
             </p>
+            <a
+              href={`/thank-you?orderId=${completedOrder.orderNumber}&total=${completedOrder.grandTotal}&items=${completedOrder.items?.length || 1}&ref=${completedOrder.paymentIntent?.reference || 'PAY-OFFICIAL'}`}
+              className="mt-6 w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-900/30"
+            >
+              <span>🧾 View Full Order Confirmation &amp; Receipt &rarr;</span>
+            </a>
             <button
               onClick={() => {
                 setCompletedOrder(null);
                 setIsCartOpen(false);
               }}
-              className="mt-6 w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm transition-colors"
+              className="mt-2 w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs transition-colors"
             >
               Continue Shopping
             </button>
