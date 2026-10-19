@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { LoginAnimatedCharacter } from "@gcp/animation-engine";
 import { Lock, Mail, Eye, EyeOff, ShieldCheck, ArrowRight, AlertCircle } from "lucide-react";
 import { UniversalThemeSelector } from "@gcp/ui";
 
@@ -14,7 +13,6 @@ export default function RetailAdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [focusedField, setFocusedField] = useState<"email" | "password" | "other" | null>(null);
   const [authStatus, setAuthStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -69,7 +67,7 @@ export default function RetailAdminLoginPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
       {/* Top Header Bar & Theme Selector */}
-      <div className="max-w-6xl w-full mx-auto mb-4 flex items-center justify-between">
+      <div className="max-w-md sm:max-w-lg w-full mx-auto mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <img src="/logo-oval.png" alt="The Gadget Master" className="h-7 w-auto object-contain" />
           <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
@@ -79,23 +77,10 @@ export default function RetailAdminLoginPage() {
         <UniversalThemeSelector />
       </div>
 
-      <div className="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-        {/* Left Side: Interactive 3D Staff Character */}
-        <div className="lg:col-span-7 order-2 lg:order-1 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
-          <LoginAnimatedCharacter
-            variant="staff"
-            focusedField={focusedField}
-            isPasswordRevealed={showPassword}
-            authStatus={authStatus}
-            tenantName="The Gadget Master"
-            tenantColor="#FF8A00"
-            className="h-[480px] lg:h-[620px]"
-          />
-        </div>
-
-        {/* Right Side: Secure Staff Login Form */}
-        <div className="lg:col-span-5 order-1 lg:order-2 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl">
-          <div className="mb-8">
+      <div className="max-w-md sm:max-w-lg w-full mx-auto">
+        {/* Secure Staff Login Card */}
+        <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl">
+          <div className="mb-6">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 mb-3">
               <ShieldCheck className="w-4 h-4 text-orange-500" />
               The Gadget Master Retail ERP
@@ -121,7 +106,7 @@ export default function RetailAdminLoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div>
               <label
                 htmlFor="staff-email"
@@ -140,8 +125,6 @@ export default function RetailAdminLoginPage() {
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  onFocus={() => setFocusedField("email")}
-                  onBlur={() => setFocusedField(null)}
                   placeholder="staff@thegadgetmaster.gh"
                   className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF8A00] focus:border-transparent transition-all"
                 />
@@ -169,10 +152,8 @@ export default function RetailAdminLoginPage() {
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  onFocus={() => setFocusedField("password")}
-                  onBlur={() => setFocusedField(null)}
                   placeholder="••••••••••••"
-                  className="w-full pl-10 pr-12 py-3 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF8A00] focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-12 py-3 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF8A00] focus:border-transparent transition-all font-mono"
                 />
                 <button
                   type="button"

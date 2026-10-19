@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { LoginAnimatedCharacter } from "@gcp/animation-engine";
 import { Lock, Mail, Eye, EyeOff, ArrowRight, AlertCircle, ShoppingBag } from "lucide-react";
 import { UniversalThemeSelector } from "@gcp/ui";
 
@@ -15,7 +14,6 @@ export default function StorefrontLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [focusedField, setFocusedField] = useState<"email" | "password" | "other" | null>(null);
   const [authStatus, setAuthStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -69,7 +67,7 @@ export default function StorefrontLoginPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F17] text-slate-900 dark:text-slate-100 flex flex-col justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
       {/* Return to Storefront Header Link & Theme Selector */}
-      <div className="max-w-6xl w-full mx-auto mb-4 flex items-center justify-between">
+      <div className="max-w-md w-full mx-auto mb-6 flex items-center justify-between">
         <Link
           href="/"
           className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-500 hover:text-[#FF8A00] dark:text-slate-400 dark:hover:text-[#FF8A00] transition-colors"
@@ -78,29 +76,13 @@ export default function StorefrontLoginPage() {
         </Link>
 
         <div className="flex items-center gap-3">
-          <span className="text-xs font-mono text-slate-400 hidden sm:inline">
-            East Legon Customer Portal
-          </span>
           <UniversalThemeSelector />
         </div>
       </div>
 
-      <div className="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-        {/* Left Side: Interactive 3D Animated Character */}
-        <div className="lg:col-span-7 order-2 lg:order-1 rounded-3xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 shadow-card dark:shadow-cardDark overflow-hidden">
-          <LoginAnimatedCharacter
-            variant="customer"
-            focusedField={focusedField}
-            isPasswordRevealed={showPassword}
-            authStatus={authStatus}
-            tenantName="The Gadget Master"
-            tenantColor="#FF8A00"
-            className="h-[460px] lg:h-[580px]"
-          />
-        </div>
-
-        {/* Right Side: Customer Sign-In Form */}
-        <div className="lg:col-span-5 order-1 lg:order-2 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-card dark:shadow-cardDark">
+      <div className="max-w-md w-full mx-auto">
+        {/* Customer Sign-In Card */}
+        <div className="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-card dark:shadow-cardDark">
           <div className="mb-6">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#FFF2DF] dark:bg-[#2B1D0E] text-[#A34F00] dark:text-[#FFA336] border border-[#FF8A00]/30 mb-3">
               <ShoppingBag className="w-3.5 h-3.5 text-[#FF8A00]" />
@@ -146,8 +128,6 @@ export default function StorefrontLoginPage() {
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  onFocus={() => setFocusedField("email")}
-                  onBlur={() => setFocusedField(null)}
                   placeholder="your.email@example.com"
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF8A00] focus:border-transparent transition-all"
                 />
@@ -175,8 +155,6 @@ export default function StorefrontLoginPage() {
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  onFocus={() => setFocusedField("password")}
-                  onBlur={() => setFocusedField(null)}
                   placeholder="••••••••••••"
                   className="w-full pl-10 pr-11 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF8A00] focus:border-transparent transition-all font-mono"
                 />

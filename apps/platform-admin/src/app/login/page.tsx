@@ -2,8 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { LoginAnimatedCharacter } from "@gcp/animation-engine";
-import { Lock, Mail, Eye, EyeOff, ShieldAlert, ArrowRight, AlertCircle, KeyRound } from "lucide-react";
+import { Lock, Mail, Eye, EyeOff, ShieldAlert, ArrowRight, AlertCircle } from "lucide-react";
 import { UniversalThemeSelector } from "@gcp/ui";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -13,7 +12,6 @@ export default function PlatformAdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [focusedField, setFocusedField] = useState<"email" | "password" | "other" | null>(null);
   const [authStatus, setAuthStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -70,7 +68,7 @@ export default function PlatformAdminLoginPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
       {/* Top Header Bar & Theme Selector */}
-      <div className="max-w-6xl w-full mx-auto mb-4 flex items-center justify-between">
+      <div className="max-w-md sm:max-w-lg w-full mx-auto mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-xs">
             GCP
@@ -82,23 +80,10 @@ export default function PlatformAdminLoginPage() {
         <UniversalThemeSelector />
       </div>
 
-      <div className="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-        {/* Left Side: Interactive 3D Superadmin Character */}
-        <div className="lg:col-span-7 order-2 lg:order-1 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-indigo-900/50 shadow-xl overflow-hidden">
-          <LoginAnimatedCharacter
-            variant="admin"
-            focusedField={focusedField}
-            isPasswordRevealed={showPassword}
-            authStatus={authStatus}
-            tenantName="GCP Global Platform"
-            tenantColor="#6366F1"
-            className="h-[480px] lg:h-[620px]"
-          />
-        </div>
-
-        {/* Right Side: Platform Superadmin Form */}
-        <div className="lg:col-span-5 order-1 lg:order-2 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-indigo-900/50 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl">
-          <div className="mb-8">
+      <div className="max-w-md sm:max-w-lg w-full mx-auto">
+        {/* Platform Superadmin Form Card */}
+        <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-indigo-900/50 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl">
+          <div className="mb-6">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 mb-3">
               <ShieldAlert className="w-4 h-4 text-indigo-500" />
               GCP Infrastructure Control Plane
@@ -124,7 +109,7 @@ export default function PlatformAdminLoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div>
               <label
                 htmlFor="admin-email"
@@ -143,8 +128,6 @@ export default function PlatformAdminLoginPage() {
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  onFocus={() => setFocusedField("email")}
-                  onBlur={() => setFocusedField(null)}
                   placeholder="superadmin@gadgetcommerce.io"
                   className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                 />
@@ -172,8 +155,6 @@ export default function PlatformAdminLoginPage() {
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  onFocus={() => setFocusedField("password")}
-                  onBlur={() => setFocusedField(null)}
                   placeholder="••••••••••••"
                   className="w-full pl-10 pr-12 py-3 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                 />

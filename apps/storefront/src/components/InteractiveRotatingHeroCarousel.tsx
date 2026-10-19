@@ -13,11 +13,9 @@ import {
   RotateCw,
   ShieldCheck,
   Zap,
-  Headphones,
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { ProductListing } from "@gcp/contracts";
-import { SonyHeadphonesInteractiveViewer } from "@gcp/animation-engine";
 
 export interface CarouselSlide {
   id: string;
@@ -56,9 +54,6 @@ export function InteractiveRotatingHeroCarousel({
   const iphoneProduct = products.find((p) => p.slug.includes("16-pro-max") || p.id === "prod-iphone-16-pro-max");
   const tvProduct = products.find((p) => p.slug.includes("qned") || p.id === "prod-lg-qned70-75");
   const acProduct = products.find((p) => p.slug.includes("tcl") || p.id === "prod-tcl-ac-12csd");
-
-  // State to toggle dedicated 3D hardware inspection for Sony WH-1000XM6
-  const [showSony3DInspector, setShowSony3DInspector] = useState(false);
 
   const slides: CarouselSlide[] = [
     {
@@ -344,50 +339,22 @@ export function InteractiveRotatingHeroCarousel({
 
             {/* Right Column: Intact 3D Product Interactive Stage */}
             <div className="lg:col-span-6 p-4 sm:p-6 lg:p-10 flex flex-col items-center justify-center relative min-h-[360px] sm:min-h-[440px] lg:min-h-[540px]">
-              {/* 3D Hardware Mode Switcher */}
-              <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowSony3DInspector(!showSony3DInspector)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md transition-all shadow-sm ${
-                    showSony3DInspector
-                      ? "bg-[#FF8A00] text-white shadow-orange-500/20"
-                      : "bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-[#FF8A00]"
-                  }`}
-                  title="Toggle between slide product and Sony WH-1000XM6 3D inspection"
-                >
-                  <Headphones className="w-3.5 h-3.5 text-current" />
-                  <span>{showSony3DInspector ? "Show Slide Showcase" : "3D Inspect: Sony WH-1000XM6"}</span>
-                </button>
-              </div>
-
               {/* Product 3D Interactive Canvas */}
               <div className="relative w-full h-[320px] sm:h-[400px] lg:h-[480px] flex items-center justify-center">
-                {showSony3DInspector ? (
-                  <SonyHeadphonesInteractiveViewer
-                    onInteractionChange={setIsInteracting}
-                    className="w-full h-full"
-                  />
-                ) : (
-                  <RotatingProduct3DStage
-                    key={activeSlide.id}
-                    deviceType={activeSlide.deviceType}
-                    imageUrl={activeSlide.imageUrl}
-                    title={activeSlide.title}
-                    accentColor={activeSlide.accentColor}
-                    onInteractionChange={setIsInteracting}
-                  />
-                )}
+                <RotatingProduct3DStage
+                  key={activeSlide.id}
+                  deviceType={activeSlide.deviceType}
+                  imageUrl={activeSlide.imageUrl}
+                  title={activeSlide.title}
+                  accentColor={activeSlide.accentColor}
+                  onInteractionChange={setIsInteracting}
+                />
               </div>
 
               {/* Interactive Hint Indicator */}
               <div className="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800 pointer-events-none">
                 <RotateCw className="w-3 h-3 text-[#FF8A00] animate-spin-slow" />
-                <span>
-                  {showSony3DInspector
-                    ? "Drag to rotate 360° • Arrow keys to inspect • Press R to reset"
-                    : "Hover or drag to reveal product angles in perspective"}
-                </span>
+                <span>Hover or drag to reveal product angles in perspective</span>
               </div>
             </div>
           </div>
