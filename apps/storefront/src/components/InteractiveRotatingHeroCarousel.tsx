@@ -13,6 +13,7 @@ import {
   RotateCw,
   ShieldCheck,
   Zap,
+  Box,
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { ProductListing } from "@gcp/contracts";
@@ -54,6 +55,9 @@ export function InteractiveRotatingHeroCarousel({
   const iphoneProduct = products.find((p) => p.slug.includes("16-pro-max") || p.id === "prod-iphone-16-pro-max");
   const tvProduct = products.find((p) => p.slug.includes("qned") || p.id === "prod-lg-qned70-75");
   const acProduct = products.find((p) => p.slug.includes("tcl") || p.id === "prod-tcl-ac-12csd");
+
+  // Visual display mode: "photo3d" (Photorealistic 3D Float) vs "cad3d" (Interactive 3D CAD Mesh)
+  const [stageMode, setStageMode] = useState<"photo3d" | "cad3d">("photo3d");
 
   const slides: CarouselSlide[] = [
     {
@@ -339,22 +343,67 @@ export function InteractiveRotatingHeroCarousel({
 
             {/* Right Column: Intact 3D Product Interactive Stage */}
             <div className="lg:col-span-6 p-4 sm:p-6 lg:p-10 flex flex-col items-center justify-center relative min-h-[360px] sm:min-h-[440px] lg:min-h-[540px]">
+              {/* Visual Mode Comparison Switcher */}
+              <div className="absolute top-4 right-4 z-20 flex items-center bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-1 rounded-full border border-slate-200 dark:border-slate-800 shadow-md">
+                <button
+                  type="button"
+                  onClick={() => setStageMode("photo3d")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                    stageMode === "photo3d"
+                      ? "bg-[#FF8A00] text-white shadow-sm"
+                      : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                  }`}
+                  title="Photorealistic authentic hardware studio photography with reactive 3D tilt & glare physics"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Photorealistic 3D Float</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStageMode("cad3d")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                    stageMode === "cad3d"
+                      ? "bg-[#FF8A00] text-white shadow-sm"
+                      : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                  }`}
+                  title="Interactive WebGL 3D CAD model with textured hardware face and 360° rotation"
+                >
+                  <Box className="w-3.5 h-3.5" />
+                  <span>Interactive 3D CAD</span>
+                </button>
+              </div>
+
               {/* Product 3D Interactive Canvas */}
               <div className="relative w-full h-[320px] sm:h-[400px] lg:h-[480px] flex items-center justify-center">
-                <RotatingProduct3DStage
-                  key={activeSlide.id}
-                  deviceType={activeSlide.deviceType}
-                  imageUrl={activeSlide.imageUrl}
-                  title={activeSlide.title}
-                  accentColor={activeSlide.accentColor}
-                  onInteractionChange={setIsInteracting}
-                />
+                {stageMode === "photo3d" ? (
+                  <PhotorealisticFloatingProduct
+                    key={`photo-${activeSlide.id}`}
+                    imageUrl={activeSlide.imageUrl}
+                    title={activeSlide.title}
+                    accentColor={activeSlide.accentColor}
+                    specs={activeSlide.specs}
+                    onInteractionChange={setIsInteracting}
+                  />
+                ) : (
+                  <RotatingProduct3DStage
+                    key={`cad-${activeSlide.id}`}
+                    deviceType={activeSlide.deviceType}
+                    imageUrl={activeSlide.imageUrl}
+                    title={activeSlide.title}
+                    accentColor={activeSlide.accentColor}
+                    onInteractionChange={setIsInteracting}
+                  />
+                )}
               </div>
 
               {/* Interactive Hint Indicator */}
               <div className="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800 pointer-events-none">
                 <RotateCw className="w-3 h-3 text-[#FF8A00] animate-spin-slow" />
-                <span>Hover or drag to reveal product angles in perspective</span>
+                <span>
+                  {stageMode === "photo3d"
+                    ? "Photorealistic 3D Float • Hover or drag for 3D perspective tilt & studio glare"
+                    : "Interactive 3D CAD Mesh • Drag to rotate 360° on all axes"}
+                </span>
               </div>
             </div>
           </div>
@@ -411,8 +460,180 @@ export function InteractiveRotatingHeroCarousel({
 }
 
 // =============================================================================
-// ROTATING PRODUCT 3D STAGE (Three.js WebGL with photographic fallback)
-// Products remain assembled! Interactive smooth rotation on pointer hover.
+// 1. PHOTOREALISTIC FLOATING PRODUCT STAGE
+// True-to-life authentic hardware photography with interactive 3D perspective
+// tilt, dynamic studio specular reflection glare, and reactive levitation shadow.
+// =============================================================================
+interface PhotorealisticFloatingProductProps {
+  imageUrl: string;
+  title: string;
+  accentColor: string;
+  specs: { label: string; value: string }[];
+  onInteractionChange?: (active: boolean) => void;
+}
+
+function PhotorealisticFloatingProduct({
+  imageUrl,
+  title,
+  accentColor,
+  specs,
+  onInteractionChange,
+}: PhotorealisticFloatingProductProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [rotation, setRotation] = useState({ x: 0, y: 0 });
+  const [glarePos, setGlarePos] = useState({ x: 50, y: 50, opacity: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef({ x: 0, y: 0, rotX: 0, rotY: 0 });
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const normX = x / rect.width - 0.5;
+    const normY = y / rect.height - 0.5;
+
+    if (isDragging) {
+      const deltaX = e.clientX - dragStartRef.current.x;
+      const deltaY = e.clientY - dragStartRef.current.y;
+      setRotation({
+        x: Math.max(-28, Math.min(28, dragStartRef.current.rotX - deltaY * 0.2)),
+        y: Math.max(-36, Math.min(36, dragStartRef.current.rotY + deltaX * 0.25)),
+      });
+    } else {
+      setRotation({
+        x: -normY * 18,
+        y: normX * 24,
+      });
+    }
+
+    setGlarePos({
+      x: (x / rect.width) * 100,
+      y: (y / rect.height) * 100,
+      opacity: 0.4,
+    });
+  };
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    setIsDragging(true);
+    dragStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      rotX: rotation.x,
+      rotY: rotation.y,
+    };
+    onInteractionChange?.(true);
+  };
+
+  const handlePointerUp = () => {
+    setIsDragging(false);
+    onInteractionChange?.(isHovered);
+  };
+
+  const handlePointerEnter = () => {
+    setIsHovered(true);
+    onInteractionChange?.(true);
+  };
+
+  const handlePointerLeave = () => {
+    setIsHovered(false);
+    setIsDragging(false);
+    setRotation({ x: 0, y: 0 });
+    setGlarePos((p) => ({ ...p, opacity: 0 }));
+    onInteractionChange?.(false);
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      onPointerMove={handlePointerMove}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
+      className="relative w-full h-full flex flex-col items-center justify-center cursor-grab active:cursor-grabbing select-none"
+      style={{ perspective: "1200px" }}
+    >
+      {/* 3D Floating Stage with Multi-Axis Perspective */}
+      <div
+        className="relative flex items-center justify-center transition-transform duration-150 ease-out"
+        style={{
+          transformStyle: "preserve-3d",
+          transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
+        }}
+      >
+        {/* Foreground Depth Spec Badge 1 */}
+        {specs[0] && (
+          <div
+            className="hidden sm:flex absolute -top-4 -left-6 z-30 items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 shadow-xl pointer-events-none transition-transform duration-200"
+            style={{
+              transform: `translateZ(45px) translateX(${rotation.y * 0.4}px)`,
+            }}
+          >
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: accentColor }} />
+            <span className="text-[11px] font-bold text-slate-800 dark:text-slate-100">
+              {specs[0].label}: {specs[0].value}
+            </span>
+          </div>
+        )}
+
+        {/* Foreground Depth Spec Badge 2 */}
+        {specs[1] && (
+          <div
+            className="hidden sm:flex absolute -bottom-3 -right-6 z-30 items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 shadow-xl pointer-events-none transition-transform duration-200"
+            style={{
+              transform: `translateZ(35px) translateX(${rotation.y * -0.4}px)`,
+            }}
+          >
+            <span className="text-[11px] font-bold text-slate-800 dark:text-slate-100">
+              {specs[1].label}: {specs[1].value}
+            </span>
+          </div>
+        )}
+
+        {/* Authentic Product Photography Card with Specular Glare */}
+        <div
+          className="relative max-w-[280px] sm:max-w-[380px] lg:max-w-[440px] max-h-[340px] sm:max-h-[380px] rounded-2xl overflow-hidden group/product"
+          style={{
+            transform: "translateZ(20px)",
+            filter: "drop-shadow(0 25px 35px rgba(0, 0, 0, 0.35))",
+          }}
+        >
+          <img
+            src={imageUrl}
+            alt={title}
+            className="w-full h-auto max-h-[320px] sm:max-h-[360px] object-contain transition-transform duration-300 pointer-events-none"
+            loading="eager"
+          />
+
+          {/* Dynamic Specular Studio Lighting Reflection */}
+          <div
+            className="absolute inset-0 pointer-events-none mix-blend-overlay transition-opacity duration-300"
+            style={{
+              opacity: glarePos.opacity,
+              background: `radial-gradient(circle at ${glarePos.x}% ${glarePos.y}%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)`,
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Reactive Ground Shadow Plane */}
+      <div
+        className="mt-4 w-48 sm:w-64 h-5 rounded-[50%] blur-md transition-all duration-300 pointer-events-none"
+        style={{
+          background: `radial-gradient(ellipse at center, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.15) 50%, transparent 75%)`,
+          transform: `scale(${isHovered ? 1.15 : 1}) translateX(${rotation.y * 0.8}px)`,
+        }}
+      />
+    </div>
+  );
+}
+
+// =============================================================================
+// 2. INTERACTIVE 3D CAD STAGE (Three.js WebGL with 360° drag & textured face)
+// Fully assembled 3D CAD chassis with authentic device screen graphics mapped
+// onto geometry, studio PBR lighting, and 360° interactive drag rotation.
 // =============================================================================
 interface RotatingProduct3DStageProps {
   deviceType: "imac" | "laptop" | "soundbar" | "phone" | "tv" | "ac";
@@ -431,13 +652,12 @@ function RotatingProduct3DStage({
 }: RotatingProduct3DStageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [webGlFailed, setWebGlFailed] = useState(false);
-  const [fallbackRotation, setFallbackRotation] = useState({ x: 0, y: 0 });
+  const resetAngleRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    // Check for prefers-reduced-motion
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setWebGlFailed(true);
       return;
@@ -467,76 +687,89 @@ function RotatingProduct3DStage({
 
       container.appendChild(renderer.domElement);
 
-      // Studio Lighting for Intact Electronics
-      const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+      // Studio Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
       scene.add(ambientLight);
 
-      const keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
+      const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
       keyLight.position.set(2, 3, 3);
       keyLight.castShadow = true;
       scene.add(keyLight);
 
-      const rimLight = new THREE.DirectionalLight(new THREE.Color(accentColor), 1.5);
+      const rimLight = new THREE.DirectionalLight(new THREE.Color(accentColor), 1.8);
       rimLight.position.set(-3, -2, -2);
       scene.add(rimLight);
 
       // Floor Shadow Plane
       const shadowPlaneGeo = new THREE.PlaneGeometry(4, 4);
-      const shadowPlaneMat = new THREE.ShadowMaterial({ opacity: 0.15 });
+      const shadowPlaneMat = new THREE.ShadowMaterial({ opacity: 0.18 });
       const shadowPlane = new THREE.Mesh(shadowPlaneGeo, shadowPlaneMat);
       shadowPlane.rotation.x = -Math.PI / 2;
       shadowPlane.position.y = -1.1;
       shadowPlane.receiveShadow = true;
       scene.add(shadowPlane);
 
-      // Build Intact Device Geometry
+      // Build Intact Device Geometry with Textured Face
       productGroup = new THREE.Group();
-      buildIntactDeviceModel(productGroup, deviceType, accentColor);
+      buildIntactDeviceModel(productGroup, deviceType, accentColor, imageUrl);
       scene.add(productGroup);
 
-      // Pointer tracking state
-      let targetRotY = 0;
-      let targetRotX = 0;
-      let isHovering = false;
+      // 360° Interactive Drag State
+      let isDragging = false;
+      let prevPointerPos = { x: 0, y: 0 };
+      let velocity = { x: 0, y: 0 };
 
-      const handlePointerMove = (e: PointerEvent) => {
-        const rect = container.getBoundingClientRect();
-        const normX = (e.clientX - rect.left) / rect.width;
-        const normY = (e.clientY - rect.top) / rect.height;
-
-        // Bounded rotation range: ±35° yaw, ±15° pitch
-        targetRotY = (normX - 0.5) * 1.2;
-        targetRotX = (normY - 0.5) * 0.5;
-      };
-
-      const handlePointerEnter = () => {
-        isHovering = true;
+      const handlePointerDown = (e: PointerEvent) => {
+        isDragging = true;
+        prevPointerPos = { x: e.clientX, y: e.clientY };
+        velocity = { x: 0, y: 0 };
         onInteractionChange?.(true);
       };
 
-      const handlePointerLeave = () => {
-        isHovering = false;
-        targetRotY = 0;
-        targetRotX = 0;
+      const handlePointerMove = (e: PointerEvent) => {
+        if (!isDragging || !productGroup) return;
+        const deltaX = e.clientX - prevPointerPos.x;
+        const deltaY = e.clientY - prevPointerPos.y;
+
+        productGroup.rotation.y += deltaX * 0.012;
+        productGroup.rotation.x += deltaY * 0.01;
+        velocity = { x: deltaY * 0.006, y: deltaX * 0.007 };
+
+        prevPointerPos = { x: e.clientX, y: e.clientY };
+      };
+
+      const handlePointerUp = () => {
+        isDragging = false;
         onInteractionChange?.(false);
       };
 
-      container.addEventListener("pointermove", handlePointerMove);
-      container.addEventListener("pointerenter", handlePointerEnter);
-      container.addEventListener("pointerleave", handlePointerLeave);
+      resetAngleRef.current = () => {
+        if (productGroup) {
+          productGroup.rotation.set(0, 0, 0);
+          velocity = { x: 0, y: 0 };
+        }
+      };
 
-      // Rendering Loop with Damped Interpolation (lerp)
+      container.addEventListener("pointerdown", handlePointerDown);
+      window.addEventListener("pointermove", handlePointerMove);
+      window.addEventListener("pointerup", handlePointerUp);
+
+      // Rendering Loop with smooth momentum & gentle idle oscillation
       const render = () => {
         animationFrameId = requestAnimationFrame(render);
 
         if (productGroup) {
-          // Smooth damped rotation interpolation
-          productGroup.rotation.y += (targetRotY - productGroup.rotation.y) * 0.08;
-          productGroup.rotation.x += (targetRotX - productGroup.rotation.x) * 0.08;
+          if (!isDragging) {
+            productGroup.rotation.y += velocity.y;
+            productGroup.rotation.x += velocity.x;
+            velocity.x *= 0.92;
+            velocity.y *= 0.92;
 
-          // Subtle idle floating breathing animation when not actively moving pointer
-          if (!isHovering) {
-            productGroup.position.y = Math.sin(Date.now() * 0.0015) * 0.03;
+            // Gentle continuous idle rotation when pointer is released
+            if (Math.abs(velocity.y) < 0.0005) {
+              productGroup.rotation.y += 0.003;
+            }
+            productGroup.position.y = Math.sin(Date.now() * 0.0015) * 0.035;
           }
         }
 
@@ -547,7 +780,6 @@ function RotatingProduct3DStage({
 
       render();
 
-      // Resize observer
       const handleResize = () => {
         if (!container || !renderer || !camera) return;
         camera.aspect = container.clientWidth / container.clientHeight;
@@ -560,9 +792,9 @@ function RotatingProduct3DStage({
       return () => {
         cancelAnimationFrame(animationFrameId);
         window.removeEventListener("resize", handleResize);
-        container.removeEventListener("pointermove", handlePointerMove);
-        container.removeEventListener("pointerenter", handlePointerEnter);
-        container.removeEventListener("pointerleave", handlePointerLeave);
+        container.removeEventListener("pointerdown", handlePointerDown);
+        window.removeEventListener("pointermove", handlePointerMove);
+        window.removeEventListener("pointerup", handlePointerUp);
         if (renderer && renderer.domElement && container.contains(renderer.domElement)) {
           container.removeChild(renderer.domElement);
           renderer.dispose();
@@ -571,62 +803,47 @@ function RotatingProduct3DStage({
     } catch {
       setWebGlFailed(true);
     }
-  }, [deviceType, accentColor, onInteractionChange]);
-
-  // Fallback photographic rendering with subtle 3D CSS tilt
-  const handleFallbackMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setFallbackRotation({ x: -y * 20, y: x * 25 });
-  };
-
-  const handleFallbackLeave = () => {
-    setFallbackRotation({ x: 0, y: 0 });
-  };
+  }, [deviceType, accentColor, imageUrl, onInteractionChange]);
 
   if (webGlFailed) {
     return (
-      <div
-        className="w-full h-full flex items-center justify-center p-4 cursor-grab"
-        onPointerMove={handleFallbackMove}
-        onPointerLeave={handleFallbackLeave}
-      >
-        <div
-          className="relative max-w-sm sm:max-w-md transition-transform duration-200 ease-out"
-          style={{
-            transform: `perspective(1000px) rotateX(${fallbackRotation.x}deg) rotateY(${fallbackRotation.y}deg)`,
-          }}
-        >
-          <img
-            src={imageUrl}
-            alt={title}
-            className="w-full max-h-[360px] object-contain drop-shadow-2xl rounded-2xl"
-          />
-        </div>
+      <div className="w-full h-full flex items-center justify-center p-4">
+        <img
+          src={imageUrl}
+          alt={title}
+          className="w-full max-h-[360px] object-contain drop-shadow-2xl rounded-2xl"
+        />
       </div>
     );
   }
 
-  return <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing" />;
+  return (
+    <div className="relative w-full h-full">
+      <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
+      <button
+        type="button"
+        onClick={() => resetAngleRef.current?.()}
+        className="absolute bottom-2 left-2 z-10 flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm"
+        title="Reset 3D camera angle to front"
+      >
+        <RotateCw className="w-3 h-3 text-[#FF8A00]" />
+        <span>Reset Angle</span>
+      </button>
+    </div>
+  );
 }
 
-// Helper: Build Procedural 3D Intact Electronics Geometries for Hero Showcase
+// Helper: Build 3D Intact Electronics Geometries with Authentic Product Face Mapping
 function buildIntactDeviceModel(
   group: THREE.Group,
   deviceType: "imac" | "laptop" | "soundbar" | "phone" | "tv" | "ac",
-  accentHex: string
+  accentHex: string,
+  imageUrl: string
 ) {
   const aluminumMat = new THREE.MeshStandardMaterial({
     color: 0xd8d8d8,
     metalness: 0.85,
     roughness: 0.25,
-  });
-
-  const screenGlassMat = new THREE.MeshStandardMaterial({
-    color: 0x0a0c10,
-    metalness: 0.9,
-    roughness: 0.1,
   });
 
   const darkPolymerMat = new THREE.MeshStandardMaterial({
@@ -635,16 +852,28 @@ function buildIntactDeviceModel(
     roughness: 0.5,
   });
 
+  // Texture loader to display authentic product face on the 3D model
+  const textureLoader = new THREE.TextureLoader();
+  const screenTexture = textureLoader.load(imageUrl, (tex) => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.minFilter = THREE.LinearFilter;
+  });
+
+  const screenPhotoMat = new THREE.MeshStandardMaterial({
+    map: screenTexture,
+    metalness: 0.1,
+    roughness: 0.2,
+  });
+
   switch (deviceType) {
     case "imac": {
-      // Screen & Frame
       const screenGeo = new THREE.BoxGeometry(2.2, 1.4, 0.05);
       const screen = new THREE.Mesh(screenGeo, aluminumMat);
       screen.castShadow = true;
 
-      // Screen Glass Panel
+      // Authentic display face
       const glassGeo = new THREE.PlaneGeometry(2.1, 1.25);
-      const glass = new THREE.Mesh(glassGeo, screenGlassMat);
+      const glass = new THREE.Mesh(glassGeo, screenPhotoMat);
       glass.position.z = 0.026;
       screen.add(glass);
 
@@ -672,36 +901,32 @@ function buildIntactDeviceModel(
     }
 
     case "laptop": {
-      // Laptop Base
       const baseGeo = new THREE.BoxGeometry(2.0, 0.04, 1.4);
       const base = new THREE.Mesh(baseGeo, aluminumMat);
       base.position.set(0, -0.4, 0);
       base.castShadow = true;
 
-      // Trackpad
       const trackpadGeo = new THREE.PlaneGeometry(0.65, 0.45);
       const trackpad = new THREE.Mesh(trackpadGeo, darkPolymerMat);
       trackpad.rotation.x = -Math.PI / 2;
       trackpad.position.set(0, 0.021, 0.35);
       base.add(trackpad);
 
-      // Keyboard Area
       const keyboardGeo = new THREE.PlaneGeometry(1.7, 0.65);
       const keyboard = new THREE.Mesh(keyboardGeo, darkPolymerMat);
       keyboard.rotation.x = -Math.PI / 2;
       keyboard.position.set(0, 0.021, -0.25);
       base.add(keyboard);
 
-      // Laptop Lid (Angled back 110 degrees)
       const lidGeo = new THREE.BoxGeometry(2.0, 1.35, 0.03);
       const lid = new THREE.Mesh(lidGeo, aluminumMat);
       lid.position.set(0, 0.25, -0.65);
       lid.rotation.x = -0.35;
       lid.castShadow = true;
 
-      // Lid Screen Glass
+      // Authentic laptop screen face
       const lidScreenGeo = new THREE.PlaneGeometry(1.9, 1.25);
-      const lidScreen = new THREE.Mesh(lidScreenGeo, screenGlassMat);
+      const lidScreen = new THREE.Mesh(lidScreenGeo, screenPhotoMat);
       lidScreen.position.z = 0.016;
       lid.add(lidScreen);
 
@@ -711,23 +936,15 @@ function buildIntactDeviceModel(
     }
 
     case "soundbar": {
-      // Soundbar Main Unit
       const barGeo = new THREE.BoxGeometry(2.4, 0.2, 0.3);
       const bar = new THREE.Mesh(barGeo, darkPolymerMat);
       bar.castShadow = true;
 
-      // Speaker Grill Mesh
       const grillGeo = new THREE.BoxGeometry(2.35, 0.18, 0.02);
-      const grillMat = new THREE.MeshStandardMaterial({
-        color: 0x242424,
-        roughness: 0.8,
-        metalness: 0.1,
-      });
-      const grill = new THREE.Mesh(grillGeo, grillMat);
+      const grill = new THREE.Mesh(grillGeo, screenPhotoMat);
       grill.position.z = 0.15;
       bar.add(grill);
 
-      // Wireless Subwoofer Beside It
       const subGeo = new THREE.BoxGeometry(0.7, 0.8, 0.7);
       const sub = new THREE.Mesh(subGeo, darkPolymerMat);
       sub.position.set(1.4, 0.3, -0.2);
@@ -739,18 +956,17 @@ function buildIntactDeviceModel(
     }
 
     case "phone": {
-      // Smartphone Body (iPhone 16 Pro Max Form)
       const bodyGeo = new THREE.BoxGeometry(1.0, 1.95, 0.08);
       const body = new THREE.Mesh(bodyGeo, aluminumMat);
       body.castShadow = true;
 
-      // Front OLED Glass
+      // Front authentic screen
       const frontGlassGeo = new THREE.PlaneGeometry(0.94, 1.88);
-      const frontGlass = new THREE.Mesh(frontGlassGeo, screenGlassMat);
+      const frontGlass = new THREE.Mesh(frontGlassGeo, screenPhotoMat);
       frontGlass.position.z = 0.041;
       body.add(frontGlass);
 
-      // Triple Camera Bump
+      // Camera bump
       const bumpGeo = new THREE.BoxGeometry(0.42, 0.45, 0.04);
       const bump = new THREE.Mesh(bumpGeo, aluminumMat);
       bump.position.set(-0.25, 0.65, -0.05);
@@ -761,17 +977,16 @@ function buildIntactDeviceModel(
     }
 
     case "tv": {
-      // Television Display Panel
       const tvGeo = new THREE.BoxGeometry(2.6, 1.5, 0.04);
       const tv = new THREE.Mesh(tvGeo, darkPolymerMat);
       tv.castShadow = true;
 
+      // Screen with authentic display
       const tvScreenGeo = new THREE.PlaneGeometry(2.54, 1.44);
-      const tvScreen = new THREE.Mesh(tvScreenGeo, screenGlassMat);
+      const tvScreen = new THREE.Mesh(tvScreenGeo, screenPhotoMat);
       tvScreen.position.z = 0.021;
       tv.add(tvScreen);
 
-      // TV Stand Feet
       const footGeo = new THREE.BoxGeometry(0.04, 0.2, 0.4);
       const leftFoot = new THREE.Mesh(footGeo, darkPolymerMat);
       leftFoot.position.set(-0.9, -0.85, 0);
@@ -786,7 +1001,6 @@ function buildIntactDeviceModel(
     }
 
     case "ac": {
-      // Split Air Conditioner Indoor Unit
       const acGeo = new THREE.BoxGeometry(2.2, 0.6, 0.4);
       const acMat = new THREE.MeshStandardMaterial({
         color: 0xfafafa,
@@ -796,7 +1010,11 @@ function buildIntactDeviceModel(
       const ac = new THREE.Mesh(acGeo, acMat);
       ac.castShadow = true;
 
-      // Bottom Air Outlet Vent Flap
+      const frontFaceGeo = new THREE.PlaneGeometry(2.1, 0.5);
+      const frontFace = new THREE.Mesh(frontFaceGeo, screenPhotoMat);
+      frontFace.position.set(0, 0, 0.201);
+      ac.add(frontFace);
+
       const ventGeo = new THREE.BoxGeometry(2.1, 0.1, 0.05);
       const ventMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
       const vent = new THREE.Mesh(ventGeo, ventMat);
@@ -808,3 +1026,4 @@ function buildIntactDeviceModel(
     }
   }
 }
+
