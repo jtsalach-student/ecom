@@ -11,10 +11,14 @@ import {
   Pause,
   Play,
   RotateCw,
-  ShieldCheck,
-  Zap,
   Box,
   Compass,
+  Layers,
+  Camera,
+  Maximize2,
+  CheckCircle2,
+  Info,
+  Sliders,
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { ProductListing } from "@gcp/contracts";
@@ -32,10 +36,17 @@ export interface CarouselSlide {
   ctaUrl?: string;
   imageUrl: string;
   backImageUrl?: string;
-  deviceType: "imac" | "laptop" | "soundbar" | "phone" | "tv" | "ac";
+  deviceType: "phone" | "laptop" | "soundbar" | "imac" | "tv" | "ac";
+  deviceModel: "fold6" | "iphone16" | "surface7" | "jbl800" | "imac24" | "tv75" | "ac15";
   accentColor: string;
   specs: { label: string; value: string }[];
   matchedProduct?: any;
+  hotspots: {
+    id: string;
+    title: string;
+    description: string;
+    badge: string;
+  }[];
 }
 
 interface HeroCarouselProps {
@@ -49,18 +60,17 @@ export function InteractiveRotatingHeroCarousel({
 }: HeroCarouselProps) {
   const { addItem, setIsCartOpen } = useCart();
 
-  // Find matching researched products from props
-  // Find matching catalogue products strictly from props
-  const imacProduct = products.find((p) => p.slug.includes("imac") || p.id === "prod-apple-imac-24-m4") || products[0];
+  // Find matching researched products strictly from props
+  const foldProduct = products.find((p) => p.slug.includes("fold") || p.id === "prod-samsung-z-fold6");
+  const iphoneProduct = products.find((p) => p.slug.includes("16-pro-max") || p.id === "prod-iphone-16-pro-max");
   const surfaceProduct = products.find((p) => p.slug.includes("surface") || p.id === "prod-surface-laptop-15-snapdragon");
   const jblBarProduct = products.find((p) => p.slug.includes("jbl-bar") || p.id === "prod-jbl-bar-800-mk2");
-  const iphoneProduct = products.find((p) => p.slug.includes("16-pro-max") || p.id === "prod-iphone-16-pro-max");
-  const foldProduct = products.find((p) => p.slug.includes("fold") || p.id === "prod-samsung-z-fold6");
+  const imacProduct = products.find((p) => p.slug.includes("imac") || p.id === "prod-apple-imac-24-m4") || products[0];
   const tvProduct = products.find((p) => p.slug.includes("qned") || p.id === "prod-lg-qned70-75");
   const acProduct = products.find((p) => p.slug.includes("tcl") || p.id === "prod-tcl-ac-12csd");
 
-  // Visual display mode: "photo3d" (Photorealistic 3D Float) vs "cad3d" (Interactive 3D CAD Mesh)
-  const [stageMode, setStageMode] = useState<"photo3d" | "cad3d">("photo3d");
+  // Display mode: "cad3d" (Genuine 3D CAD Hardware Model) vs "gallery" (Official 4K Studio Photography)
+  const [stageMode, setStageMode] = useState<"cad3d" | "gallery">("cad3d");
 
   const slides: CarouselSlide[] = [
     {
@@ -76,6 +86,7 @@ export function InteractiveRotatingHeroCarousel({
       imageUrl: "/products/samsung-z-fold6-front.jpg",
       backImageUrl: "/products/samsung-z-fold6-back.jpg",
       deviceType: "phone",
+      deviceModel: "fold6",
       accentColor: "#3B82F6",
       specs: [
         { label: "Main Screen", value: "7.6\" 120Hz AMOLED" },
@@ -84,28 +95,75 @@ export function InteractiveRotatingHeroCarousel({
         { label: "Durability", value: "Armor Aluminum Hinge" },
       ],
       matchedProduct: foldProduct,
+      hotspots: [
+        {
+          id: "hinge",
+          title: "Dual-Rail Armor Aluminum Hinge",
+          description: "Precision-engineered slim folding spine rated for 200,000+ folds with zero gap.",
+          badge: "Aero Durability",
+        },
+        {
+          id: "screen",
+          title: "7.6\" Dynamic AMOLED 2X Display",
+          description: "2,600 nits peak outdoor brightness with adaptive 1-120Hz refresh rate and S-Pen support.",
+          badge: "2,600 Nits",
+        },
+        {
+          id: "camera",
+          title: "Triple 50MP ProVisual Camera Island",
+          description: "50MP Wide with OIS, 12MP Ultra-Wide, and 10MP 3x Optical Telephoto.",
+          badge: "8K ProVisual",
+        },
+        {
+          id: "cover",
+          title: "6.3\" One-Handed Cover Screen",
+          description: "Corning Gorilla Glass Victus 2 with 22:9 aspect ratio for instant access.",
+          badge: "Victus 2",
+        },
+      ],
     },
     {
-      id: "slide-imac",
-      badge: "Apple M4 Silicon",
-      title: imacProduct?.name || "Apple iMac 24-inch M4",
-      subtitle: imacProduct?.shortDescription || "All-in-One Power with 4.5K Retina Brilliance",
-      benefit: imacProduct?.description || "The ultimate desktop centerpiece. 16GB unified memory, 12MP Center Stage camera with Desk View, and Studio-quality acoustics.",
-      category: "Desktop Computing",
-      priceGhs: imacProduct?.variants[0]?.retailPrice || 24500,
+      id: "slide-iphone",
+      badge: "Aerospace Grade 5 Titanium",
+      title: iphoneProduct?.name || "Apple iPhone 16 Pro Max",
+      subtitle: iphoneProduct?.shortDescription || "A18 Pro 3nm Silicon & 5x Optical Periscope",
+      benefit: iphoneProduct?.description || "Lightweight titanium construction, 6.9\" Super Retina XDR ProMotion, Camera Control sensor button, and 48MP Fusion imaging.",
+      category: "Flagship Smartphones",
+      priceGhs: iphoneProduct?.variants[0]?.retailPrice || 15900,
       isConfirmedPrice: true,
       status: "IN_STOCK",
-      imageUrl: imacProduct?.featuredImage || imacProduct?.images[0] || "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=1200&q=80",
-      backImageUrl: "https://images.unsplash.com/photo-1517059224940-d4af9eec41b7?auto=format&fit=crop&w=1200&q=80",
-      deviceType: "imac",
-      accentColor: "#FF8A00",
+      imageUrl: "/products/samsung-s24-ultra.jpg",
+      backImageUrl: "/products/samsung-s24-ultra.jpg",
+      deviceType: "phone",
+      deviceModel: "iphone16",
+      accentColor: "#10B981",
       specs: [
-        { label: "Display", value: "24\" 4.5K Retina" },
-        { label: "Processor", value: "Apple M4 (8-Core)" },
-        { label: "Memory", value: "16GB Unified" },
-        { label: "Storage", value: "256GB SSD" },
+        { label: "Frame", value: "Grade 5 Titanium" },
+        { label: "Chip", value: "A18 Pro (3nm)" },
+        { label: "Camera", value: "48MP + 5x Tetraprism" },
+        { label: "Display", value: "6.9\" LTPO 120Hz" },
       ],
-      matchedProduct: imacProduct,
+      matchedProduct: iphoneProduct,
+      hotspots: [
+        {
+          id: "titanium",
+          title: "Grade 5 Titanium Frame",
+          description: "Satin brushed aerospace titanium with contoured edges and extreme rigidity.",
+          badge: "Titanium",
+        },
+        {
+          id: "control",
+          title: "Camera Control Sapphire Button",
+          description: "Force-sensing capacitive button with haptic feedback for slide-to-zoom and instant capture.",
+          badge: "Haptic Sensor",
+        },
+        {
+          id: "island",
+          title: "Dynamic Island Display",
+          description: "Super Retina XDR with razor-thin 1.15mm uniform borders and 2,000 nits peak.",
+          badge: "Dynamic Island",
+        },
+      ],
     },
     {
       id: "slide-surface",
@@ -120,6 +178,7 @@ export function InteractiveRotatingHeroCarousel({
       imageUrl: "/products/surface-laptop-7.jpg",
       backImageUrl: "/products/surface-laptop-7.jpg",
       deviceType: "laptop",
+      deviceModel: "surface7",
       accentColor: "#0284C7",
       specs: [
         { label: "Screen", value: "15.0\" 120Hz Touch" },
@@ -128,6 +187,26 @@ export function InteractiveRotatingHeroCarousel({
         { label: "Battery", value: "Up to 22 Hours" },
       ],
       matchedProduct: surfaceProduct,
+      hotspots: [
+        {
+          id: "npu",
+          title: "45 TOPS Hexagon NPU",
+          description: "Dedicated Copilot+ AI engine running local neural models with instant responsiveness.",
+          badge: "Copilot+ PC",
+        },
+        {
+          id: "pixelsense",
+          title: "15.0\" PixelSense Flow Touch",
+          description: "3:2 productivity aspect ratio, ultra-crisp 2496x1664 resolution with 120Hz VRR.",
+          badge: "PixelSense 120Hz",
+        },
+        {
+          id: "trackpad",
+          title: "Precision Haptic Glass Trackpad",
+          description: "Expansive tactile glass touchpad with zero physical dead zones.",
+          badge: "Haptic Glass",
+        },
+      ],
     },
     {
       id: "slide-jbl-bar",
@@ -142,6 +221,7 @@ export function InteractiveRotatingHeroCarousel({
       imageUrl: "/products/jbl-bar-800-mk2.jpg",
       backImageUrl: "/products/jbl-bar-800-mk2.jpg",
       deviceType: "soundbar",
+      deviceModel: "jbl800",
       accentColor: "#F59E0B",
       specs: [
         { label: "Power", value: "720W RMS" },
@@ -150,29 +230,63 @@ export function InteractiveRotatingHeroCarousel({
         { label: "Subwoofer", value: "10\" Wireless Bass" },
       ],
       matchedProduct: jblBarProduct,
+      hotspots: [
+        {
+          id: "surrounds",
+          title: "Detachable Wireless Surrounds",
+          description: "Battery-powered pods detach magnetically to form true wireless rear channels.",
+          badge: "Magnetic Detach",
+        },
+        {
+          id: "subwoofer",
+          title: "10-Inch Wireless Down-Firing Sub",
+          description: "Room-shaking acoustic cabinet delivering chest-thumping low frequencies down to 35Hz.",
+          badge: "10\" Subwoofer",
+        },
+        {
+          id: "atmos",
+          title: "Up-Firing Dolby Atmos Drivers",
+          description: "Multi-angle ceiling bounce audio for authentic three-dimensional height channels.",
+          badge: "Dolby Atmos 3D",
+        },
+      ],
     },
     {
-      id: "slide-iphone",
-      badge: "Aerospace Grade 5 Titanium",
-      title: iphoneProduct?.name || "Apple iPhone 16 Pro Max",
-      subtitle: iphoneProduct?.shortDescription || "A18 Pro 3nm Silicon & 5x Optical Periscope",
-      benefit: iphoneProduct?.description || "Lightweight titanium construction, 6.9\" Super Retina XDR ProMotion, Camera Control sensor button, and 48MP Fusion imaging.",
-      category: "Flagship Smartphones",
-      // Accurately synchronized with catalogue variant price
-      priceGhs: iphoneProduct?.variants[0]?.retailPrice || 15900,
+      id: "slide-imac",
+      badge: "Apple M4 Silicon",
+      title: imacProduct?.name || "Apple iMac 24-inch M4",
+      subtitle: imacProduct?.shortDescription || "All-in-One Power with 4.5K Retina Brilliance",
+      benefit: imacProduct?.description || "The ultimate desktop centerpiece. 16GB unified memory, 12MP Center Stage camera with Desk View, and Studio-quality acoustics.",
+      category: "Desktop Computing",
+      priceGhs: imacProduct?.variants[0]?.retailPrice || 24500,
       isConfirmedPrice: true,
       status: "IN_STOCK",
-      imageUrl: iphoneProduct?.featuredImage || iphoneProduct?.images[0] || "https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=1200&q=80",
-      backImageUrl: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=1200&q=80",
-      deviceType: "phone",
-      accentColor: "#10B981",
+      imageUrl: "/products/thinkpad-x1-carbon.jpg",
+      backImageUrl: "/products/thinkpad-x1-carbon.jpg",
+      deviceType: "imac",
+      deviceModel: "imac24",
+      accentColor: "#FF8A00",
       specs: [
-        { label: "Frame", value: "Grade 5 Titanium" },
-        { label: "Chip", value: "A18 Pro (3nm)" },
-        { label: "Camera", value: "48MP + 5x Tetraprism" },
-        { label: "Display", value: "6.9\" LTPO 120Hz" },
+        { label: "Display", value: "24\" 4.5K Retina" },
+        { label: "Processor", value: "Apple M4 (8-Core)" },
+        { label: "Memory", value: "16GB Unified" },
+        { label: "Storage", value: "256GB SSD" },
       ],
-      matchedProduct: iphoneProduct,
+      matchedProduct: imacProduct,
+      hotspots: [
+        {
+          id: "retina",
+          title: "24-Inch 4.5K Retina Brilliance",
+          description: "11.3 million pixels with 500 nits brightness and P3 wide color gamut.",
+          badge: "4.5K Retina",
+        },
+        {
+          id: "slim",
+          title: "11.5mm Razor-Thin Unibody",
+          description: "Engineered around high-efficiency Apple Silicon with color-matched anodized aluminum.",
+          badge: "11.5mm Thin",
+        },
+      ],
     },
     {
       id: "slide-lg-qned",
@@ -185,8 +299,9 @@ export function InteractiveRotatingHeroCarousel({
       isConfirmedPrice: true,
       status: "IN_STOCK",
       imageUrl: tvProduct?.featuredImage || tvProduct?.images[0] || "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=1200&q=80",
-      backImageUrl: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=1200&q=80",
+      backImageUrl: tvProduct?.featuredImage || tvProduct?.images[0] || "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=1200&q=80",
       deviceType: "tv",
+      deviceModel: "tv75",
       accentColor: "#8B5CF6",
       specs: [
         { label: "Size", value: "75\" 4K UHD" },
@@ -195,6 +310,14 @@ export function InteractiveRotatingHeroCarousel({
         { label: "OS", value: "webOS 23 ThinQ" },
       ],
       matchedProduct: tvProduct,
+      hotspots: [
+        {
+          id: "qned",
+          title: "Quantum Dot + NanoCell Color",
+          description: "Dual-layer color filtering delivers richer, richer primaries with local dimming.",
+          badge: "Quantum Dot",
+        },
+      ],
     },
     {
       id: "slide-tcl-ac",
@@ -207,8 +330,9 @@ export function InteractiveRotatingHeroCarousel({
       isConfirmedPrice: true,
       status: "IN_STOCK",
       imageUrl: acProduct?.featuredImage || acProduct?.images[0] || "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=1200&q=80",
-      backImageUrl: "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=1200&q=80",
+      backImageUrl: acProduct?.featuredImage || acProduct?.images[0] || "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=1200&q=80",
       deviceType: "ac",
+      deviceModel: "ac15",
       accentColor: "#06B6D4",
       specs: [
         { label: "Capacity", value: "12,000 BTU (1.5HP)" },
@@ -217,6 +341,14 @@ export function InteractiveRotatingHeroCarousel({
         { label: "Protection", value: "TitanGold Condenser" },
       ],
       matchedProduct: acProduct,
+      hotspots: [
+        {
+          id: "inverter",
+          title: "AI Smart Inverter Compressor",
+          description: "Continuous variable-speed operation saves up to 60% power consumption.",
+          badge: "60% Eco Saver",
+        },
+      ],
     },
   ];
 
@@ -235,14 +367,14 @@ export function InteractiveRotatingHeroCarousel({
     setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
   }, [slides.length]);
 
-  // Autoplay effect (6 seconds per slide, comfortably pauses on hover or interaction)
+  // Autoplay effect (pauses on interaction or hover)
   useEffect(() => {
     if (isPaused || isInteracting) return;
-    const timer = setInterval(nextSlide, 6500);
+    const timer = setInterval(nextSlide, 7500);
     return () => clearInterval(timer);
   }, [isPaused, isInteracting, nextSlide]);
 
-  // Keyboard navigation (ArrowLeft & ArrowRight)
+  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") prevSlide();
@@ -263,13 +395,13 @@ export function InteractiveRotatingHeroCarousel({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Carousel Hero Card */}
         <div className="relative rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800/80 bg-gradient-to-br from-white via-slate-50 to-[#FFF7EE] dark:from-[#111827] dark:via-[#0F172A] dark:to-[#17120C] shadow-card dark:shadow-cardDark transition-colors duration-300">
-          {/* Subtle Accent Glow */}
+          {/* Subtle Dynamic Ambient Glow */}
           <div
             className="absolute -top-32 -right-32 w-96 h-96 rounded-full blur-3xl pointer-events-none opacity-25 dark:opacity-20 transition-all duration-700"
             style={{ backgroundColor: activeSlide.accentColor }}
           />
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 items-center min-h-[520px] lg:min-h-[580px]">
+          <div className="grid grid-cols-1 lg:grid-cols-12 items-center min-h-[560px] lg:min-h-[620px]">
             {/* Left Column: Stable Content & Product Information */}
             <div className="lg:col-span-6 p-6 sm:p-10 lg:p-12 z-10 flex flex-col justify-between h-full">
               <div>
@@ -298,7 +430,7 @@ export function InteractiveRotatingHeroCarousel({
                 </p>
 
                 {/* Specification Highlights Grid */}
-                <div className="grid grid-cols-2 gap-2.5 sm:gap-3 my-6 max-w-lg">
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-3 my-5 max-w-lg">
                   {activeSlide.specs.map((spec, i) => (
                     <div
                       key={i}
@@ -313,13 +445,32 @@ export function InteractiveRotatingHeroCarousel({
                     </div>
                   ))}
                 </div>
+
+                {/* Verified Hardware Details Callout List */}
+                <div className="hidden sm:flex flex-col gap-1.5 mb-5 p-3 rounded-2xl bg-slate-50/80 dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-800/60 text-xs">
+                  <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200 text-[11px] uppercase tracking-wider">
+                    <Info className="w-3.5 h-3.5 text-[#FF8A00]" />
+                    <span>Engineered Details</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {activeSlide.hotspots.map((hs) => (
+                      <span
+                        key={hs.id}
+                        className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[11px] font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1"
+                      >
+                        <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                        {hs.title}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               {/* Price & Action CTAs */}
               <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4">
                 <div>
                   <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Showroom Price
+                    Official Showroom Price
                   </div>
                   <div className="flex items-baseline gap-2">
                     {activeSlide.priceGhs ? (
@@ -372,23 +523,10 @@ export function InteractiveRotatingHeroCarousel({
               </div>
             </div>
 
-            {/* Right Column: Intact 3D Product Interactive Stage */}
-            <div className="lg:col-span-6 p-4 sm:p-6 lg:p-10 flex flex-col items-center justify-center relative min-h-[360px] sm:min-h-[440px] lg:min-h-[540px]">
-              {/* Visual Mode Comparison Switcher */}
+            {/* Right Column: Refined 3D CAD Hardware Model Stage */}
+            <div className="lg:col-span-6 p-3 sm:p-6 lg:p-8 flex flex-col items-center justify-center relative min-h-[420px] sm:min-h-[480px] lg:min-h-[580px]">
+              {/* Inspection Mode Switcher */}
               <div className="absolute top-4 right-4 z-20 flex items-center bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-1 rounded-full border border-slate-200 dark:border-slate-800 shadow-md">
-                <button
-                  type="button"
-                  onClick={() => setStageMode("photo3d")}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                    stageMode === "photo3d"
-                      ? "bg-[#FF8A00] text-white shadow-sm"
-                      : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
-                  }`}
-                  title="Photorealistic authentic hardware studio photography with reactive 3D tilt & glare physics"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Photorealistic 3D Float</span>
-                </button>
                 <button
                   type="button"
                   onClick={() => setStageMode("cad3d")}
@@ -397,46 +535,40 @@ export function InteractiveRotatingHeroCarousel({
                       ? "bg-[#FF8A00] text-white shadow-sm"
                       : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                   }`}
-                  title="Interactive WebGL 3D CAD model with textured hardware face and 360° rotation"
+                  title="Interactive 3D CAD physical hardware model with real moving parts and 360° free orbit"
                 >
                   <Box className="w-3.5 h-3.5" />
-                  <span>Interactive 3D CAD</span>
+                  <span>3D CAD Model</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStageMode("gallery")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                    stageMode === "gallery"
+                      ? "bg-[#FF8A00] text-white shadow-sm"
+                      : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                  }`}
+                  title="Inspect authentic high-resolution studio photography gallery"
+                >
+                  <Camera className="w-3.5 h-3.5" />
+                  <span>Studio Gallery</span>
                 </button>
               </div>
 
               {/* Product 3D Interactive Canvas */}
-              <div className="relative w-full h-[320px] sm:h-[400px] lg:h-[480px] flex items-center justify-center">
-                {stageMode === "photo3d" ? (
-                  <PhotorealisticFloatingProduct
-                    key={`photo-${activeSlide.id}`}
-                    imageUrl={activeSlide.imageUrl}
-                    backImageUrl={activeSlide.backImageUrl}
-                    title={activeSlide.title}
-                    accentColor={activeSlide.accentColor}
-                    specs={activeSlide.specs}
+              <div className="relative w-full h-[360px] sm:h-[440px] lg:h-[520px] flex items-center justify-center">
+                {stageMode === "cad3d" ? (
+                  <RefinedProduct3DStage
+                    key={`cad-${activeSlide.id}`}
+                    slide={activeSlide}
                     onInteractionChange={setIsInteracting}
                   />
                 ) : (
-                  <RotatingProduct3DStage
-                    key={`cad-${activeSlide.id}`}
-                    deviceType={activeSlide.deviceType}
-                    imageUrl={activeSlide.imageUrl}
-                    backImageUrl={activeSlide.backImageUrl}
-                    title={activeSlide.title}
-                    accentColor={activeSlide.accentColor}
-                    onInteractionChange={setIsInteracting}
+                  <StudioPhotographyGallery
+                    key={`gallery-${activeSlide.id}`}
+                    slide={activeSlide}
                   />
                 )}
-              </div>
-
-              {/* Interactive Hint Indicator */}
-              <div className="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800 pointer-events-none">
-                <RotateCw className="w-3 h-3 text-[#FF8A00] animate-spin-slow" />
-                <span>
-                  {stageMode === "photo3d"
-                    ? "Photorealistic 3D Float • Hover or drag for 3D tilt • Click 'Turn Around' for rear hardware"
-                    : "Interactive 3D CAD Mesh • Drag horizontally to turn real product 360° on all sides"}
-                </span>
               </div>
             </div>
           </div>
@@ -493,236 +625,35 @@ export function InteractiveRotatingHeroCarousel({
 }
 
 // =============================================================================
-// 1. PHOTOREALISTIC FLOATING PRODUCT STAGE
-// True-to-life authentic hardware photography with interactive 3D perspective
-// tilt, dynamic studio specular reflection glare, and reactive levitation shadow.
-// Supports flipping 180° to inspect authentic rear camera & chassis photography.
+// REFINED 3D CAD HARDWARE STAGE (Genuine 3D Geometry with Refined Details)
+// No flat images pasted onto blocks! Custom 3D extruded shapes with beveled
+// metallic rails, authentic sapphire camera lenses, tactile buttons, moving
+// hinges/lids, and high-resolution procedural OLED screen canvases.
 // =============================================================================
-interface PhotorealisticFloatingProductProps {
-  imageUrl: string;
-  backImageUrl?: string;
-  title: string;
-  accentColor: string;
-  specs: { label: string; value: string }[];
+
+interface RefinedProduct3DStageProps {
+  slide: CarouselSlide;
   onInteractionChange?: (active: boolean) => void;
 }
 
-function PhotorealisticFloatingProduct({
-  imageUrl,
-  backImageUrl,
-  title,
-  accentColor,
-  specs,
+function RefinedProduct3DStage({
+  slide,
   onInteractionChange,
-}: PhotorealisticFloatingProductProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [rotation, setRotation] = useState({ x: 0, y: 0 });
-  const [glarePos, setGlarePos] = useState({ x: 50, y: 50, opacity: 0 });
-  const [isHovered, setIsHovered] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isRearView, setIsRearView] = useState(false);
-  const dragStartRef = useRef({ x: 0, y: 0, rotX: 0, rotY: 0 });
-
-  const activePhoto = isRearView ? (backImageUrl || imageUrl) : imageUrl;
-
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const normX = x / rect.width - 0.5;
-    const normY = y / rect.height - 0.5;
-
-    if (isDragging) {
-      const deltaX = e.clientX - dragStartRef.current.x;
-      const deltaY = e.clientY - dragStartRef.current.y;
-      setRotation({
-        x: Math.max(-28, Math.min(28, dragStartRef.current.rotX - deltaY * 0.2)),
-        y: Math.max(-36, Math.min(36, dragStartRef.current.rotY + deltaX * 0.25)),
-      });
-    } else {
-      setRotation({
-        x: -normY * 18,
-        y: normX * 24,
-      });
-    }
-
-    setGlarePos({
-      x: (x / rect.width) * 100,
-      y: (y / rect.height) * 100,
-      opacity: 0.4,
-    });
-  };
-
-  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    setIsDragging(true);
-    dragStartRef.current = {
-      x: e.clientX,
-      y: e.clientY,
-      rotX: rotation.x,
-      rotY: rotation.y,
-    };
-    onInteractionChange?.(true);
-  };
-
-  const handlePointerUp = () => {
-    setIsDragging(false);
-    onInteractionChange?.(isHovered);
-  };
-
-  const handlePointerEnter = () => {
-    setIsHovered(true);
-    onInteractionChange?.(true);
-  };
-
-  const handlePointerLeave = () => {
-    setIsHovered(false);
-    setIsDragging(false);
-    setRotation({ x: 0, y: 0 });
-    setGlarePos((p) => ({ ...p, opacity: 0 }));
-    onInteractionChange?.(false);
-  };
-
-  return (
-    <div
-      ref={containerRef}
-      onPointerMove={handlePointerMove}
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
-      onPointerEnter={handlePointerEnter}
-      onPointerLeave={handlePointerLeave}
-      className="relative w-full h-full flex flex-col items-center justify-center cursor-grab active:cursor-grabbing select-none"
-      style={{ perspective: "1200px" }}
-    >
-      {/* View Orientation Badge */}
-      <div className="absolute top-2 left-2 z-30 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-slate-900/80 text-white backdrop-blur-md border border-slate-700/60 shadow-sm">
-        {isRearView ? "Viewing Rear Hardware" : "Viewing Front Display"}
-      </div>
-
-      {/* Flip Between Front & Back Real Photo Button */}
-      {backImageUrl && (
-        <button
-          type="button"
-          onClick={() => setIsRearView(!isRearView)}
-          className="absolute bottom-2 right-2 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-[#FF8A00] transition-all shadow-md active:scale-95"
-          title="Flip between front screen and rear camera hardware photography"
-        >
-          <RotateCw className="w-3.5 h-3.5 text-[#FF8A00]" />
-          <span>{isRearView ? "Show Front Display" : "Turn Around (Rear Hardware)"}</span>
-        </button>
-      )}
-
-      {/* 3D Floating Stage with Multi-Axis Perspective */}
-      <div
-        className="relative flex items-center justify-center transition-transform duration-150 ease-out"
-        style={{
-          transformStyle: "preserve-3d",
-          transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
-        }}
-      >
-        {/* Foreground Depth Spec Badge 1 */}
-        {specs[0] && (
-          <div
-            className="hidden sm:flex absolute -top-4 -left-6 z-30 items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 shadow-xl pointer-events-none transition-transform duration-200"
-            style={{
-              transform: `translateZ(45px) translateX(${rotation.y * 0.4}px)`,
-            }}
-          >
-            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: accentColor }} />
-            <span className="text-[11px] font-bold text-slate-800 dark:text-slate-100">
-              {specs[0].label}: {specs[0].value}
-            </span>
-          </div>
-        )}
-
-        {/* Foreground Depth Spec Badge 2 */}
-        {specs[1] && (
-          <div
-            className="hidden sm:flex absolute -bottom-3 -right-6 z-30 items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 shadow-xl pointer-events-none transition-transform duration-200"
-            style={{
-              transform: `translateZ(35px) translateX(${rotation.y * -0.4}px)`,
-            }}
-          >
-            <span className="text-[11px] font-bold text-slate-800 dark:text-slate-100">
-              {specs[1].label}: {specs[1].value}
-            </span>
-          </div>
-        )}
-
-        {/* Authentic Product Photography Card with Specular Glare */}
-        <div
-          className="relative max-w-[280px] sm:max-w-[380px] lg:max-w-[440px] max-h-[340px] sm:max-h-[380px] rounded-2xl overflow-hidden group/product transition-transform duration-300"
-          style={{
-            transform: "translateZ(20px)",
-            filter: "drop-shadow(0 25px 35px rgba(0, 0, 0, 0.35))",
-          }}
-        >
-          <img
-            src={activePhoto}
-            alt={title}
-            className="w-full h-auto max-h-[320px] sm:max-h-[360px] object-contain transition-transform duration-300 pointer-events-none"
-            loading="eager"
-          />
-
-          {/* Dynamic Specular Studio Lighting Reflection */}
-          <div
-            className="absolute inset-0 pointer-events-none mix-blend-overlay transition-opacity duration-300"
-            style={{
-              opacity: glarePos.opacity,
-              background: `radial-gradient(circle at ${glarePos.x}% ${glarePos.y}%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.1) 40%, transparent 70%)`,
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Reactive Ground Shadow Plane */}
-      <div
-        className="mt-4 w-48 sm:w-64 h-5 rounded-[50%] blur-md transition-all duration-300 pointer-events-none"
-        style={{
-          background: `radial-gradient(ellipse at center, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.15) 50%, transparent 75%)`,
-          transform: `scale(${isHovered ? 1.15 : 1}) translateX(${rotation.y * 0.8}px)`,
-        }}
-      />
-    </div>
-  );
-}
-
-// =============================================================================
-// 2. INTERACTIVE 3D CAD STAGE (Three.js WebGL with 360° Real Turnaround)
-// Fully assembled double-sided 3D CAD chassis: front display screen, metallic
-// side profiles with buttons and ports, and authentic rear hardware with camera
-// modules. Continuous 360° horizontal drag with live degree orientation dial.
-// =============================================================================
-interface RotatingProduct3DStageProps {
-  deviceType: "imac" | "laptop" | "soundbar" | "phone" | "tv" | "ac";
-  imageUrl: string;
-  backImageUrl?: string;
-  title: string;
-  accentColor: string;
-  onInteractionChange?: (active: boolean) => void;
-}
-
-function getAngleDescription(deg: number): string {
-  if (deg >= 315 || deg < 45) return "Front Display View";
-  if (deg >= 45 && deg < 135) return "Right Profile & Frame";
-  if (deg >= 135 && deg < 225) return "Rear Hardware & Camera Module";
-  return "Left Profile & Buttons";
-}
-
-function RotatingProduct3DStage({
-  deviceType,
-  imageUrl,
-  backImageUrl,
-  title,
-  accentColor,
-  onInteractionChange,
-}: RotatingProduct3DStageProps) {
+}: RefinedProduct3DStageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [webGlFailed, setWebGlFailed] = useState(false);
-  const [viewAngleDeg, setViewAngleDeg] = useState(0);
+  const [viewAngleDeg, setViewAngleDeg] = useState(35);
   const [isAutoSpinning, setIsAutoSpinning] = useState(false);
+  const [foldAngleState, setFoldAngleState] = useState<number>(152); // degrees for Fold6
+  const [lidAngleState, setLidAngleState] = useState<number>(115); // degrees for Surface Laptop
+  const [surroundDocked, setSurroundDocked] = useState<boolean>(true); // for JBL Bar 800
+  const [activeHotspotId, setActiveHotspotId] = useState<string | null>(null);
+
   const autoSpinRef = useRef(false);
   const resetAngleRef = useRef<((targetDeg?: number) => void) | null>(null);
+  const updateFoldingRef = useRef<((deg: number) => void) | null>(null);
+  const updateLidRef = useRef<((deg: number) => void) | null>(null);
+  const updateSurroundsRef = useRef<((docked: boolean) => void) | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -736,18 +667,18 @@ function RotatingProduct3DStage({
     let renderer: THREE.WebGLRenderer | null = null;
     let scene: THREE.Scene | null = null;
     let camera: THREE.PerspectiveCamera | null = null;
-    let productGroup: THREE.Group | null = null;
+    let modelRoot: THREE.Group | null = null;
     let animationFrameId: number;
 
     try {
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(
-        42,
+        40,
         container.clientWidth / container.clientHeight,
         0.1,
         1000
       );
-      camera.position.set(0, 0, 3.2);
+      camera.position.set(0, 0, 3.4);
 
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setSize(container.clientWidth, container.clientHeight);
@@ -757,41 +688,61 @@ function RotatingProduct3DStage({
 
       container.appendChild(renderer.domElement);
 
-      // Studio Lighting for Double-Sided Hardware Inspection
-      const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
+      // Studio Lighting System (Key, Rim, Soft Fill)
+      const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
       scene.add(ambientLight);
 
-      // Front Key Light
-      const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
-      keyLight.position.set(2, 3, 3);
+      // Main Softbox Key Light (Front Upper Right)
+      const keyLight = new THREE.DirectionalLight(0xffffff, 2.4);
+      keyLight.position.set(3, 4, 4);
       keyLight.castShadow = true;
+      keyLight.shadow.mapSize.width = 1024;
+      keyLight.shadow.mapSize.height = 1024;
       scene.add(keyLight);
 
-      // Rear Fill Light to illuminate back hardware and cameras when turned around
-      const rearLight = new THREE.DirectionalLight(0xffffff, 1.8);
-      rearLight.position.set(-2, 2, -3);
-      scene.add(rearLight);
-
-      // Rim Light matching device accent color
-      const rimLight = new THREE.DirectionalLight(new THREE.Color(accentColor), 1.6);
-      rimLight.position.set(3, -2, -2);
+      // Warm/Accent Rim Light (Rear Left Rim Highlight for metallic chamfers)
+      const rimLight = new THREE.DirectionalLight(new THREE.Color(slide.accentColor), 2.2);
+      rimLight.position.set(-3.5, 2.5, -3.5);
       scene.add(rimLight);
 
-      // Floor Shadow Plane
-      const shadowPlaneGeo = new THREE.PlaneGeometry(4, 4);
-      const shadowPlaneMat = new THREE.ShadowMaterial({ opacity: 0.18 });
+      // Cool Under-Fill Light to bring out bottom ports and grills
+      const fillLight = new THREE.DirectionalLight(0xe0f2fe, 1.0);
+      fillLight.position.set(0, -3, 2);
+      scene.add(fillLight);
+
+      // Ground Contact Shadow Plate
+      const shadowPlaneGeo = new THREE.PlaneGeometry(4.5, 4.5);
+      const shadowPlaneMat = new THREE.ShadowMaterial({ opacity: 0.22 });
       const shadowPlane = new THREE.Mesh(shadowPlaneGeo, shadowPlaneMat);
       shadowPlane.rotation.x = -Math.PI / 2;
-      shadowPlane.position.y = -1.1;
+      shadowPlane.position.y = -1.15;
       shadowPlane.receiveShadow = true;
       scene.add(shadowPlane);
 
-      // Build Intact Double-Sided Device Geometry
-      productGroup = new THREE.Group();
-      buildIntactDeviceModel(productGroup, deviceType, accentColor, imageUrl, backImageUrl);
-      scene.add(productGroup);
+      // Construct High-Precision 3D CAD Model
+      modelRoot = new THREE.Group();
+      // Initial 35° Hero Angle
+      modelRoot.rotation.y = (35 * Math.PI) / 180;
+      modelRoot.rotation.x = 0.08;
 
-      // 360° Interactive Drag State
+      const deviceControllers = buildRefinedHardwareCAD(modelRoot, slide.deviceModel, slide.accentColor);
+      scene.add(modelRoot);
+
+      // Bind dynamic animation controllers
+      if (deviceControllers.setFoldAngle) {
+        updateFoldingRef.current = deviceControllers.setFoldAngle;
+        deviceControllers.setFoldAngle(foldAngleState);
+      }
+      if (deviceControllers.setLidAngle) {
+        updateLidRef.current = deviceControllers.setLidAngle;
+        deviceControllers.setLidAngle(lidAngleState);
+      }
+      if (deviceControllers.setSurroundsDocked) {
+        updateSurroundsRef.current = deviceControllers.setSurroundsDocked;
+        deviceControllers.setSurroundsDocked(surroundDocked);
+      }
+
+      // Drag Orbit Interaction
       let isDragging = false;
       let prevPointerPos = { x: 0, y: 0 };
       let velocity = { x: 0, y: 0 };
@@ -806,13 +757,13 @@ function RotatingProduct3DStage({
       };
 
       const handlePointerMove = (e: PointerEvent) => {
-        if (!isDragging || !productGroup) return;
+        if (!isDragging || !modelRoot) return;
         const deltaX = e.clientX - prevPointerPos.x;
         const deltaY = e.clientY - prevPointerPos.y;
 
-        productGroup.rotation.y += deltaX * 0.012;
-        productGroup.rotation.x = Math.max(-0.4, Math.min(0.4, productGroup.rotation.x + deltaY * 0.008));
-        velocity = { x: deltaY * 0.004, y: deltaX * 0.008 };
+        modelRoot.rotation.y += deltaX * 0.012;
+        modelRoot.rotation.x = Math.max(-0.45, Math.min(0.45, modelRoot.rotation.x + deltaY * 0.008));
+        velocity = { x: deltaY * 0.003, y: deltaX * 0.006 };
 
         prevPointerPos = { x: e.clientX, y: e.clientY };
       };
@@ -823,11 +774,11 @@ function RotatingProduct3DStage({
       };
 
       resetAngleRef.current = (targetDeg: number = 0) => {
-        if (productGroup) {
+        if (modelRoot) {
           autoSpinRef.current = false;
           setIsAutoSpinning(false);
-          productGroup.rotation.y = (targetDeg * Math.PI) / 180;
-          productGroup.rotation.x = 0;
+          modelRoot.rotation.y = (targetDeg * Math.PI) / 180;
+          modelRoot.rotation.x = targetDeg === 0 ? 0 : 0.08;
           velocity = { x: 0, y: 0 };
         }
       };
@@ -836,29 +787,32 @@ function RotatingProduct3DStage({
       window.addEventListener("pointermove", handlePointerMove);
       window.addEventListener("pointerup", handlePointerUp);
 
-      // Rendering Loop with smooth inertia & gentle idle floating
+      // Render Loop with smooth momentum & subtle floating
       const render = () => {
         animationFrameId = requestAnimationFrame(render);
 
-        if (productGroup) {
+        if (modelRoot) {
           if (autoSpinRef.current) {
-            productGroup.rotation.y += 0.015;
+            modelRoot.rotation.y += 0.012;
           } else if (!isDragging) {
-            productGroup.rotation.y += velocity.y;
-            productGroup.rotation.x += velocity.x;
+            modelRoot.rotation.y += velocity.y;
+            modelRoot.rotation.x += velocity.x;
             velocity.x *= 0.92;
             velocity.y *= 0.92;
 
-            // Subtle continuous idle rotation when pointer is released
-            if (Math.abs(velocity.y) < 0.0005) {
-              productGroup.rotation.y += 0.002;
+            // Gentle continuous floating drift when released
+            if (Math.abs(velocity.y) < 0.0004) {
+              modelRoot.rotation.y += 0.0015;
             }
           }
 
-          productGroup.position.y = Math.sin(Date.now() * 0.0015) * 0.035;
+          modelRoot.position.y = Math.sin(Date.now() * 0.0016) * 0.04;
 
-          // Compute normalized degrees 0-360
-          const rawDeg = Math.round((((productGroup.rotation.y % (Math.PI * 2)) + (Math.PI * 2)) % (Math.PI * 2)) * (180 / Math.PI));
+          const rawDeg = Math.round(
+            ((((modelRoot.rotation.y % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)) *
+              180) /
+              Math.PI
+          );
           setViewAngleDeg(rawDeg);
         }
 
@@ -892,14 +846,30 @@ function RotatingProduct3DStage({
     } catch {
       setWebGlFailed(true);
     }
-  }, [deviceType, accentColor, imageUrl, backImageUrl, onInteractionChange]);
+  }, [slide, onInteractionChange]);
+
+  const handleSetFoldAngle = (deg: number) => {
+    setFoldAngleState(deg);
+    updateFoldingRef.current?.(deg);
+  };
+
+  const handleSetLidAngle = (deg: number) => {
+    setLidAngleState(deg);
+    updateLidRef.current?.(deg);
+  };
+
+  const handleToggleSurrounds = () => {
+    const next = !surroundDocked;
+    setSurroundDocked(next);
+    updateSurroundsRef.current?.(next);
+  };
 
   if (webGlFailed) {
     return (
-      <div className="w-full h-full flex items-center justify-center p-4">
+      <div className="w-full h-full flex flex-col items-center justify-center p-4">
         <img
-          src={imageUrl}
-          alt={title}
+          src={slide.imageUrl}
+          alt={slide.title}
           className="w-full max-h-[360px] object-contain drop-shadow-2xl rounded-2xl"
         />
       </div>
@@ -907,323 +877,1370 @@ function RotatingProduct3DStage({
   }
 
   return (
-    <div className="relative w-full h-full">
-      {/* 360° Orientation Dial Badge */}
+    <div className="relative w-full h-full flex flex-col justify-between">
+      {/* 360° Orientation Dial Badge & View Description */}
       <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-slate-900/85 text-white backdrop-blur-md border border-slate-700/60 shadow-lg pointer-events-none">
         <Compass className="w-3 h-3 text-[#FF8A00] animate-spin-slow" />
-        <span>{viewAngleDeg}° &bull; {getAngleDescription(viewAngleDeg)}</span>
+        <span>
+          {viewAngleDeg}° &bull;{" "}
+          {viewAngleDeg >= 315 || viewAngleDeg < 45
+            ? "Front Display View"
+            : viewAngleDeg >= 45 && viewAngleDeg < 135
+            ? "Right Profile & Ports"
+            : viewAngleDeg >= 135 && viewAngleDeg < 225
+            ? "Rear Hardware & Optics"
+            : "Left Profile & Controls"}
+        </span>
       </div>
 
-      <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
+      {/* Interactive 3D Canvas */}
+      <div
+        ref={containerRef}
+        className="w-full h-full cursor-grab active:cursor-grabbing select-none"
+      />
 
-      {/* 360° Quick Action Toolbar */}
-      <div className="absolute bottom-2 left-2 right-2 z-10 flex items-center justify-between gap-2 pointer-events-auto">
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => {
-              const next = !isAutoSpinning;
-              setIsAutoSpinning(next);
-              autoSpinRef.current = next;
-            }}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold backdrop-blur-md border transition-all shadow-sm ${
-              isAutoSpinning
-                ? "bg-[#FF8A00] text-white border-orange-500 shadow-orange-500/20"
-                : "bg-white/85 dark:bg-slate-900/85 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
-            }`}
-            title="Auto spin real product 360 degrees"
-          >
-            <RotateCw className={`w-3 h-3 ${isAutoSpinning ? "animate-spin" : "text-[#FF8A00]"}`} />
-            <span>{isAutoSpinning ? "Pause 360°" : "Auto 360° Spin"}</span>
-          </button>
+      {/* Floating Hardware Hotspot Details Pill */}
+      {activeHotspotId && (
+        <div className="absolute top-12 left-2 right-2 sm:left-auto sm:right-2 sm:max-w-xs z-20 p-3 rounded-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-700 shadow-xl text-left transition-all animate-fadeIn">
+          {(() => {
+            const hs = slide.hotspots.find((h) => h.id === activeHotspotId);
+            if (!hs) return null;
+            return (
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <span className="text-xs font-bold text-slate-900 dark:text-white">
+                    {hs.title}
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#FF8A00]/10 text-[#FF8A00]">
+                    {hs.badge}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-snug">
+                  {hs.description}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setActiveHotspotId(null)}
+                  className="mt-2 text-[10px] font-bold text-[#FF8A00] hover:underline"
+                >
+                  Dismiss Callout
+                </button>
+              </div>
+            );
+          })()}
+        </div>
+      )}
 
-          <button
-            type="button"
-            onClick={() => resetAngleRef.current?.(180)}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm"
-            title="Rotate directly to rear hardware view"
-          >
-            <span>Rear (180°)</span>
-          </button>
+      {/* Floating Bottom Control Bar */}
+      <div className="absolute bottom-2 left-2 right-2 z-10 flex flex-col gap-2 pointer-events-auto">
+        {/* Device-Specific Moving Hardware Controls */}
+        <div className="flex flex-wrap items-center justify-between gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 shadow-md">
+          {/* Fold6 Folding Controls */}
+          {slide.deviceModel === "fold6" && (
+            <div className="flex items-center gap-1.5 text-[10px]">
+              <span className="font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
+                <Sliders className="w-3 h-3 text-[#FF8A00]" /> Hinge Flex:
+              </span>
+              <button
+                type="button"
+                onClick={() => handleSetFoldAngle(25)}
+                className={`px-2 py-0.5 rounded font-semibold transition-all ${
+                  foldAngleState <= 35
+                    ? "bg-[#FF8A00] text-white"
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+                }`}
+              >
+                Closed (Compact)
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSetFoldAngle(90)}
+                className={`px-2 py-0.5 rounded font-semibold transition-all ${
+                  foldAngleState > 70 && foldAngleState < 120
+                    ? "bg-[#FF8A00] text-white"
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+                }`}
+              >
+                90° Flex Mode
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSetFoldAngle(152)}
+                className={`px-2 py-0.5 rounded font-semibold transition-all ${
+                  foldAngleState > 140 && foldAngleState < 170
+                    ? "bg-[#FF8A00] text-white"
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+                }`}
+              >
+                150° Hero
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSetFoldAngle(180)}
+                className={`px-2 py-0.5 rounded font-semibold transition-all ${
+                  foldAngleState >= 175
+                    ? "bg-[#FF8A00] text-white"
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+                }`}
+              >
+                180° Flat
+              </button>
+            </div>
+          )}
+
+          {/* Surface Laptop 7 Lid Controls */}
+          {slide.deviceModel === "surface7" && (
+            <div className="flex items-center gap-1.5 text-[10px]">
+              <span className="font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
+                <Sliders className="w-3 h-3 text-[#FF8A00]" /> Display Lid:
+              </span>
+              <button
+                type="button"
+                onClick={() => handleSetLidAngle(115)}
+                className={`px-2 py-0.5 rounded font-semibold transition-all ${
+                  lidAngleState === 115
+                    ? "bg-[#FF8A00] text-white"
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+                }`}
+              >
+                115° Work View
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSetLidAngle(140)}
+                className={`px-2 py-0.5 rounded font-semibold transition-all ${
+                  lidAngleState === 140
+                    ? "bg-[#FF8A00] text-white"
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+                }`}
+              >
+                140° Wide
+              </button>
+            </div>
+          )}
+
+          {/* JBL Bar 800 Surround Detach Controls */}
+          {slide.deviceModel === "jbl800" && (
+            <div className="flex items-center gap-1.5 text-[10px]">
+              <span className="font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
+                <Sliders className="w-3 h-3 text-[#FF8A00]" /> Wireless Surrounds:
+              </span>
+              <button
+                type="button"
+                onClick={handleToggleSurrounds}
+                className={`px-2.5 py-0.5 rounded font-semibold transition-all ${
+                  !surroundDocked
+                    ? "bg-[#FF8A00] text-white shadow-sm"
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+                }`}
+              >
+                {surroundDocked ? "Detach Surrounds (5.1.2 Setup)" : "Dock to Soundbar"}
+              </button>
+            </div>
+          )}
+
+          {/* Hotspots Trigger Buttons */}
+          <div className="flex items-center gap-1">
+            <span className="text-[10px] font-bold text-slate-500 mr-1">Inspect:</span>
+            {slide.hotspots.slice(0, 3).map((hs) => (
+              <button
+                key={hs.id}
+                type="button"
+                onClick={() => setActiveHotspotId(activeHotspotId === hs.id ? null : hs.id)}
+                className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-all ${
+                  activeHotspotId === hs.id
+                    ? "bg-[#FF8A00] text-white shadow-sm"
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                }`}
+              >
+                {hs.badge}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => resetAngleRef.current?.(0)}
-          className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm"
-          title="Reset to front display view"
-        >
-          <span>Front (0°)</span>
-        </button>
+        {/* Camera Quick-Angle Presets Toolbar */}
+        <div className="flex items-center justify-between gap-1.5">
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => {
+                const next = !isAutoSpinning;
+                setIsAutoSpinning(next);
+                autoSpinRef.current = next;
+              }}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold backdrop-blur-md border transition-all shadow-sm ${
+                isAutoSpinning
+                  ? "bg-[#FF8A00] text-white border-orange-500 shadow-orange-500/20"
+                  : "bg-white/90 dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+              }`}
+              title="Continuous 360-degree rotation"
+            >
+              <RotateCw className={`w-3 h-3 ${isAutoSpinning ? "animate-spin" : "text-[#FF8A00]"}`} />
+              <span>{isAutoSpinning ? "Pause Spin" : "Auto Spin"}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => resetAngleRef.current?.(35)}
+              className="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm"
+              title="View from 45-degree hero perspective"
+            >
+              Hero 45°
+            </button>
+
+            <button
+              type="button"
+              onClick={() => resetAngleRef.current?.(0)}
+              className="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm"
+              title="Front screen view"
+            >
+              Front (0°)
+            </button>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => resetAngleRef.current?.(90)}
+              className="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm"
+              title="Inspect side rail frame and buttons"
+            >
+              Profile (90°)
+            </button>
+
+            <button
+              type="button"
+              onClick={() => resetAngleRef.current?.(180)}
+              className="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm"
+              title="Inspect rear cameras and materials"
+            >
+              Rear (180°)
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-// Helper: Build True Double-Sided 3D Intact Electronics Geometries
-function buildIntactDeviceModel(
-  group: THREE.Group,
-  deviceType: "imac" | "laptop" | "soundbar" | "phone" | "tv" | "ac",
-  accentHex: string,
-  imageUrl: string,
-  backImageUrl?: string
-) {
-  const aluminumMat = new THREE.MeshStandardMaterial({
-    color: 0xd8d8d8,
-    metalness: 0.85,
-    roughness: 0.25,
-  });
+// =============================================================================
+// STUDIO PHOTOGRAPHY GALLERY TAB
+// Clean, museum-quality high-res official photography viewer with front/rear
+// photo toggle and clean zoom without any fake CSS 3D distortions.
+// =============================================================================
 
-  const darkPolymerMat = new THREE.MeshStandardMaterial({
-    color: 0x181818,
-    metalness: 0.3,
-    roughness: 0.5,
-  });
+function StudioPhotographyGallery({ slide }: { slide: CarouselSlide }) {
+  const [isRearView, setIsRearView] = useState(false);
+  const activeImage = isRearView && slide.backImageUrl ? slide.backImageUrl : slide.imageUrl;
 
-  // Texture loader for authentic double-sided mapping
-  const textureLoader = new THREE.TextureLoader();
+  return (
+    <div className="relative w-full h-full flex flex-col items-center justify-center p-4">
+      {/* Front / Rear Switcher */}
+      {slide.backImageUrl && (
+        <div className="absolute top-2 left-2 z-10 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsRearView(false)}
+            className={`px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border transition-all ${
+              !isRearView
+                ? "bg-[#FF8A00] text-white border-orange-500 shadow-sm"
+                : "bg-white/80 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300"
+            }`}
+          >
+            Front View
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsRearView(true)}
+            className={`px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border transition-all ${
+              isRearView
+                ? "bg-[#FF8A00] text-white border-orange-500 shadow-sm"
+                : "bg-white/80 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300"
+            }`}
+          >
+            Rear Hardware
+          </button>
+        </div>
+      )}
 
-  // Front Screen Texture
-  const frontTexture = textureLoader.load(imageUrl, (tex) => {
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.minFilter = THREE.LinearFilter;
-  });
-  const frontPhotoMat = new THREE.MeshStandardMaterial({
-    map: frontTexture,
-    metalness: 0.1,
-    roughness: 0.2,
-  });
+      {/* Verified Photo Card */}
+      <div className="relative max-w-full max-h-[380px] sm:max-h-[440px] flex items-center justify-center">
+        <img
+          src={activeImage}
+          alt={slide.title}
+          className="max-h-[340px] sm:max-h-[400px] w-auto object-contain rounded-2xl drop-shadow-2xl transition-all duration-300"
+        />
+      </div>
 
-  // Rear Hardware Texture
-  const rearTexture = textureLoader.load(backImageUrl || imageUrl, (tex) => {
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.minFilter = THREE.LinearFilter;
-  });
-  const rearPhotoMat = new THREE.MeshStandardMaterial({
-    map: rearTexture,
-    metalness: 0.2,
-    roughness: 0.35,
-  });
+      <div className="mt-3 text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800">
+        Official manufacturer studio catalog photograph • In showroom stock
+      </div>
+    </div>
+  );
+}
 
-  switch (deviceType) {
-    case "phone": {
-      // Grade 5 Titanium Frame
-      const titaniumMat = new THREE.MeshStandardMaterial({
-        color: 0xc4b7a6,
-        metalness: 0.9,
-        roughness: 0.25,
+// =============================================================================
+// PROCEDURAL CANVAS TEXTURE BUILDERS
+// High-DPI authentic screen textures generated procedurally to guarantee
+// crystal clear typography, realistic UI elements, and zero JPEG compression.
+// =============================================================================
+
+function createFold6InnerScreenTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 1024;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return new THREE.CanvasTexture(canvas);
+
+  // Deep AMOLED pure black
+  ctx.fillStyle = "#06080e";
+  ctx.fillRect(0, 0, 1024, 1024);
+
+  // Samsung Galaxy AI Iridescent Ribbon Wallpaper
+  const grad = ctx.createLinearGradient(120, 150, 900, 850);
+  grad.addColorStop(0, "rgba(59, 130, 246, 0.75)"); // Electric Blue
+  grad.addColorStop(0.35, "rgba(139, 92, 246, 0.85)"); // Violet
+  grad.addColorStop(0.7, "rgba(236, 72, 153, 0.8)"); // Pink
+  grad.addColorStop(1, "rgba(245, 158, 11, 0.7)"); // Amber
+
+  ctx.save();
+  ctx.filter = "blur(70px)";
+  ctx.beginPath();
+  ctx.ellipse(512, 512, 420, 280, Math.PI / 4, 0, Math.PI * 2);
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.restore();
+
+  // Subtle Hinge Crease Guide down center
+  const creaseGrad = ctx.createLinearGradient(506, 0, 518, 0);
+  creaseGrad.addColorStop(0, "rgba(255,255,255,0)");
+  creaseGrad.addColorStop(0.5, "rgba(255,255,255,0.06)");
+  creaseGrad.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = creaseGrad;
+  ctx.fillRect(506, 0, 12, 1024);
+
+  // Status Bar at Top
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 26px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("10:24", 50, 60);
+
+  ctx.textAlign = "right";
+  ctx.font = "bold 20px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("5G • 100%", 974, 60);
+
+  // Under-display Camera Dot Indicator at top inner right
+  ctx.beginPath();
+  ctx.arc(768, 60, 6, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(10, 12, 18, 0.65)";
+  ctx.fill();
+
+  // Minimalist Clock & Galaxy AI Date
+  ctx.textAlign = "center";
+  ctx.font = "200 96px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText("10:24", 512, 360);
+
+  ctx.font = "500 24px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+  ctx.fillText("Monday, October 19 • Accra 29°C", 512, 410);
+
+  // Galaxy AI Search Bar Pill
+  ctx.beginPath();
+  ctx.roundRect(262, 460, 500, 64, 32);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.12)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  ctx.textAlign = "left";
+  ctx.font = "500 22px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+  ctx.fillText("Ask Galaxy AI or search...", 310, 500);
+
+  // Multi-Window Multitasking Split Tiles
+  ctx.beginPath();
+  ctx.roundRect(140, 560, 744, 280, 24);
+  ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+  ctx.stroke();
+
+  // Left Tile: Samsung Notes AI
+  ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
+  ctx.beginPath();
+  ctx.roundRect(160, 580, 340, 240, 16);
+  ctx.fill();
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 20px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("Samsung Notes AI", 185, 625);
+  ctx.font = "16px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+  ctx.fillText("• Live Audio Translation", 185, 665);
+  ctx.fillText("• Note Assist: Auto-Format", 185, 695);
+  ctx.fillText("• S-Pen Stylus Detection", 185, 725);
+  ctx.fillText("• 7.6\" Dynamic AMOLED 2X", 185, 755);
+
+  // Right Tile: Workspace Analytics
+  ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
+  ctx.beginPath();
+  ctx.roundRect(524, 580, 340, 240, 16);
+  ctx.fill();
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 20px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("Snapdragon 8 Gen 3", 549, 625);
+  ctx.font = "16px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+  ctx.fillText("• 1-120Hz Adaptive Refresh", 549, 665);
+  ctx.fillText("• 2,600 Nits Peak Outdoor", 549, 695);
+  ctx.fillText("• Dual Armor Aluminum Rail", 549, 725);
+  ctx.fillText("• Accra Stock Confirmed", 549, 755);
+
+  // App Dock at Bottom (5 rounded squares)
+  const appColors = ["#10b981", "#3b82f6", "#f59e0b", "#ec4899", "#8b5cf6"];
+  const appIcons = ["Call", "Chat", "Web", "Cam", "AI"];
+  const startX = 312;
+  for (let i = 0; i < 5; i++) {
+    const x = startX + i * 85;
+    ctx.beginPath();
+    ctx.roundRect(x, 890, 64, 64, 18);
+    ctx.fillStyle = appColors[i];
+    ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 16px -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(appIcons[i], x + 32, 928);
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+function createFold6CoverScreenTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 1024;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return new THREE.CanvasTexture(canvas);
+
+  ctx.fillStyle = "#07090e";
+  ctx.fillRect(0, 0, 512, 1024);
+
+  // Sleek dark gradient
+  const grad = ctx.createLinearGradient(0, 0, 512, 1024);
+  grad.addColorStop(0, "rgba(59, 130, 246, 0.5)");
+  grad.addColorStop(1, "rgba(139, 92, 246, 0.4)");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 512, 1024);
+
+  // Punch-hole Camera Cutout at top
+  ctx.beginPath();
+  ctx.arc(256, 45, 12, 0, Math.PI * 2);
+  ctx.fillStyle = "#000000";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(256, 45, 6, 0, Math.PI * 2);
+  ctx.fillStyle = "#1e293b";
+  ctx.fill();
+
+  // Status Bar
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 22px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("10:24", 40, 52);
+  ctx.textAlign = "right";
+  ctx.fillText("5G 100%", 472, 52);
+
+  // Large Lockscreen Clock
+  ctx.textAlign = "center";
+  ctx.font = "300 90px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText("10:24", 256, 320);
+
+  ctx.font = "500 22px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+  ctx.fillText("Mon, Oct 19 • 29°C", 256, 370);
+
+  // Notification Pill
+  ctx.beginPath();
+  ctx.roundRect(56, 460, 400, 72, 20);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.14)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+  ctx.stroke();
+
+  ctx.textAlign = "left";
+  ctx.font = "bold 18px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText("WhatsApp • Gadget Master", 84, 495);
+  ctx.font = "14px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+  ctx.fillText("Your Z Fold6 order is confirmed for delivery", 84, 518);
+
+  // Swipe to unlock bar
+  ctx.beginPath();
+  ctx.roundRect(176, 960, 160, 6, 3);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+  ctx.fill();
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+function createIPhoneScreenTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 1024;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return new THREE.CanvasTexture(canvas);
+
+  ctx.fillStyle = "#050608";
+  ctx.fillRect(0, 0, 512, 1024);
+
+  // iOS 18 Titanium radial glow
+  const grad = ctx.createRadialGradient(256, 512, 50, 256, 512, 400);
+  grad.addColorStop(0, "rgba(147, 140, 130, 0.4)");
+  grad.addColorStop(1, "rgba(5, 6, 8, 1)");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 512, 1024);
+
+  // Dynamic Island Pill at Top
+  ctx.beginPath();
+  ctx.roundRect(176, 32, 160, 36, 18);
+  ctx.fillStyle = "#000000";
+  ctx.fill();
+
+  // Dynamic Island subtle waveform
+  ctx.fillStyle = "#10b981";
+  ctx.fillRect(300, 44, 4, 12);
+  ctx.fillRect(308, 40, 4, 20);
+  ctx.fillRect(316, 46, 4, 8);
+
+  // Status Bar
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 20px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("9:41", 45, 56);
+  ctx.textAlign = "right";
+  ctx.fillText("5G 100%", 467, 56);
+
+  // Lockscreen Clock
+  ctx.textAlign = "center";
+  ctx.font = "200 96px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("9:41", 256, 280);
+
+  ctx.font = "500 22px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+  ctx.fillText("Monday, October 19", 256, 330);
+
+  // Lockscreen Quick Action Buttons (Flashlight & Camera)
+  ctx.beginPath();
+  ctx.arc(70, 920, 28, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.18)";
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(442, 920, 28, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.18)";
+  ctx.fill();
+
+  // Home Bar
+  ctx.beginPath();
+  ctx.roundRect(176, 980, 160, 6, 3);
+  ctx.fillStyle = "#ffffff";
+  ctx.fill();
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+function createSurfaceScreenTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 680;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return new THREE.CanvasTexture(canvas);
+
+  ctx.fillStyle = "#031428";
+  ctx.fillRect(0, 0, 1024, 680);
+
+  // Windows 11 Copilot+ PC Bloom Artwork
+  const grad = ctx.createLinearGradient(200, 100, 800, 600);
+  grad.addColorStop(0, "rgba(2, 132, 199, 0.85)");
+  grad.addColorStop(0.5, "rgba(99, 102, 241, 0.8)");
+  grad.addColorStop(1, "rgba(14, 165, 233, 0.7)");
+
+  ctx.save();
+  ctx.filter = "blur(50px)";
+  ctx.beginPath();
+  ctx.ellipse(512, 300, 320, 220, Math.PI / 6, 0, Math.PI * 2);
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.restore();
+
+  // Windows 11 Centered Taskbar
+  ctx.fillStyle = "rgba(15, 23, 42, 0.75)";
+  ctx.fillRect(0, 624, 1024, 56);
+
+  // Centered Icons (Windows Logo, Copilot, Search, Explorer, Edge)
+  const icons = ["Win", "AI", "🔍", "📁", "🌐"];
+  const startX = 420;
+  for (let i = 0; i < icons.length; i++) {
+    const x = startX + i * 42;
+    ctx.beginPath();
+    ctx.roundRect(x, 632, 34, 34, 8);
+    ctx.fillStyle = i === 1 ? "#0284c7" : "rgba(255, 255, 255, 0.15)";
+    ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(icons[i], x + 17, 654);
+  }
+
+  // Right Tray Clock
+  ctx.textAlign = "right";
+  ctx.font = "12px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText("10:24 AM • 10/19/2026", 990, 656);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+function createJblDisplayTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 128;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return new THREE.CanvasTexture(canvas);
+
+  ctx.fillStyle = "#121417";
+  ctx.fillRect(0, 0, 512, 128);
+
+  // Dot Matrix Acoustic Grille Texture
+  ctx.fillStyle = "#1a1d22";
+  for (let x = 0; x < 512; x += 6) {
+    for (let y = 0; y < 128; y += 6) {
+      ctx.fillRect(x, y, 2, 2);
+    }
+  }
+
+  // Glowing Amber/Cyan Dot-Matrix LED Readout
+  ctx.fillStyle = "#ff8a00";
+  ctx.font = "bold 32px 'Courier New', monospace";
+  ctx.textAlign = "center";
+  ctx.fillText("DOLBY ATMOS 5.1.2", 256, 72);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+function createIMacScreenTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 640;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return new THREE.CanvasTexture(canvas);
+
+  // macOS Sequoia Landscape
+  const grad = ctx.createLinearGradient(0, 0, 1024, 640);
+  grad.addColorStop(0, "#ff7b00");
+  grad.addColorStop(0.5, "#802090");
+  grad.addColorStop(1, "#1c224a");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 1024, 640);
+
+  // Top macOS Menu Bar
+  ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+  ctx.fillRect(0, 0, 1024, 30);
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("  Finder  File  Edit  View  Go  Window  Help", 20, 20);
+
+  // Floating Glass Dock at Bottom
+  ctx.beginPath();
+  ctx.roundRect(312, 575, 400, 55, 18);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.22)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+  ctx.stroke();
+
+  const dockIcons = ["Finder", "Safari", "Mail", "Music", "Notes", "Xcode"];
+  for (let i = 0; i < dockIcons.length; i++) {
+    const x = 335 + i * 62;
+    ctx.beginPath();
+    ctx.roundRect(x, 584, 38, 38, 10);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
+    ctx.fill();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+// =============================================================================
+// THREE.JS ROUNDED RECTANGLE EXTRUSION HELPER
+// Produces real filleted corners and chamfered edges that catch studio light.
+// =============================================================================
+
+function createRoundedRectShape(
+  width: number,
+  height: number,
+  radius: number
+): THREE.Shape {
+  const shape = new THREE.Shape();
+  const x = -width / 2;
+  const y = -height / 2;
+  shape.moveTo(x + radius, y);
+  shape.lineTo(x + width - radius, y);
+  shape.quadraticCurveTo(x + width, y, x + width, y + radius);
+  shape.lineTo(x + width, y + height - radius);
+  shape.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  shape.lineTo(x + radius, y + height);
+  shape.quadraticCurveTo(x, y + height, x, y + height - radius);
+  shape.lineTo(x, y + radius);
+  shape.quadraticCurveTo(x, y, x + radius, y);
+  return shape;
+}
+
+// =============================================================================
+// REFINED 3D HARDWARE MODEL BUILDER
+// Constructs accurate CAD geometry for each specific device model.
+// =============================================================================
+
+interface DeviceCADControllers {
+  setFoldAngle?: (deg: number) => void;
+  setLidAngle?: (deg: number) => void;
+  setSurroundsDocked?: (docked: boolean) => void;
+}
+
+function buildRefinedHardwareCAD(
+  root: THREE.Group,
+  deviceModel: "fold6" | "iphone16" | "surface7" | "jbl800" | "imac24" | "tv75" | "ac15",
+  accentHex: string
+): DeviceCADControllers {
+  const controllers: DeviceCADControllers = {};
+
+  switch (deviceModel) {
+    // -------------------------------------------------------------------------
+    // 1. SAMSUNG GALAXY Z FOLD6 (Dual Folding Armor Aluminum Chassis)
+    // -------------------------------------------------------------------------
+    case "fold6": {
+      // Armor Aluminum Frame Material (Silver Shadow)
+      const armorAluminumMat = new THREE.MeshStandardMaterial({
+        color: 0x949ea8,
+        metalness: 0.94,
+        roughness: 0.18,
       });
 
-      const bodyGeo = new THREE.BoxGeometry(1.0, 1.95, 0.08);
-      const body = new THREE.Mesh(bodyGeo, titaniumMat);
-      body.castShadow = true;
+      // Frosted Silk Glass Rear Material
+      const frostedGlassMat = new THREE.MeshStandardMaterial({
+        color: 0xb0b8c2,
+        metalness: 0.18,
+        roughness: 0.38,
+      });
+
+      // OLED Gloss Display Material
+      const innerScreenTex = createFold6InnerScreenTexture();
+      const innerScreenMat = new THREE.MeshStandardMaterial({
+        map: innerScreenTex,
+        roughness: 0.04,
+        metalness: 0.05,
+      });
+
+      const coverScreenTex = createFold6CoverScreenTexture();
+      const coverScreenMat = new THREE.MeshStandardMaterial({
+        map: coverScreenTex,
+        roughness: 0.04,
+        metalness: 0.05,
+      });
+
+      // Deep Sapphire Optical Camera Lenses
+      const lensRingMat = new THREE.MeshStandardMaterial({
+        color: 0xa8b2bd,
+        metalness: 0.96,
+        roughness: 0.12,
+      });
+      const lensGlassMat = new THREE.MeshStandardMaterial({
+        color: 0x060810,
+        metalness: 0.95,
+        roughness: 0.02,
+      });
+
+      // Center Polished Hinge Spine
+      const hingeGeo = new THREE.CylinderGeometry(0.022, 0.022, 1.84, 32);
+      const hingeMesh = new THREE.Mesh(hingeGeo, armorAluminumMat);
+      hingeMesh.castShadow = true;
+      root.add(hingeMesh);
+
+      // LEFT WING (Pivots at x = 0)
+      const leftWing = new THREE.Group();
+      root.add(leftWing);
+
+      // Left Slab Body (w = 0.52, h = 1.82, thickness = 0.038)
+      const slabShape = createRoundedRectShape(0.52, 1.82, 0.035);
+      const slabGeo = new THREE.ExtrudeGeometry(slabShape, {
+        depth: 0.036,
+        bevelEnabled: true,
+        bevelSegments: 4,
+        steps: 1,
+        bevelSize: 0.012,
+        bevelThickness: 0.012,
+      });
+
+      const leftSlab = new THREE.Mesh(slabGeo, armorAluminumMat);
+      leftSlab.position.set(-0.27, 0, -0.018);
+      leftSlab.castShadow = true;
+      leftWing.add(leftSlab);
+
+      // Rear Frosted Glass on Left Slab
+      const rearGlassGeo = new THREE.PlaneGeometry(0.50, 1.80);
+      const leftRearGlass = new THREE.Mesh(rearGlassGeo, frostedGlassMat);
+      leftRearGlass.position.set(-0.27, 0, -0.032);
+      leftRearGlass.rotation.y = Math.PI;
+      leftWing.add(leftRearGlass);
+
+      // Triple Vertically Stacked Camera Rings on Left Rear
+      const cameraY = [0.55, 0.32, 0.09];
+      cameraY.forEach((yPos) => {
+        // Outer beveled ring
+        const ringGeo = new THREE.CylinderGeometry(0.052, 0.052, 0.022, 32);
+        const ring = new THREE.Mesh(ringGeo, lensRingMat);
+        ring.rotation.x = Math.PI / 2;
+        ring.position.set(-0.35, yPos, -0.045);
+
+        // Sapphire lens element
+        const lensGeo = new THREE.CylinderGeometry(0.044, 0.044, 0.024, 32);
+        const lens = new THREE.Mesh(lensGeo, lensGlassMat);
+        ring.add(lens);
+
+        leftWing.add(ring);
+      });
+
+      // Dual LED Flash next to middle camera
+      const flashGeo = new THREE.CylinderGeometry(0.016, 0.016, 0.01, 16);
+      const flashMat = new THREE.MeshStandardMaterial({
+        color: 0xfff6dd,
+        emissive: 0xffeab3,
+        emissiveIntensity: 0.6,
+      });
+      const flash = new THREE.Mesh(flashGeo, flashMat);
+      flash.rotation.x = Math.PI / 2;
+      flash.position.set(-0.25, 0.32, -0.036);
+      leftWing.add(flash);
+
+      // Left Half of Inner Display
+      const innerLeftScreenGeo = new THREE.PlaneGeometry(0.51, 1.80);
+      const innerLeftScreen = new THREE.Mesh(innerLeftScreenGeo, innerScreenMat);
+      innerLeftScreen.position.set(-0.265, 0, 0.021);
+      leftWing.add(innerLeftScreen);
+
+      // RIGHT WING (Pivots at x = 0)
+      const rightWing = new THREE.Group();
+      root.add(rightWing);
+
+      const rightSlab = new THREE.Mesh(slabGeo, armorAluminumMat);
+      rightSlab.position.set(0.27, 0, -0.018);
+      rightSlab.castShadow = true;
+      rightWing.add(rightSlab);
+
+      // Rear 6.3" Outer Cover Screen on Right Slab
+      const coverScreenGeo = new THREE.PlaneGeometry(0.50, 1.80);
+      const rightCoverScreen = new THREE.Mesh(coverScreenGeo, coverScreenMat);
+      rightCoverScreen.position.set(0.27, 0, -0.032);
+      rightCoverScreen.rotation.y = Math.PI;
+      rightWing.add(rightCoverScreen);
+
+      // Right Half of Inner Display
+      const innerRightScreenGeo = new THREE.PlaneGeometry(0.51, 1.80);
+      const innerRightScreen = new THREE.Mesh(innerRightScreenGeo, innerScreenMat);
+      innerRightScreen.position.set(0.265, 0, 0.021);
+      rightWing.add(innerRightScreen);
+
+      // Right Frame Buttons (Fingerprint Key & Volume Rocker)
+      const buttonMat = new THREE.MeshStandardMaterial({
+        color: 0x7c8691,
+        metalness: 0.95,
+        roughness: 0.15,
+      });
+      const pwrKeyGeo = new THREE.BoxGeometry(0.01, 0.16, 0.025);
+      const pwrKey = new THREE.Mesh(pwrKeyGeo, buttonMat);
+      pwrKey.position.set(0.54, 0.12, 0);
+      rightWing.add(pwrKey);
+
+      const volKeyGeo = new THREE.BoxGeometry(0.01, 0.28, 0.025);
+      const volKey = new THREE.Mesh(volKeyGeo, buttonMat);
+      volKey.position.set(0.54, 0.42, 0);
+      rightWing.add(volKey);
+
+      // Bottom USB-C Port
+      const usbcGeo = new THREE.BoxGeometry(0.12, 0.01, 0.03);
+      const usbcMat = new THREE.MeshStandardMaterial({ color: 0x111317 });
+      const usbc = new THREE.Mesh(usbcGeo, usbcMat);
+      usbc.position.set(0.27, -0.92, 0);
+      rightWing.add(usbc);
+
+      // Controller: Interactive Folding Angle
+      controllers.setFoldAngle = (deg: number) => {
+        const rad = (deg * Math.PI) / 180;
+        // When deg = 180, wings are flat (0 offset)
+        // When deg < 180, wings bend forward toward each other
+        const foldOffset = (Math.PI - rad) / 2;
+        leftWing.rotation.y = foldOffset;
+        rightWing.rotation.y = -foldOffset;
+      };
+
+      break;
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. APPLE IPHONE 16 PRO MAX (Grade 5 Titanium & Camera Control Button)
+    // -------------------------------------------------------------------------
+    case "iphone16": {
+      const titaniumMat = new THREE.MeshStandardMaterial({
+        color: 0x938c82,
+        metalness: 0.88,
+        roughness: 0.28,
+      });
+
+      const rearGlassMat = new THREE.MeshStandardMaterial({
+        color: 0xa59f97,
+        metalness: 0.2,
+        roughness: 0.42,
+      });
+
+      const screenTex = createIPhoneScreenTexture();
+      const screenMat = new THREE.MeshStandardMaterial({
+        map: screenTex,
+        roughness: 0.04,
+        metalness: 0.05,
+      });
+
+      // Extruded Rounded Rectangle Body
+      const bodyShape = createRoundedRectShape(0.96, 1.96, 0.12);
+      const bodyGeo = new THREE.ExtrudeGeometry(bodyShape, {
+        depth: 0.058,
+        bevelEnabled: true,
+        bevelSegments: 5,
+        steps: 1,
+        bevelSize: 0.012,
+        bevelThickness: 0.012,
+      });
+
+      const phoneBody = new THREE.Mesh(bodyGeo, titaniumMat);
+      phoneBody.position.z = -0.029;
+      phoneBody.castShadow = true;
+      root.add(phoneBody);
 
       // Front OLED Glass Screen
-      const frontGlassGeo = new THREE.PlaneGeometry(0.94, 1.88);
-      const frontGlass = new THREE.Mesh(frontGlassGeo, frontPhotoMat);
-      frontGlass.position.z = 0.041;
-      body.add(frontGlass);
+      const frontScreenGeo = new THREE.PlaneGeometry(0.92, 1.92);
+      const frontScreen = new THREE.Mesh(frontScreenGeo, screenMat);
+      frontScreen.position.z = 0.031;
+      root.add(frontScreen);
 
-      // Rear Authentic Frosted Matte Titanium Glass Back
-      const rearGlassGeo = new THREE.PlaneGeometry(0.94, 1.88);
-      const rearGlass = new THREE.Mesh(rearGlassGeo, rearPhotoMat);
-      rearGlass.position.z = -0.041;
-      rearGlass.rotation.y = Math.PI; // Correctly faces rearward
-      body.add(rearGlass);
+      // Rear Frosted Glass Back
+      const rearGlassGeo = new THREE.PlaneGeometry(0.92, 1.92);
+      const rearGlass = new THREE.Mesh(rearGlassGeo, rearGlassMat);
+      rearGlass.position.z = -0.031;
+      rearGlass.rotation.y = Math.PI;
+      root.add(rearGlass);
 
-      // Raised Triple Camera Island on Back
-      const cameraIslandGeo = new THREE.BoxGeometry(0.44, 0.46, 0.035);
-      const cameraIsland = new THREE.Mesh(cameraIslandGeo, titaniumMat);
-      cameraIsland.position.set(-0.22, 0.62, -0.052);
-      cameraIsland.rotation.y = Math.PI;
+      // Rear Raised Camera Plateau (Squircle Island)
+      const plateauShape = createRoundedRectShape(0.48, 0.50, 0.09);
+      const plateauGeo = new THREE.ExtrudeGeometry(plateauShape, {
+        depth: 0.025,
+        bevelEnabled: true,
+        bevelSegments: 4,
+        bevelSize: 0.008,
+        bevelThickness: 0.008,
+      });
+      const plateau = new THREE.Mesh(plateauGeo, rearGlassMat);
+      plateau.position.set(-0.21, 0.65, -0.056);
+      plateau.rotation.y = Math.PI;
+      root.add(plateau);
 
-      // 3 Sapphire Camera Lenses with Metallic Rings
-      const lensGeo = new THREE.CylinderGeometry(0.085, 0.085, 0.025, 24);
-      const lensMat = new THREE.MeshStandardMaterial({
-        color: 0x0a0c10,
+      // 3 Pro Sapphire Lens Cylinders
+      const lensRingMat = new THREE.MeshStandardMaterial({
+        color: 0x989289,
         metalness: 0.95,
-        roughness: 0.05,
+        roughness: 0.15,
+      });
+      const lensGlassMat = new THREE.MeshStandardMaterial({
+        color: 0x05070d,
+        metalness: 0.96,
+        roughness: 0.02,
       });
 
-      const lens1 = new THREE.Mesh(lensGeo, lensMat);
-      lens1.rotation.x = Math.PI / 2;
-      lens1.position.set(-0.1, 0.1, 0.02);
-      cameraIsland.add(lens1);
+      const lensCoords = [
+        [-0.31, 0.77],
+        [-0.31, 0.53],
+        [-0.11, 0.65],
+      ];
+      lensCoords.forEach(([x, y]) => {
+        const ringGeo = new THREE.CylinderGeometry(0.088, 0.088, 0.025, 32);
+        const ring = new THREE.Mesh(ringGeo, lensRingMat);
+        ring.rotation.x = Math.PI / 2;
+        ring.position.set(x, y, -0.068);
 
-      const lens2 = new THREE.Mesh(lensGeo, lensMat);
-      lens2.rotation.x = Math.PI / 2;
-      lens2.position.set(-0.1, -0.1, 0.02);
-      cameraIsland.add(lens2);
+        const lensGeo = new THREE.CylinderGeometry(0.076, 0.076, 0.027, 32);
+        const lens = new THREE.Mesh(lensGeo, lensGlassMat);
+        ring.add(lens);
 
-      const lens3 = new THREE.Mesh(lensGeo, lensMat);
-      lens3.rotation.x = Math.PI / 2;
-      lens3.position.set(0.1, 0.0, 0.02);
-      cameraIsland.add(lens3);
+        root.add(ring);
+      });
 
-      body.add(cameraIsland);
-      group.add(body);
+      // Camera Control Sapphire Touch Sensor on Right Rail
+      const camControlGeo = new THREE.BoxGeometry(0.015, 0.18, 0.028);
+      const camControlMat = new THREE.MeshStandardMaterial({
+        color: 0x475569,
+        metalness: 0.9,
+        roughness: 0.1,
+      });
+      const camControl = new THREE.Mesh(camControlGeo, camControlMat);
+      camControl.position.set(0.49, -0.22, 0);
+      root.add(camControl);
+
+      // Volume & Action buttons on Left Rail
+      const buttonMat = new THREE.MeshStandardMaterial({
+        color: 0x78716c,
+        metalness: 0.9,
+        roughness: 0.2,
+      });
+      const actionKey = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.10, 0.025), buttonMat);
+      actionKey.position.set(-0.49, 0.65, 0);
+      root.add(actionKey);
+
+      const volUpKey = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.18, 0.025), buttonMat);
+      volUpKey.position.set(-0.49, 0.45, 0);
+      root.add(volUpKey);
+
+      const volDnKey = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.18, 0.025), buttonMat);
+      volDnKey.position.set(-0.49, 0.22, 0);
+      root.add(volDnKey);
+
       break;
     }
 
-    case "imac": {
-      const screenGeo = new THREE.BoxGeometry(2.2, 1.4, 0.05);
-      const screen = new THREE.Mesh(screenGeo, aluminumMat);
-      screen.castShadow = true;
+    // -------------------------------------------------------------------------
+    // 3. MICROSOFT SURFACE LAPTOP 7 (CNC Aluminum Unibody with Copilot Key)
+    // -------------------------------------------------------------------------
+    case "surface7": {
+      const aluminumMat = new THREE.MeshStandardMaterial({
+        color: 0xd4d8dc,
+        metalness: 0.92,
+        roughness: 0.2,
+      });
+      const darkKeyMat = new THREE.MeshStandardMaterial({
+        color: 0x242830,
+        metalness: 0.2,
+        roughness: 0.6,
+      });
+      const trackpadMat = new THREE.MeshStandardMaterial({
+        color: 0xc4c9ce,
+        metalness: 0.3,
+        roughness: 0.15,
+      });
 
-      // Front Display
-      const glassGeo = new THREE.PlaneGeometry(2.1, 1.25);
-      const glass = new THREE.Mesh(glassGeo, frontPhotoMat);
-      glass.position.z = 0.026;
-      screen.add(glass);
+      const screenTex = createSurfaceScreenTexture();
+      const screenMat = new THREE.MeshStandardMaterial({
+        map: screenTex,
+        roughness: 0.05,
+        metalness: 0.05,
+      });
 
-      // Front Chin
-      const chinGeo = new THREE.BoxGeometry(2.1, 0.25, 0.052);
-      const chin = new THREE.Mesh(chinGeo, aluminumMat);
-      chin.position.y = -0.55;
-      screen.add(chin);
-
-      // Rear Anodized Aluminum Housing with Rear Image Mapping
-      const rearGeo = new THREE.PlaneGeometry(2.1, 1.35);
-      const rear = new THREE.Mesh(rearGeo, rearPhotoMat);
-      rear.position.z = -0.026;
-      rear.rotation.y = Math.PI;
-      screen.add(rear);
-
-      // Stand
-      const standPoleGeo = new THREE.BoxGeometry(0.35, 0.7, 0.04);
-      const standPole = new THREE.Mesh(standPoleGeo, aluminumMat);
-      standPole.position.set(0, -0.75, -0.15);
-      standPole.rotation.x = 0.2;
-      screen.add(standPole);
-
-      const standBaseGeo = new THREE.BoxGeometry(0.7, 0.03, 0.6);
-      const standBase = new THREE.Mesh(standBaseGeo, aluminumMat);
-      standBase.position.set(0, -1.05, 0);
-      screen.add(standBase);
-
-      screen.position.y = 0.2;
-      group.add(screen);
-      break;
-    }
-
-    case "laptop": {
-      const baseGeo = new THREE.BoxGeometry(2.0, 0.04, 1.4);
+      // Tapered Aluminum Base
+      const baseGeo = new THREE.BoxGeometry(2.1, 0.045, 1.45);
       const base = new THREE.Mesh(baseGeo, aluminumMat);
       base.position.set(0, -0.4, 0);
       base.castShadow = true;
+      root.add(base);
 
-      const trackpadGeo = new THREE.PlaneGeometry(0.65, 0.45);
-      const trackpad = new THREE.Mesh(trackpadGeo, darkPolymerMat);
-      trackpad.rotation.x = -Math.PI / 2;
-      trackpad.position.set(0, 0.021, 0.35);
-      base.add(trackpad);
-
-      const keyboardGeo = new THREE.PlaneGeometry(1.7, 0.65);
-      const keyboard = new THREE.Mesh(keyboardGeo, darkPolymerMat);
+      // Recessed Keyboard Well
+      const keyboardGeo = new THREE.PlaneGeometry(1.75, 0.68);
+      const keyboard = new THREE.Mesh(keyboardGeo, darkKeyMat);
       keyboard.rotation.x = -Math.PI / 2;
-      keyboard.position.set(0, 0.021, -0.25);
+      keyboard.position.set(0, 0.024, -0.22);
       base.add(keyboard);
 
-      const lidGeo = new THREE.BoxGeometry(2.0, 1.35, 0.03);
-      const lid = new THREE.Mesh(lidGeo, aluminumMat);
-      lid.position.set(0, 0.25, -0.65);
-      lid.rotation.x = -0.35;
-      lid.castShadow = true;
+      // Copilot Key Highlight
+      const copilotKeyGeo = new THREE.PlaneGeometry(0.12, 0.08);
+      const copilotKeyMat = new THREE.MeshStandardMaterial({
+        color: 0x0284c7,
+        emissive: 0x0284c7,
+        emissiveIntensity: 0.4,
+      });
+      const copilotKey = new THREE.Mesh(copilotKeyGeo, copilotKeyMat);
+      copilotKey.rotation.x = -Math.PI / 2;
+      copilotKey.position.set(0.44, 0.025, 0.08);
+      base.add(copilotKey);
 
-      // Open Display Screen Face
-      const lidScreenGeo = new THREE.PlaneGeometry(1.9, 1.25);
-      const lidScreen = new THREE.Mesh(lidScreenGeo, frontPhotoMat);
-      lidScreen.position.z = 0.016;
-      lid.add(lidScreen);
+      // Glass Precision Trackpad
+      const trackpadGeo = new THREE.PlaneGeometry(0.72, 0.48);
+      const trackpad = new THREE.Mesh(trackpadGeo, trackpadMat);
+      trackpad.rotation.x = -Math.PI / 2;
+      trackpad.position.set(0, 0.024, 0.38);
+      base.add(trackpad);
 
-      // Rear Exterior Lid
-      const lidRearGeo = new THREE.PlaneGeometry(1.9, 1.25);
-      const lidRear = new THREE.Mesh(lidRearGeo, rearPhotoMat);
-      lidRear.position.z = -0.016;
-      lidRear.rotation.y = Math.PI;
-      lid.add(lidRear);
+      // Display Lid (Pivots at rear of base)
+      const lidGroup = new THREE.Group();
+      lidGroup.position.set(0, -0.38, -0.72);
+      root.add(lidGroup);
 
-      group.add(base);
-      group.add(lid);
+      const lidShape = createRoundedRectShape(2.1, 1.42, 0.05);
+      const lidGeo = new THREE.ExtrudeGeometry(lidShape, {
+        depth: 0.028,
+        bevelEnabled: true,
+        bevelSegments: 4,
+        bevelSize: 0.008,
+        bevelThickness: 0.008,
+      });
+      const lidMesh = new THREE.Mesh(lidGeo, aluminumMat);
+      lidMesh.position.set(0, 0.71, 0);
+      lidMesh.castShadow = true;
+      lidGroup.add(lidMesh);
+
+      // 3:2 PixelSense Display Screen
+      const lidScreenGeo = new THREE.PlaneGeometry(2.0, 1.34);
+      const lidScreen = new THREE.Mesh(lidScreenGeo, screenMat);
+      lidScreen.position.set(0, 0.71, 0.016);
+      lidGroup.add(lidScreen);
+
+      // Mirror 4-Square Microsoft Logo on Rear of Lid
+      const logoMat = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        metalness: 0.98,
+        roughness: 0.05,
+      });
+      const logoGeo = new THREE.PlaneGeometry(0.18, 0.18);
+      const logo = new THREE.Mesh(logoGeo, logoMat);
+      logo.position.set(0, 0.71, -0.016);
+      logo.rotation.y = Math.PI;
+      lidGroup.add(logo);
+
+      // Controller: Lid Angle
+      controllers.setLidAngle = (deg: number) => {
+        // deg = 115 gives natural work angle
+        lidGroup.rotation.x = -((180 - deg) * Math.PI) / 180;
+      };
+      controllers.setLidAngle(115);
+
       break;
     }
 
-    case "soundbar": {
-      const barGeo = new THREE.BoxGeometry(2.4, 0.2, 0.3);
-      const bar = new THREE.Mesh(barGeo, darkPolymerMat);
-      bar.castShadow = true;
+    // -------------------------------------------------------------------------
+    // 4. JBL BAR 800 MK2 (Soundbar with Detachable Wireless Surrounds & 10" Sub)
+    // -------------------------------------------------------------------------
+    case "jbl800": {
+      const meshMat = new THREE.MeshStandardMaterial({
+        color: 0x282c32,
+        metalness: 0.75,
+        roughness: 0.45,
+      });
+      const subMat = new THREE.MeshStandardMaterial({
+        color: 0x181a1e,
+        metalness: 0.3,
+        roughness: 0.5,
+      });
 
-      const grillGeo = new THREE.BoxGeometry(2.35, 0.18, 0.02);
-      const grill = new THREE.Mesh(grillGeo, frontPhotoMat);
-      grill.position.z = 0.15;
-      bar.add(grill);
+      const displayTex = createJblDisplayTexture();
+      const displayMat = new THREE.MeshStandardMaterial({
+        map: displayTex,
+        roughness: 0.2,
+      });
 
-      const subGeo = new THREE.BoxGeometry(0.7, 0.8, 0.7);
-      const sub = new THREE.Mesh(subGeo, darkPolymerMat);
-      sub.position.set(1.4, 0.3, -0.2);
+      // Main Center Soundbar Bar
+      const mainBarGeo = new THREE.BoxGeometry(1.65, 0.18, 0.28);
+      const mainBar = new THREE.Mesh(mainBarGeo, meshMat);
+      mainBar.position.set(0, -0.25, 0);
+      mainBar.castShadow = true;
+      root.add(mainBar);
+
+      // Center LED Readout
+      const displayPlaneGeo = new THREE.PlaneGeometry(0.7, 0.14);
+      const displayPlane = new THREE.Mesh(displayPlaneGeo, displayMat);
+      displayPlane.position.set(0, 0, 0.142);
+      mainBar.add(displayPlane);
+
+      // Left Detachable Surround Pod
+      const surroundGeo = new THREE.BoxGeometry(0.32, 0.18, 0.28);
+      const leftPod = new THREE.Mesh(surroundGeo, meshMat);
+      leftPod.position.set(-0.99, -0.25, 0);
+      leftPod.castShadow = true;
+      root.add(leftPod);
+
+      // Right Detachable Surround Pod
+      const rightPod = new THREE.Mesh(surroundGeo, meshMat);
+      rightPod.position.set(0.99, -0.25, 0);
+      rightPod.castShadow = true;
+      root.add(rightPod);
+
+      // 10-Inch Wireless Subwoofer Cube
+      const subGeo = new THREE.BoxGeometry(0.72, 0.78, 0.72);
+      const sub = new THREE.Mesh(subGeo, subMat);
+      sub.position.set(1.45, 0.12, -0.25);
       sub.castShadow = true;
+      root.add(sub);
 
-      group.add(bar);
-      group.add(sub);
+      // Subwoofer Down-Firing Bass Reflex Port Flare
+      const portGeo = new THREE.CylinderGeometry(0.12, 0.14, 0.16, 24);
+      const portMat = new THREE.MeshStandardMaterial({ color: 0x090b0e });
+      const port = new THREE.Mesh(portGeo, portMat);
+      port.position.set(0, -0.35, 0);
+      sub.add(port);
+
+      // Subwoofer Elevated Rubber Isolation Feet
+      [-0.28, 0.28].forEach((x) => {
+        [-0.28, 0.28].forEach((z) => {
+          const footGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.08, 16);
+          const foot = new THREE.Mesh(footGeo, portMat);
+          foot.position.set(x, -0.42, z);
+          sub.add(foot);
+        });
+      });
+
+      // Controller: Detachable Surrounds
+      controllers.setSurroundsDocked = (docked: boolean) => {
+        if (docked) {
+          leftPod.position.set(-0.99, -0.25, 0);
+          rightPod.position.set(0.99, -0.25, 0);
+        } else {
+          // Slide off into rear room surround positions
+          leftPod.position.set(-1.45, 0.1, -0.6);
+          rightPod.position.set(-0.25, 0.45, -0.6);
+        }
+      };
+
       break;
     }
 
-    case "tv": {
-      const tvGeo = new THREE.BoxGeometry(2.6, 1.5, 0.04);
-      const tv = new THREE.Mesh(tvGeo, darkPolymerMat);
-      tv.castShadow = true;
+    // -------------------------------------------------------------------------
+    // 5. APPLE IMAC 24" M4 (11.5mm Ultra-Thin with Cantilever Stand)
+    // -------------------------------------------------------------------------
+    case "imac24": {
+      const chassisMat = new THREE.MeshStandardMaterial({
+        color: 0xff6a00, // Vibrant Tangerine Orange
+        metalness: 0.88,
+        roughness: 0.22,
+      });
+      const standMat = new THREE.MeshStandardMaterial({
+        color: 0xd8dde2,
+        metalness: 0.94,
+        roughness: 0.16,
+      });
 
-      // Screen with authentic display
-      const tvScreenGeo = new THREE.PlaneGeometry(2.54, 1.44);
-      const tvScreen = new THREE.Mesh(tvScreenGeo, frontPhotoMat);
-      tvScreen.position.z = 0.021;
-      tv.add(tvScreen);
+      const screenTex = createIMacScreenTexture();
+      const screenMat = new THREE.MeshStandardMaterial({
+        map: screenTex,
+        roughness: 0.04,
+        metalness: 0.05,
+      });
 
-      // Rear Panel Housing
-      const tvRearGeo = new THREE.PlaneGeometry(2.54, 1.44);
-      const tvRear = new THREE.Mesh(tvRearGeo, rearPhotoMat);
-      tvRear.position.z = -0.021;
-      tvRear.rotation.y = Math.PI;
-      tv.add(tvRear);
+      // 11.5mm Razor Thin Screen Chassis
+      const screenGeo = new THREE.BoxGeometry(2.2, 1.4, 0.035);
+      const screen = new THREE.Mesh(screenGeo, chassisMat);
+      screen.position.y = 0.25;
+      screen.castShadow = true;
+      root.add(screen);
 
-      const footGeo = new THREE.BoxGeometry(0.04, 0.2, 0.4);
-      const leftFoot = new THREE.Mesh(footGeo, darkPolymerMat);
-      leftFoot.position.set(-0.9, -0.85, 0);
-      tv.add(leftFoot);
+      // Front 4.5K Retina Display with White Border Bezel
+      const displayPlaneGeo = new THREE.PlaneGeometry(2.1, 1.15);
+      const displayPlane = new THREE.Mesh(displayPlaneGeo, screenMat);
+      displayPlane.position.set(0, 0.08, 0.019);
+      screen.add(displayPlane);
 
-      const rightFoot = new THREE.Mesh(footGeo, darkPolymerMat);
-      rightFoot.position.set(0.9, -0.85, 0);
-      tv.add(rightFoot);
+      // Front Color Chin
+      const chinGeo = new THREE.BoxGeometry(2.1, 0.22, 0.038);
+      const chin = new THREE.Mesh(chinGeo, chassisMat);
+      chin.position.set(0, -0.58, 0);
+      screen.add(chin);
 
-      group.add(tv);
+      // Cantilever L-Stand with Cable Pass-Through Hole
+      const standPoleGeo = new THREE.BoxGeometry(0.38, 0.72, 0.035);
+      const standPole = new THREE.Mesh(standPoleGeo, standMat);
+      standPole.position.set(0, -0.72, -0.16);
+      standPole.rotation.x = 0.22;
+      screen.add(standPole);
+
+      // Circular Cable Hole
+      const holeGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.04, 24);
+      const holeMat = new THREE.MeshStandardMaterial({ color: 0x1e293b });
+      const hole = new THREE.Mesh(holeGeo, holeMat);
+      hole.rotation.x = Math.PI / 2;
+      hole.position.set(0, 0, 0);
+      standPole.add(hole);
+
+      const standBaseGeo = new THREE.BoxGeometry(0.72, 0.025, 0.62);
+      const standBase = new THREE.Mesh(standBaseGeo, standMat);
+      standBase.position.set(0, -1.04, 0);
+      screen.add(standBase);
+
       break;
     }
 
-    case "ac": {
-      const acGeo = new THREE.BoxGeometry(2.2, 0.6, 0.4);
-      const acMat = new THREE.MeshStandardMaterial({
-        color: 0xfafafa,
-        metalness: 0.1,
+    // -------------------------------------------------------------------------
+    // 6. 75" QNED TV
+    // -------------------------------------------------------------------------
+    case "tv75": {
+      const tvFrameMat = new THREE.MeshStandardMaterial({
+        color: 0x1e2229,
+        metalness: 0.8,
         roughness: 0.3,
+      });
+      const tvScreenGeo = new THREE.BoxGeometry(2.6, 1.5, 0.04);
+      const tv = new THREE.Mesh(tvScreenGeo, tvFrameMat);
+      tv.castShadow = true;
+      root.add(tv);
+
+      const screenFaceGeo = new THREE.PlaneGeometry(2.54, 1.44);
+      const screenFace = new THREE.Mesh(
+        screenFaceGeo,
+        new THREE.MeshStandardMaterial({
+          color: 0x0b132b,
+          roughness: 0.1,
+          metalness: 0.2,
+        })
+      );
+      screenFace.position.z = 0.021;
+      tv.add(screenFace);
+
+      // Tabletop Boomerang Feet
+      [-0.9, 0.9].forEach((x) => {
+        const footGeo = new THREE.BoxGeometry(0.035, 0.18, 0.45);
+        const foot = new THREE.Mesh(footGeo, tvFrameMat);
+        foot.position.set(x, -0.84, 0);
+        tv.add(foot);
+      });
+      break;
+    }
+
+    // -------------------------------------------------------------------------
+    // 7. TCL 1.5HP SMART INVERTER AC
+    // -------------------------------------------------------------------------
+    case "ac15": {
+      const acGeo = new THREE.BoxGeometry(2.2, 0.62, 0.38);
+      const acMat = new THREE.MeshStandardMaterial({
+        color: 0xfcfcfc,
+        metalness: 0.1,
+        roughness: 0.2,
       });
       const ac = new THREE.Mesh(acGeo, acMat);
       ac.castShadow = true;
+      root.add(ac);
 
-      const frontFaceGeo = new THREE.PlaneGeometry(2.1, 0.5);
-      const frontFace = new THREE.Mesh(frontFaceGeo, frontPhotoMat);
-      frontFace.position.set(0, 0, 0.201);
-      ac.add(frontFace);
-
-      const ventGeo = new THREE.BoxGeometry(2.1, 0.1, 0.05);
-      const ventMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+      const ventGeo = new THREE.BoxGeometry(2.1, 0.12, 0.04);
+      const ventMat = new THREE.MeshStandardMaterial({ color: 0x22262d });
       const vent = new THREE.Mesh(ventGeo, ventMat);
       vent.position.set(0, -0.22, 0.18);
       ac.add(vent);
-
-      group.add(ac);
       break;
     }
   }
+
+  return controllers;
 }
-
-
