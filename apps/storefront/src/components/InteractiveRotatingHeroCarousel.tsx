@@ -1852,6 +1852,257 @@ function createIMacScreenTexture(): THREE.CanvasTexture {
   return texture;
 }
 
+// -----------------------------------------------------------------------------
+// Mirror Chrome Apple Logo Texture (iPhone & iMac rear)
+// -----------------------------------------------------------------------------
+function createAppleLogoTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return new THREE.CanvasTexture(canvas);
+
+  ctx.clearRect(0, 0, 256, 256);
+  ctx.fillStyle = "#ffffff";
+
+  // Leaf
+  ctx.beginPath();
+  ctx.moveTo(136, 42);
+  ctx.quadraticCurveTo(165, 24, 165, 58);
+  ctx.quadraticCurveTo(138, 76, 136, 42);
+  ctx.fill();
+
+  // Apple Body with Bite
+  ctx.beginPath();
+  ctx.arc(104, 138, 56, 0, Math.PI * 2);
+  ctx.arc(152, 138, 56, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Bottom indent
+  ctx.beginPath();
+  ctx.arc(128, 192, 16, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(0, 0, 0, 1)";
+  ctx.globalCompositeOperation = "destination-out";
+  ctx.fill();
+
+  // Bite cutout on right
+  ctx.beginPath();
+  ctx.arc(196, 134, 30, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.globalCompositeOperation = "source-over";
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+// -----------------------------------------------------------------------------
+// Samsung Armor Aluminum Spine Texture
+// -----------------------------------------------------------------------------
+function createSamsungSpineTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 128;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return new THREE.CanvasTexture(canvas);
+
+  // Brushed aluminum metallic background
+  ctx.fillStyle = "#949ea8";
+  ctx.fillRect(0, 0, 128, 512);
+
+  // Subtle brushed longitudinal grain
+  ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
+  for (let y = 0; y < 512; y += 4) {
+    ctx.fillRect(0, y, 128, 1.5);
+  }
+
+  // Laser-etched SAMSUNG branding along center
+  ctx.save();
+  ctx.translate(64, 256);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.55)";
+  ctx.font = "bold 20px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.textAlign = "center";
+  ctx.letterSpacing = "6px";
+  ctx.fillText("SAMSUNG", 0, 7);
+  ctx.restore();
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+// -----------------------------------------------------------------------------
+// LG 75" 4K QNED TV Vivid Display Texture
+// -----------------------------------------------------------------------------
+function createLGTVDisplayTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 576;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return new THREE.CanvasTexture(canvas);
+
+  // Cinematic Quantum Dot Aurora Sky
+  const grad = ctx.createLinearGradient(0, 0, 1024, 576);
+  grad.addColorStop(0, "#050b18");
+  grad.addColorStop(0.35, "#0b2545");
+  grad.addColorStop(0.65, "#134e5e");
+  grad.addColorStop(0.85, "#71b280");
+  grad.addColorStop(1, "#071e22");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 1024, 576);
+
+  // Glowing Aurora Light Ribbon
+  ctx.save();
+  ctx.filter = "blur(40px)";
+  const aurora = ctx.createRadialGradient(512, 220, 60, 512, 220, 420);
+  aurora.addColorStop(0, "rgba(52, 211, 153, 0.85)");
+  aurora.addColorStop(0.4, "rgba(14, 165, 233, 0.7)");
+  aurora.addColorStop(0.7, "rgba(168, 85, 247, 0.5)");
+  aurora.addColorStop(1, "rgba(0, 0, 0, 0)");
+  ctx.fillStyle = aurora;
+  ctx.beginPath();
+  ctx.ellipse(512, 200, 460, 160, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // Mountain Silhouettes in Foreground
+  ctx.fillStyle = "#030712";
+  ctx.beginPath();
+  ctx.moveTo(0, 576);
+  ctx.lineTo(0, 390);
+  ctx.lineTo(160, 310);
+  ctx.lineTo(340, 410);
+  ctx.lineTo(512, 260);
+  ctx.lineTo(720, 430);
+  ctx.lineTo(890, 330);
+  ctx.lineTo(1024, 420);
+  ctx.lineTo(1024, 576);
+  ctx.closePath();
+  ctx.fill();
+
+  // Header Badge Info (Top Left & Top Right)
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 20px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("LG webOS 23", 40, 52);
+  ctx.textAlign = "right";
+  ctx.font = "bold 16px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+  ctx.fillText("4K HDR10 Pro • Quantum Dot QNED • 120Hz", 984, 52);
+
+  // webOS Translucent App Dock at Bottom
+  ctx.beginPath();
+  ctx.roundRect(142, 470, 740, 74, 22);
+  ctx.fillStyle = "rgba(15, 23, 42, 0.75)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  const tvApps = [
+    { name: "Live TV", color: "#3b82f6" },
+    { name: "Netflix", color: "#e50914" },
+    { name: "Prime", color: "#00a8e1" },
+    { name: "Disney+", color: "#113ccf" },
+    { name: "YouTube", color: "#ff0000" },
+    { name: "Apple TV", color: "#000000" },
+    { name: "Spotify", color: "#1db954" },
+  ];
+  for (let i = 0; i < tvApps.length; i++) {
+    const x = 168 + i * 102;
+    ctx.beginPath();
+    ctx.roundRect(x, 482, 82, 50, 14);
+    ctx.fillStyle = tvApps[i].color;
+    ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(tvApps[i].name, x + 41, 513);
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+// -----------------------------------------------------------------------------
+// TCL 1.5HP Smart Inverter AC Front Panel Texture
+// -----------------------------------------------------------------------------
+function createTCLACDisplayTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 300;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return new THREE.CanvasTexture(canvas);
+
+  // Pure White Gloss Finish
+  ctx.fillStyle = "#fcfdfd";
+  ctx.fillRect(0, 0, 1024, 300);
+
+  // Subtle Pearl Gradient
+  const grad = ctx.createLinearGradient(0, 0, 0, 300);
+  grad.addColorStop(0, "rgba(240, 244, 248, 0.6)");
+  grad.addColorStop(0.4, "rgba(255, 255, 255, 1)");
+  grad.addColorStop(0.85, "rgba(235, 240, 245, 0.7)");
+  grad.addColorStop(1, "rgba(215, 222, 230, 0.9)");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 1024, 300);
+
+  // Chrome Accent Stripe in Lower Third
+  const chromeGrad = ctx.createLinearGradient(0, 240, 1024, 240);
+  chromeGrad.addColorStop(0, "#cbd5e1");
+  chromeGrad.addColorStop(0.5, "#ffffff");
+  chromeGrad.addColorStop(1, "#cbd5e1");
+  ctx.fillStyle = chromeGrad;
+  ctx.fillRect(40, 240, 944, 4);
+
+  // Centered TCL Brand Logo
+  ctx.fillStyle = "#1e293b";
+  ctx.font = "bold 34px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("TCL", 512, 115);
+
+  ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillStyle = "#64748b";
+  ctx.fillText("SMART INVERTER • 1.5HP", 512, 145);
+
+  // Glowing Digital LED Temperature Display on Right Fascia
+  ctx.save();
+  ctx.shadowColor = "#38bdf8";
+  ctx.shadowBlur = 18;
+  ctx.fillStyle = "#0284c7";
+  ctx.font = "bold 58px 'Courier New', monospace";
+  ctx.textAlign = "center";
+  ctx.fillText("21°C", 820, 120);
+
+  ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillStyle = "#0369a1";
+  ctx.fillText("ECO COOL • AUTO", 820, 148);
+  ctx.restore();
+
+  // TitanGold Protection Badge on Left Fascia
+  ctx.beginPath();
+  ctx.roundRect(80, 85, 150, 48, 12);
+  ctx.fillStyle = "rgba(217, 119, 6, 0.1)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(217, 119, 6, 0.4)";
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  ctx.font = "bold 12px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillStyle = "#d97706";
+  ctx.textAlign = "center";
+  ctx.fillText("TITANGOLD", 155, 105);
+  ctx.font = "10px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillStyle = "#b45309";
+  ctx.fillText("Anti-Corrosion Fin", 155, 122);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
 // =============================================================================
 // THREE.JS ROUNDED RECTANGLE EXTRUSION HELPER
 // Produces real filleted corners and chamfered edges that catch studio light.
@@ -1879,7 +2130,7 @@ function createRoundedRectShape(
 
 // =============================================================================
 // REFINED 3D HARDWARE MODEL BUILDER
-// Constructs accurate CAD geometry for each specific device model.
+// Constructs museum-grade CAD geometry for each specific device model.
 // =============================================================================
 
 interface DeviceCADControllers {
@@ -1900,50 +2151,73 @@ function buildRefinedHardwareCAD(
     // 1. SAMSUNG GALAXY Z FOLD6 (Dual Folding Armor Aluminum Chassis)
     // -------------------------------------------------------------------------
     case "fold6": {
-      // Armor Aluminum Frame Material (Silver Shadow)
-      const armorAluminumMat = new THREE.MeshStandardMaterial({
+      // Armor Aluminum Frame Material (Silver Shadow with Physical Clearcoat)
+      const armorAluminumMat = new THREE.MeshPhysicalMaterial({
         color: 0x949ea8,
         metalness: 0.94,
-        roughness: 0.18,
+        roughness: 0.16,
+        clearcoat: 0.25,
+        clearcoatRoughness: 0.15,
       });
 
       // Frosted Silk Glass Rear Material
-      const frostedGlassMat = new THREE.MeshStandardMaterial({
+      const frostedGlassMat = new THREE.MeshPhysicalMaterial({
         color: 0xb0b8c2,
         metalness: 0.18,
-        roughness: 0.38,
+        roughness: 0.35,
+        clearcoat: 0.35,
       });
 
-      // OLED Gloss Display Material
+      // Emissive OLED Gloss Display Materials
       const innerScreenTex = createFold6InnerScreenTexture();
-      const innerScreenMat = new THREE.MeshStandardMaterial({
+      const innerScreenMat = new THREE.MeshPhysicalMaterial({
         map: innerScreenTex,
         roughness: 0.04,
         metalness: 0.05,
+        clearcoat: 1.0,
+        emissiveMap: innerScreenTex,
+        emissive: new THREE.Color(0xffffff),
+        emissiveIntensity: 0.38,
       });
 
       const coverScreenTex = createFold6CoverScreenTexture();
-      const coverScreenMat = new THREE.MeshStandardMaterial({
+      const coverScreenMat = new THREE.MeshPhysicalMaterial({
         map: coverScreenTex,
         roughness: 0.04,
         metalness: 0.05,
+        clearcoat: 1.0,
+        emissiveMap: coverScreenTex,
+        emissive: new THREE.Color(0xffffff),
+        emissiveIntensity: 0.38,
       });
 
-      // Deep Sapphire Optical Camera Lenses
-      const lensRingMat = new THREE.MeshStandardMaterial({
+      // Deep Sapphire Optical Camera Lenses with AR coating
+      const lensRingMat = new THREE.MeshPhysicalMaterial({
         color: 0xa8b2bd,
         metalness: 0.96,
         roughness: 0.12,
+        clearcoat: 0.4,
       });
-      const lensGlassMat = new THREE.MeshStandardMaterial({
-        color: 0x060810,
+      const lensGlassMat = new THREE.MeshPhysicalMaterial({
+        color: 0x070914,
         metalness: 0.95,
         roughness: 0.02,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.04,
+        reflectivity: 0.95,
       });
 
-      // Center Polished Hinge Spine
-      const hingeGeo = new THREE.CylinderGeometry(0.022, 0.022, 1.84, 32);
-      const hingeMesh = new THREE.Mesh(hingeGeo, armorAluminumMat);
+      // Center Polished Hinge Spine with Samsung Laser Engraving
+      const spineTex = createSamsungSpineTexture();
+      const spineMat = new THREE.MeshPhysicalMaterial({
+        map: spineTex,
+        color: 0xffffff,
+        metalness: 0.92,
+        roughness: 0.2,
+      });
+      const hingeGeo = new THREE.CylinderGeometry(0.024, 0.024, 1.84, 32);
+      const hingeMesh = new THREE.Mesh(hingeGeo, spineMat);
+      hingeMesh.position.set(0, 0, -0.018);
       hingeMesh.castShadow = true;
       root.add(hingeMesh);
 
@@ -1996,7 +2270,7 @@ function buildRefinedHardwareCAD(
       const flashMat = new THREE.MeshStandardMaterial({
         color: 0xfff6dd,
         emissive: 0xffeab3,
-        emissiveIntensity: 0.6,
+        emissiveIntensity: 0.8,
       });
       const flash = new THREE.Mesh(flashGeo, flashMat);
       flash.rotation.x = Math.PI / 2;
@@ -2032,7 +2306,7 @@ function buildRefinedHardwareCAD(
       rightWing.add(innerRightScreen);
 
       // Right Frame Buttons (Fingerprint Key & Volume Rocker)
-      const buttonMat = new THREE.MeshStandardMaterial({
+      const buttonMat = new THREE.MeshPhysicalMaterial({
         color: 0x7c8691,
         metalness: 0.95,
         roughness: 0.15,
@@ -2047,7 +2321,7 @@ function buildRefinedHardwareCAD(
       volKey.position.set(0.54, 0.42, 0);
       rightWing.add(volKey);
 
-      // Bottom USB-C Port
+      // Bottom USB-C Port & Speaker Slots
       const usbcGeo = new THREE.BoxGeometry(0.12, 0.01, 0.03);
       const usbcMat = new THREE.MeshStandardMaterial({ color: 0x111317 });
       const usbc = new THREE.Mesh(usbcGeo, usbcMat);
@@ -2057,8 +2331,6 @@ function buildRefinedHardwareCAD(
       // Controller: Interactive Folding Angle
       controllers.setFoldAngle = (deg: number) => {
         const rad = (deg * Math.PI) / 180;
-        // When deg = 180, wings are flat (0 offset)
-        // When deg < 180, wings bend forward toward each other
         const foldOffset = (Math.PI - rad) / 2;
         leftWing.rotation.y = foldOffset;
         rightWing.rotation.y = -foldOffset;
@@ -2071,26 +2343,37 @@ function buildRefinedHardwareCAD(
     // 2. APPLE IPHONE 16 PRO MAX (Grade 5 Titanium & Camera Control Button)
     // -------------------------------------------------------------------------
     case "iphone16": {
-      const titaniumMat = new THREE.MeshStandardMaterial({
-        color: 0x938c82,
-        metalness: 0.88,
-        roughness: 0.28,
+      // Satin Brushed Grade 5 Titanium Frame
+      const titaniumMat = new THREE.MeshPhysicalMaterial({
+        color: 0x9b948a, // Desert Titanium warm tint
+        metalness: 0.92,
+        roughness: 0.24,
+        clearcoat: 0.28,
+        clearcoatRoughness: 0.18,
       });
 
-      const rearGlassMat = new THREE.MeshStandardMaterial({
-        color: 0xa59f97,
-        metalness: 0.2,
+      // Frosted Matte Glass Back with Silky Sheen
+      const rearGlassMat = new THREE.MeshPhysicalMaterial({
+        color: 0xb5afa6,
+        metalness: 0.12,
         roughness: 0.42,
+        clearcoat: 0.32,
+        clearcoatRoughness: 0.25,
       });
 
+      // Glowing Super Retina XDR OLED Display
       const screenTex = createIPhoneScreenTexture();
-      const screenMat = new THREE.MeshStandardMaterial({
+      const screenMat = new THREE.MeshPhysicalMaterial({
         map: screenTex,
         roughness: 0.04,
         metalness: 0.05,
+        clearcoat: 1.0,
+        emissiveMap: screenTex,
+        emissive: new THREE.Color(0xffffff),
+        emissiveIntensity: 0.38,
       });
 
-      // Extruded Rounded Rectangle Body
+      // Extruded Rounded Rectangle Body (Filleted corners)
       const bodyShape = createRoundedRectShape(0.96, 1.96, 0.12);
       const bodyGeo = new THREE.ExtrudeGeometry(bodyShape, {
         depth: 0.058,
@@ -2119,7 +2402,21 @@ function buildRefinedHardwareCAD(
       rearGlass.rotation.y = Math.PI;
       root.add(rearGlass);
 
-      // Rear Raised Camera Plateau (Squircle Island)
+      // Mirror Chrome Apple Logo on Rear Back
+      const appleLogoTex = createAppleLogoTexture();
+      const appleLogoMat = new THREE.MeshPhysicalMaterial({
+        map: appleLogoTex,
+        transparent: true,
+        metalness: 0.98,
+        roughness: 0.06,
+        clearcoat: 1.0,
+      });
+      const appleLogoMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 0.22), appleLogoMat);
+      appleLogoMesh.position.set(0, 0.08, -0.032);
+      appleLogoMesh.rotation.y = Math.PI;
+      root.add(appleLogoMesh);
+
+      // Rear Raised Camera Plateau (Sculpted Squircle Glass Island)
       const plateauShape = createRoundedRectShape(0.48, 0.50, 0.09);
       const plateauGeo = new THREE.ExtrudeGeometry(plateauShape, {
         depth: 0.025,
@@ -2133,16 +2430,20 @@ function buildRefinedHardwareCAD(
       plateau.rotation.y = Math.PI;
       root.add(plateau);
 
-      // 3 Pro Sapphire Lens Cylinders
-      const lensRingMat = new THREE.MeshStandardMaterial({
+      // 3 Pro Sapphire Lens Cylinders with Anti-Reflective Optical Coating
+      const lensRingMat = new THREE.MeshPhysicalMaterial({
         color: 0x989289,
         metalness: 0.95,
         roughness: 0.15,
+        clearcoat: 0.5,
       });
-      const lensGlassMat = new THREE.MeshStandardMaterial({
-        color: 0x05070d,
+      const lensGlassMat = new THREE.MeshPhysicalMaterial({
+        color: 0x050711,
         metalness: 0.96,
         roughness: 0.02,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.04,
+        reflectivity: 0.96,
       });
 
       const lensCoords = [
@@ -2151,34 +2452,67 @@ function buildRefinedHardwareCAD(
         [-0.11, 0.65],
       ];
       lensCoords.forEach(([x, y]) => {
+        // Outer beveled ring
         const ringGeo = new THREE.CylinderGeometry(0.088, 0.088, 0.025, 32);
         const ring = new THREE.Mesh(ringGeo, lensRingMat);
         ring.rotation.x = Math.PI / 2;
         ring.position.set(x, y, -0.068);
 
-        const lensGeo = new THREE.CylinderGeometry(0.076, 0.076, 0.027, 32);
+        // Chamfered inner lens barrel
+        const innerRingGeo = new THREE.CylinderGeometry(0.078, 0.078, 0.026, 32);
+        const innerRingMat = new THREE.MeshStandardMaterial({ color: 0x111317 });
+        const innerRing = new THREE.Mesh(innerRingGeo, innerRingMat);
+        ring.add(innerRing);
+
+        // Sapphire lens glass with AR highlight
+        const lensGeo = new THREE.CylinderGeometry(0.068, 0.068, 0.028, 32);
         const lens = new THREE.Mesh(lensGeo, lensGlassMat);
         ring.add(lens);
 
         root.add(ring);
       });
 
-      // Camera Control Sapphire Touch Sensor on Right Rail
-      const camControlGeo = new THREE.BoxGeometry(0.015, 0.18, 0.028);
-      const camControlMat = new THREE.MeshStandardMaterial({
-        color: 0x475569,
+      // True Tone Dual-LED Flash next to cameras
+      const flashGeo = new THREE.CylinderGeometry(0.028, 0.028, 0.012, 24);
+      const flashMat = new THREE.MeshStandardMaterial({
+        color: 0xfff6dd,
+        emissive: 0xffeab3,
+        emissiveIntensity: 0.8,
+      });
+      const flash = new THREE.Mesh(flashGeo, flashMat);
+      flash.rotation.x = Math.PI / 2;
+      flash.position.set(-0.11, 0.81, -0.06);
+      root.add(flash);
+
+      // LiDAR Scanner Dark Sensor
+      const lidarGeo = new THREE.CylinderGeometry(0.025, 0.025, 0.01, 24);
+      const lidarMat = new THREE.MeshStandardMaterial({
+        color: 0x0a0c10,
         metalness: 0.9,
         roughness: 0.1,
+      });
+      const lidar = new THREE.Mesh(lidarGeo, lidarMat);
+      lidar.rotation.x = Math.PI / 2;
+      lidar.position.set(-0.11, 0.49, -0.06);
+      root.add(lidar);
+
+      // Camera Control Sapphire Touch Sensor Button on Right Rail
+      const camControlGeo = new THREE.BoxGeometry(0.015, 0.18, 0.028);
+      const camControlMat = new THREE.MeshPhysicalMaterial({
+        color: 0x334155,
+        metalness: 0.9,
+        roughness: 0.1,
+        clearcoat: 0.8,
       });
       const camControl = new THREE.Mesh(camControlGeo, camControlMat);
       camControl.position.set(0.49, -0.22, 0);
       root.add(camControl);
 
       // Volume & Action buttons on Left Rail
-      const buttonMat = new THREE.MeshStandardMaterial({
+      const buttonMat = new THREE.MeshPhysicalMaterial({
         color: 0x78716c,
-        metalness: 0.9,
-        roughness: 0.2,
+        metalness: 0.92,
+        roughness: 0.18,
       });
       const actionKey = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.10, 0.025), buttonMat);
       actionKey.position.set(-0.49, 0.65, 0);
@@ -2192,6 +2526,13 @@ function buildRefinedHardwareCAD(
       volDnKey.position.set(-0.49, 0.22, 0);
       root.add(volDnKey);
 
+      // Bottom USB-C Port
+      const usbcGeo = new THREE.BoxGeometry(0.12, 0.015, 0.028);
+      const usbcMat = new THREE.MeshStandardMaterial({ color: 0x090b0e });
+      const usbc = new THREE.Mesh(usbcGeo, usbcMat);
+      usbc.position.set(0, -0.99, 0);
+      root.add(usbc);
+
       break;
     }
 
@@ -2199,27 +2540,33 @@ function buildRefinedHardwareCAD(
     // 3. MICROSOFT SURFACE LAPTOP 7 (CNC Aluminum Unibody with Copilot Key)
     // -------------------------------------------------------------------------
     case "surface7": {
-      const aluminumMat = new THREE.MeshStandardMaterial({
+      const aluminumMat = new THREE.MeshPhysicalMaterial({
         color: 0xd4d8dc,
         metalness: 0.92,
-        roughness: 0.2,
+        roughness: 0.18,
+        clearcoat: 0.25,
       });
       const darkKeyMat = new THREE.MeshStandardMaterial({
         color: 0x242830,
         metalness: 0.2,
         roughness: 0.6,
       });
-      const trackpadMat = new THREE.MeshStandardMaterial({
+      const trackpadMat = new THREE.MeshPhysicalMaterial({
         color: 0xc4c9ce,
         metalness: 0.3,
-        roughness: 0.15,
+        roughness: 0.12,
+        clearcoat: 0.6,
       });
 
       const screenTex = createSurfaceScreenTexture();
-      const screenMat = new THREE.MeshStandardMaterial({
+      const screenMat = new THREE.MeshPhysicalMaterial({
         map: screenTex,
         roughness: 0.05,
         metalness: 0.05,
+        clearcoat: 1.0,
+        emissiveMap: screenTex,
+        emissive: new THREE.Color(0xffffff),
+        emissiveIntensity: 0.35,
       });
 
       // Tapered Aluminum Base
@@ -2236,12 +2583,12 @@ function buildRefinedHardwareCAD(
       keyboard.position.set(0, 0.024, -0.22);
       base.add(keyboard);
 
-      // Copilot Key Highlight
+      // Glowing Copilot Key Highlight
       const copilotKeyGeo = new THREE.PlaneGeometry(0.12, 0.08);
       const copilotKeyMat = new THREE.MeshStandardMaterial({
         color: 0x0284c7,
         emissive: 0x0284c7,
-        emissiveIntensity: 0.4,
+        emissiveIntensity: 0.7,
       });
       const copilotKey = new THREE.Mesh(copilotKeyGeo, copilotKeyMat);
       copilotKey.rotation.x = -Math.PI / 2;
@@ -2280,10 +2627,11 @@ function buildRefinedHardwareCAD(
       lidGroup.add(lidScreen);
 
       // Mirror 4-Square Microsoft Logo on Rear of Lid
-      const logoMat = new THREE.MeshStandardMaterial({
+      const logoMat = new THREE.MeshPhysicalMaterial({
         color: 0xffffff,
         metalness: 0.98,
         roughness: 0.05,
+        clearcoat: 1.0,
       });
       const logoGeo = new THREE.PlaneGeometry(0.18, 0.18);
       const logo = new THREE.Mesh(logoGeo, logoMat);
@@ -2293,7 +2641,6 @@ function buildRefinedHardwareCAD(
 
       // Controller: Lid Angle
       controllers.setLidAngle = (deg: number) => {
-        // deg = 115 gives natural work angle
         lidGroup.rotation.x = -((180 - deg) * Math.PI) / 180;
       };
       controllers.setLidAngle(115);
@@ -2305,21 +2652,25 @@ function buildRefinedHardwareCAD(
     // 4. JBL BAR 800 MK2 (Soundbar with Detachable Wireless Surrounds & 10" Sub)
     // -------------------------------------------------------------------------
     case "jbl800": {
-      const meshMat = new THREE.MeshStandardMaterial({
+      const meshMat = new THREE.MeshPhysicalMaterial({
         color: 0x282c32,
         metalness: 0.75,
-        roughness: 0.45,
+        roughness: 0.35,
+        clearcoat: 0.3,
       });
-      const subMat = new THREE.MeshStandardMaterial({
+      const subMat = new THREE.MeshPhysicalMaterial({
         color: 0x181a1e,
         metalness: 0.3,
-        roughness: 0.5,
+        roughness: 0.45,
       });
 
       const displayTex = createJblDisplayTexture();
-      const displayMat = new THREE.MeshStandardMaterial({
+      const displayMat = new THREE.MeshPhysicalMaterial({
         map: displayTex,
-        roughness: 0.2,
+        roughness: 0.15,
+        emissiveMap: displayTex,
+        emissive: new THREE.Color(0xff8a00),
+        emissiveIntensity: 0.5,
       });
 
       // Main Center Soundbar Bar
@@ -2347,6 +2698,19 @@ function buildRefinedHardwareCAD(
       rightPod.position.set(0.99, -0.25, 0);
       rightPod.castShadow = true;
       root.add(rightPod);
+
+      // Gold Magnetic Pogo Contacts on mating faces
+      const pogoMat = new THREE.MeshStandardMaterial({
+        color: 0xf59e0b,
+        metalness: 0.95,
+        roughness: 0.1,
+      });
+      [-0.82, 0.82].forEach((x) => {
+        const pogo = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.01, 16), pogoMat);
+        pogo.rotation.z = Math.PI / 2;
+        pogo.position.set(x, -0.25, 0);
+        root.add(pogo);
+      });
 
       // 10-Inch Wireless Subwoofer Cube
       const subGeo = new THREE.BoxGeometry(0.72, 0.78, 0.72);
@@ -2378,7 +2742,6 @@ function buildRefinedHardwareCAD(
           leftPod.position.set(-0.99, -0.25, 0);
           rightPod.position.set(0.99, -0.25, 0);
         } else {
-          // Slide off into rear room surround positions
           leftPod.position.set(-1.45, 0.1, -0.6);
           rightPod.position.set(-0.25, 0.45, -0.6);
         }
@@ -2391,22 +2754,28 @@ function buildRefinedHardwareCAD(
     // 5. APPLE IMAC 24" M4 (11.5mm Ultra-Thin with Cantilever Stand)
     // -------------------------------------------------------------------------
     case "imac24": {
-      const chassisMat = new THREE.MeshStandardMaterial({
-        color: 0xff6a00, // Vibrant Tangerine Orange
-        metalness: 0.88,
-        roughness: 0.22,
-      });
-      const standMat = new THREE.MeshStandardMaterial({
-        color: 0xd8dde2,
+      const chassisMat = new THREE.MeshPhysicalMaterial({
+        color: 0xd8dde2, // Silver anodized aluminum
         metalness: 0.94,
         roughness: 0.16,
+        clearcoat: 0.25,
+      });
+      const standMat = new THREE.MeshPhysicalMaterial({
+        color: 0xcfd4da,
+        metalness: 0.95,
+        roughness: 0.14,
+        clearcoat: 0.2,
       });
 
       const screenTex = createIMacScreenTexture();
-      const screenMat = new THREE.MeshStandardMaterial({
+      const screenMat = new THREE.MeshPhysicalMaterial({
         map: screenTex,
         roughness: 0.04,
         metalness: 0.05,
+        clearcoat: 1.0,
+        emissiveMap: screenTex,
+        emissive: new THREE.Color(0xffffff),
+        emissiveIntensity: 0.38,
       });
 
       // 11.5mm Razor Thin Screen Chassis
@@ -2422,11 +2791,33 @@ function buildRefinedHardwareCAD(
       displayPlane.position.set(0, 0.08, 0.019);
       screen.add(displayPlane);
 
+      // Front Center Stage Camera Dot at top bezel
+      const camPinholeGeo = new THREE.CylinderGeometry(0.008, 0.008, 0.005, 16);
+      const camPinholeMat = new THREE.MeshStandardMaterial({ color: 0x0b0d11 });
+      const camPinhole = new THREE.Mesh(camPinholeGeo, camPinholeMat);
+      camPinhole.rotation.x = Math.PI / 2;
+      camPinhole.position.set(0, 0.67, 0.019);
+      screen.add(camPinhole);
+
       // Front Color Chin
       const chinGeo = new THREE.BoxGeometry(2.1, 0.22, 0.038);
       const chin = new THREE.Mesh(chinGeo, chassisMat);
       chin.position.set(0, -0.58, 0);
       screen.add(chin);
+
+      // Mirror Apple Logo on Back of iMac
+      const appleLogoTex = createAppleLogoTexture();
+      const appleLogoMat = new THREE.MeshPhysicalMaterial({
+        map: appleLogoTex,
+        transparent: true,
+        metalness: 0.98,
+        roughness: 0.05,
+        clearcoat: 1.0,
+      });
+      const appleLogoMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.32, 0.32), appleLogoMat);
+      appleLogoMesh.position.set(0, 0.12, -0.019);
+      appleLogoMesh.rotation.y = Math.PI;
+      screen.add(appleLogoMesh);
 
       // Cantilever L-Stand with Cable Pass-Through Hole
       const standPoleGeo = new THREE.BoxGeometry(0.38, 0.72, 0.035);
@@ -2435,7 +2826,7 @@ function buildRefinedHardwareCAD(
       standPole.rotation.x = 0.22;
       screen.add(standPole);
 
-      // Circular Cable Hole
+      // Circular Cable Hole in stand
       const holeGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.04, 24);
       const holeMat = new THREE.MeshStandardMaterial({ color: 0x1e293b });
       const hole = new THREE.Mesh(holeGeo, holeMat);
@@ -2448,64 +2839,155 @@ function buildRefinedHardwareCAD(
       standBase.position.set(0, -1.04, 0);
       screen.add(standBase);
 
+      // Rear Thunderbolt Ports (4 USB-C oval cutouts)
+      const portMat = new THREE.MeshStandardMaterial({ color: 0x111317 });
+      [-0.12, -0.04, 0.04, 0.12].forEach((x) => {
+        const portMesh = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.06, 0.01), portMat);
+        portMesh.position.set(0.65 + x, -0.35, -0.019);
+        screen.add(portMesh);
+      });
+
       break;
     }
 
     // -------------------------------------------------------------------------
-    // 6. 75" QNED TV
+    // 6. 75" QNED 4K SMART TV (Vivid 4K HDR Panel with webOS 23 Dock)
     // -------------------------------------------------------------------------
     case "tv75": {
-      const tvFrameMat = new THREE.MeshStandardMaterial({
-        color: 0x1e2229,
-        metalness: 0.8,
-        roughness: 0.3,
+      const tvFrameMat = new THREE.MeshPhysicalMaterial({
+        color: 0x1c2026,
+        metalness: 0.9,
+        roughness: 0.22,
+        clearcoat: 0.3,
       });
-      const tvScreenGeo = new THREE.BoxGeometry(2.6, 1.5, 0.04);
+
+      // Ultra-Slim Main Display Panel
+      const tvScreenGeo = new THREE.BoxGeometry(2.6, 1.48, 0.035);
       const tv = new THREE.Mesh(tvScreenGeo, tvFrameMat);
       tv.castShadow = true;
       root.add(tv);
 
-      const screenFaceGeo = new THREE.PlaneGeometry(2.54, 1.44);
+      // Glowing Quantum Dot 4K QNED Screen Face
+      const tvTex = createLGTVDisplayTexture();
+      const screenFaceGeo = new THREE.PlaneGeometry(2.54, 1.42);
       const screenFace = new THREE.Mesh(
         screenFaceGeo,
-        new THREE.MeshStandardMaterial({
-          color: 0x0b132b,
-          roughness: 0.1,
-          metalness: 0.2,
+        new THREE.MeshPhysicalMaterial({
+          map: tvTex,
+          emissiveMap: tvTex,
+          emissive: new THREE.Color(0xffffff),
+          emissiveIntensity: 0.42,
+          roughness: 0.06,
+          metalness: 0.08,
+          clearcoat: 1.0,
         })
       );
-      screenFace.position.z = 0.021;
+      screenFace.position.z = 0.019;
       tv.add(screenFace);
 
-      // Tabletop Boomerang Feet
-      [-0.9, 0.9].forEach((x) => {
-        const footGeo = new THREE.BoxGeometry(0.035, 0.18, 0.45);
+      // LG Center Chin Logo Tab with White Standby LED
+      const lgChinGeo = new THREE.BoxGeometry(0.14, 0.035, 0.04);
+      const lgChin = new THREE.Mesh(lgChinGeo, tvFrameMat);
+      lgChin.position.set(0, -0.75, 0);
+      tv.add(lgChin);
+
+      const ledGeo = new THREE.CylinderGeometry(0.006, 0.006, 0.005, 16);
+      const ledMat = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        emissive: 0xffffff,
+        emissiveIntensity: 1.5,
+      });
+      const led = new THREE.Mesh(ledGeo, ledMat);
+      led.rotation.x = Math.PI / 2;
+      led.position.set(0, -0.012, 0.021);
+      lgChin.add(led);
+
+      // Dual Boomerang Tabletop Stand Feet
+      [-0.92, 0.92].forEach((x) => {
+        const footGeo = new THREE.BoxGeometry(0.035, 0.16, 0.45);
         const foot = new THREE.Mesh(footGeo, tvFrameMat);
-        foot.position.set(x, -0.84, 0);
+        foot.position.set(x, -0.82, 0);
         tv.add(foot);
       });
+
+      // Rear Electronics Housing Box with VESA pattern
+      const rearBoxGeo = new THREE.BoxGeometry(1.6, 0.85, 0.05);
+      const rearBoxMat = new THREE.MeshStandardMaterial({
+        color: 0x14171d,
+        roughness: 0.6,
+      });
+      const rearBox = new THREE.Mesh(rearBoxGeo, rearBoxMat);
+      rearBox.position.set(0, -0.08, -0.042);
+      tv.add(rearBox);
+
       break;
     }
 
     // -------------------------------------------------------------------------
-    // 7. TCL 1.5HP SMART INVERTER AC
+    // 7. TCL 1.5HP SMART INVERTER AC (High-Gloss Aerofoil with Glowing LED)
     // -------------------------------------------------------------------------
     case "ac15": {
-      const acGeo = new THREE.BoxGeometry(2.2, 0.62, 0.38);
-      const acMat = new THREE.MeshStandardMaterial({
-        color: 0xfcfcfc,
+      // High-Gloss Pearl White Chassis
+      const acChassisMat = new THREE.MeshPhysicalMaterial({
+        color: 0xfcfdfd,
         metalness: 0.1,
-        roughness: 0.2,
+        roughness: 0.12,
+        clearcoat: 0.95,
+        clearcoatRoughness: 0.08,
       });
-      const ac = new THREE.Mesh(acGeo, acMat);
+
+      // Aerodynamic Curved Unibody
+      const acGeo = new THREE.BoxGeometry(2.2, 0.66, 0.38);
+      const ac = new THREE.Mesh(acGeo, acChassisMat);
       ac.castShadow = true;
       root.add(ac);
 
-      const ventGeo = new THREE.BoxGeometry(2.1, 0.12, 0.04);
-      const ventMat = new THREE.MeshStandardMaterial({ color: 0x22262d });
+      // Front Fascia with Digital LED 21°C Temperature Readout
+      const acTex = createTCLACDisplayTexture();
+      const frontPlaneGeo = new THREE.PlaneGeometry(2.18, 0.64);
+      const frontPlaneMat = new THREE.MeshPhysicalMaterial({
+        map: acTex,
+        roughness: 0.08,
+        metalness: 0.05,
+        clearcoat: 1.0,
+        emissiveMap: acTex,
+        emissive: new THREE.Color(0xffffff),
+        emissiveIntensity: 0.3,
+      });
+      const frontPlane = new THREE.Mesh(frontPlaneGeo, frontPlaneMat);
+      frontPlane.position.set(0, 0, 0.191);
+      ac.add(frontPlane);
+
+      // Motorized Directional Airflow Louver Slot
+      const ventGeo = new THREE.BoxGeometry(2.12, 0.12, 0.06);
+      const ventMat = new THREE.MeshStandardMaterial({ color: 0x181b22, roughness: 0.4 });
       const vent = new THREE.Mesh(ventGeo, ventMat);
-      vent.position.set(0, -0.22, 0.18);
+      vent.position.set(0, -0.24, 0.17);
       ac.add(vent);
+
+      // Motorized Airflow Guide Louver Blade
+      const louverGeo = new THREE.BoxGeometry(2.08, 0.02, 0.08);
+      const louverMat = new THREE.MeshPhysicalMaterial({
+        color: 0xf4f6f8,
+        metalness: 0.15,
+        roughness: 0.15,
+      });
+      const louver = new THREE.Mesh(louverGeo, louverMat);
+      louver.position.set(0, 0, 0.02);
+      louver.rotation.x = -0.3; // Open 20-degree cooling airflow angle
+      vent.add(louver);
+
+      // Top Air Intake Grille Louvers
+      const intakeGeo = new THREE.PlaneGeometry(2.1, 0.28);
+      const intakeMat = new THREE.MeshStandardMaterial({
+        color: 0x242830,
+        roughness: 0.7,
+      });
+      const intake = new THREE.Mesh(intakeGeo, intakeMat);
+      intake.rotation.x = -Math.PI / 2;
+      intake.position.set(0, 0.331, 0);
+      ac.add(intake);
+
       break;
     }
   }
