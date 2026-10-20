@@ -19,6 +19,11 @@ import {
   CheckCircle2,
   Info,
   Sliders,
+  ZoomIn,
+  ZoomOut,
+  Target,
+  Focus,
+  RotateCcw,
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { ProductListing } from "@gcp/contracts";
@@ -636,6 +641,139 @@ interface RefinedProduct3DStageProps {
   onInteractionChange?: (active: boolean) => void;
 }
 
+// Procedural Studio Lighting Environment Map (Softbox reflections for metals and lenses)
+function createStudioEnvironment(): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 256;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return new THREE.CanvasTexture(canvas);
+
+  // Dark studio ambient backdrop
+  ctx.fillStyle = "#0c0f14";
+  ctx.fillRect(0, 0, 512, 256);
+
+  // Softbox Light 1 (Left Key Softbox)
+  const grad1 = ctx.createLinearGradient(70, 0, 170, 0);
+  grad1.addColorStop(0, "rgba(255, 255, 255, 0)");
+  grad1.addColorStop(0.5, "rgba(255, 255, 255, 0.95)");
+  grad1.addColorStop(1, "rgba(255, 255, 255, 0)");
+  ctx.fillStyle = grad1;
+  ctx.fillRect(70, 20, 100, 200);
+
+  // Softbox Light 2 (Right Fill Softbox)
+  const grad2 = ctx.createLinearGradient(340, 0, 440, 0);
+  grad2.addColorStop(0, "rgba(255, 255, 255, 0)");
+  grad2.addColorStop(0.5, "rgba(255, 255, 255, 0.9)");
+  grad2.addColorStop(1, "rgba(255, 255, 255, 0)");
+  ctx.fillStyle = grad2;
+  ctx.fillRect(340, 20, 100, 200);
+
+  // Overhead Strip Light
+  const grad3 = ctx.createLinearGradient(0, 0, 0, 60);
+  grad3.addColorStop(0, "rgba(255, 255, 255, 0.85)");
+  grad3.addColorStop(1, "rgba(255, 255, 255, 0)");
+  ctx.fillStyle = grad3;
+  ctx.fillRect(0, 0, 512, 60);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.mapping = THREE.EquirectangularReflectionMapping;
+  return texture;
+}
+
+// Showroom Exhibition Turntable Pedestal
+function createShowroomPedestal(accentHex: string): {
+  group: THREE.Group;
+  updateTurntableRotation: (rotY: number) => void;
+} {
+  const group = new THREE.Group();
+  group.position.y = -1.14;
+
+  // 1. Lower Plinth Base
+  const baseGeo = new THREE.CylinderGeometry(1.58, 1.66, 0.08, 64);
+  const baseMat = new THREE.MeshStandardMaterial({
+    color: 0x0c0e12,
+    metalness: 0.8,
+    roughness: 0.4,
+  });
+  const base = new THREE.Mesh(baseGeo, baseMat);
+  base.position.y = -0.04;
+  base.receiveShadow = true;
+  group.add(base);
+
+  // 2. Rotating Machined Turntable Disc
+  const discGeo = new THREE.CylinderGeometry(1.48, 1.55, 0.06, 64);
+  const discMat = new THREE.MeshStandardMaterial({
+    color: 0x161a22,
+    metalness: 0.92,
+    roughness: 0.24,
+  });
+  const turntableDisc = new THREE.Mesh(discGeo, discMat);
+  turntableDisc.position.y = 0.03;
+  turntableDisc.receiveShadow = true;
+  group.add(turntableDisc);
+
+  // 3. Concentric Machined Circular Grooves on Turntable Top
+  [0.55, 0.95, 1.28].forEach((r) => {
+    const ringGeo = new THREE.RingGeometry(r - 0.006, r + 0.006, 64);
+    const ringMat = new THREE.MeshStandardMaterial({
+      color: 0x272e3b,
+      metalness: 0.95,
+      roughness: 0.15,
+      side: THREE.DoubleSide,
+    });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.y = 0.061;
+    turntableDisc.add(ring);
+  });
+
+  // 4. Perimeter Glowing LED Halo Ring
+  const haloGeo = new THREE.TorusGeometry(1.47, 0.013, 16, 64);
+  const haloMat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(accentHex),
+    emissive: new THREE.Color(accentHex),
+    emissiveIntensity: 3.0,
+    roughness: 0.2,
+  });
+  const halo = new THREE.Mesh(haloGeo, haloMat);
+  halo.rotation.x = -Math.PI / 2;
+  halo.position.y = 0.062;
+  group.add(halo);
+
+  // 5. Ambient Occlusion Ground Contact Shadow
+  const shadowCanvas = document.createElement("canvas");
+  shadowCanvas.width = 256;
+  shadowCanvas.height = 256;
+  const shadowCtx = shadowCanvas.getContext("2d");
+  if (shadowCtx) {
+    const sGrad = shadowCtx.createRadialGradient(128, 128, 10, 128, 128, 120);
+    sGrad.addColorStop(0, "rgba(0, 0, 0, 0.75)");
+    sGrad.addColorStop(0.5, "rgba(0, 0, 0, 0.35)");
+    sGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+    shadowCtx.fillStyle = sGrad;
+    shadowCtx.fillRect(0, 0, 256, 256);
+  }
+  const contactTex = new THREE.CanvasTexture(shadowCanvas);
+  const contactMat = new THREE.MeshBasicMaterial({
+    map: contactTex,
+    transparent: true,
+    opacity: 0.85,
+    depthWrite: false,
+  });
+  const contactShadow = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.6), contactMat);
+  contactShadow.rotation.x = -Math.PI / 2;
+  contactShadow.position.y = 0.063;
+  turntableDisc.add(contactShadow);
+
+  return {
+    group,
+    updateTurntableRotation: (rotY: number) => {
+      turntableDisc.rotation.y = rotY;
+    },
+  };
+}
+
 function RefinedProduct3DStage({
   slide,
   onInteractionChange,
@@ -643,6 +781,7 @@ function RefinedProduct3DStage({
   const containerRef = useRef<HTMLDivElement>(null);
   const [webGlFailed, setWebGlFailed] = useState(false);
   const [viewAngleDeg, setViewAngleDeg] = useState(35);
+  const [zoomLevel, setZoomLevel] = useState(1.0);
   const [isAutoSpinning, setIsAutoSpinning] = useState(false);
   const [foldAngleState, setFoldAngleState] = useState<number>(152); // degrees for Fold6
   const [lidAngleState, setLidAngleState] = useState<number>(115); // degrees for Surface Laptop
@@ -654,6 +793,10 @@ function RefinedProduct3DStage({
   const updateFoldingRef = useRef<((deg: number) => void) | null>(null);
   const updateLidRef = useRef<((deg: number) => void) | null>(null);
   const updateSurroundsRef = useRef<((docked: boolean) => void) | null>(null);
+
+  // Zoom & Camera Target References
+  const targetDistRef = useRef(3.4); // 3.4 overview, 1.4 extreme macro
+  const targetYRef = useRef(0);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -669,6 +812,7 @@ function RefinedProduct3DStage({
     let camera: THREE.PerspectiveCamera | null = null;
     let modelRoot: THREE.Group | null = null;
     let animationFrameId: number;
+    let pedestalControls: { group: THREE.Group; updateTurntableRotation: (r: number) => void } | null = null;
 
     try {
       scene = new THREE.Scene();
@@ -686,42 +830,40 @@ function RefinedProduct3DStage({
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
+      // Studio Environment Reflections
+      const studioEnv = createStudioEnvironment();
+      scene.environment = studioEnv;
+
       container.appendChild(renderer.domElement);
 
-      // Studio Lighting System (Key, Rim, Soft Fill)
-      const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+      // Studio Lighting System (Softbox Key, Accent Rim, Soft Fill)
+      const ambientLight = new THREE.AmbientLight(0xffffff, 1.1);
       scene.add(ambientLight);
 
-      // Main Softbox Key Light (Front Upper Right)
-      const keyLight = new THREE.DirectionalLight(0xffffff, 2.4);
+      // Main Softbox Key Light
+      const keyLight = new THREE.DirectionalLight(0xffffff, 2.5);
       keyLight.position.set(3, 4, 4);
       keyLight.castShadow = true;
       keyLight.shadow.mapSize.width = 1024;
       keyLight.shadow.mapSize.height = 1024;
       scene.add(keyLight);
 
-      // Warm/Accent Rim Light (Rear Left Rim Highlight for metallic chamfers)
-      const rimLight = new THREE.DirectionalLight(new THREE.Color(slide.accentColor), 2.2);
+      // Accent Rim Light (Highlights metallic chamfers with device accent color)
+      const rimLight = new THREE.DirectionalLight(new THREE.Color(slide.accentColor), 2.4);
       rimLight.position.set(-3.5, 2.5, -3.5);
       scene.add(rimLight);
 
-      // Cool Under-Fill Light to bring out bottom ports and grills
-      const fillLight = new THREE.DirectionalLight(0xe0f2fe, 1.0);
+      // Under-Fill Light for ports and grilles
+      const fillLight = new THREE.DirectionalLight(0xe2e8f0, 1.0);
       fillLight.position.set(0, -3, 2);
       scene.add(fillLight);
 
-      // Ground Contact Shadow Plate
-      const shadowPlaneGeo = new THREE.PlaneGeometry(4.5, 4.5);
-      const shadowPlaneMat = new THREE.ShadowMaterial({ opacity: 0.22 });
-      const shadowPlane = new THREE.Mesh(shadowPlaneGeo, shadowPlaneMat);
-      shadowPlane.rotation.x = -Math.PI / 2;
-      shadowPlane.position.y = -1.15;
-      shadowPlane.receiveShadow = true;
-      scene.add(shadowPlane);
+      // Showroom Exhibition Pedestal with LED Halo
+      pedestalControls = createShowroomPedestal(slide.accentColor);
+      scene.add(pedestalControls.group);
 
       // Construct High-Precision 3D CAD Model
       modelRoot = new THREE.Group();
-      // Initial 35° Hero Angle
       modelRoot.rotation.y = (35 * Math.PI) / 180;
       modelRoot.rotation.x = 0.08;
 
@@ -773,6 +915,16 @@ function RefinedProduct3DStage({
         onInteractionChange?.(false);
       };
 
+      // Mouse Wheel / Trackpad Scroll Zoom
+      const handleWheel = (e: WheelEvent) => {
+        e.preventDefault();
+        const delta = e.deltaY * 0.0028;
+        targetDistRef.current = Math.max(1.3, Math.min(4.5, targetDistRef.current + delta));
+        setZoomLevel(Number((3.4 / targetDistRef.current).toFixed(1)));
+      };
+
+      container.addEventListener("wheel", handleWheel, { passive: false });
+
       resetAngleRef.current = (targetDeg: number = 0) => {
         if (modelRoot) {
           autoSpinRef.current = false;
@@ -787,7 +939,7 @@ function RefinedProduct3DStage({
       window.addEventListener("pointermove", handlePointerMove);
       window.addEventListener("pointerup", handlePointerUp);
 
-      // Render Loop with smooth momentum & subtle floating
+      // Render Loop with smooth zoom lerp, momentum & subtle floating
       const render = () => {
         animationFrameId = requestAnimationFrame(render);
 
@@ -800,13 +952,17 @@ function RefinedProduct3DStage({
             velocity.x *= 0.92;
             velocity.y *= 0.92;
 
-            // Gentle continuous floating drift when released
             if (Math.abs(velocity.y) < 0.0004) {
               modelRoot.rotation.y += 0.0015;
             }
           }
 
-          modelRoot.position.y = Math.sin(Date.now() * 0.0016) * 0.04;
+          modelRoot.position.y = Math.sin(Date.now() * 0.0016) * 0.035;
+
+          // Synchronize Showroom Turntable Disc with Product Orbit
+          if (pedestalControls) {
+            pedestalControls.updateTurntableRotation(modelRoot.rotation.y);
+          }
 
           const rawDeg = Math.round(
             ((((modelRoot.rotation.y % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)) *
@@ -814,6 +970,13 @@ function RefinedProduct3DStage({
               Math.PI
           );
           setViewAngleDeg(rawDeg);
+        }
+
+        // Smooth Camera Distance & Target Lerping (Zoom & Macro Focus)
+        if (camera) {
+          camera.position.z += (targetDistRef.current - camera.position.z) * 0.12;
+          camera.position.y += (targetYRef.current - camera.position.y) * 0.12;
+          camera.lookAt(0, targetYRef.current * 0.6, 0);
         }
 
         if (renderer && scene && camera) {
@@ -835,6 +998,7 @@ function RefinedProduct3DStage({
       return () => {
         cancelAnimationFrame(animationFrameId);
         window.removeEventListener("resize", handleResize);
+        container.removeEventListener("wheel", handleWheel);
         container.removeEventListener("pointerdown", handlePointerDown);
         window.removeEventListener("pointermove", handlePointerMove);
         window.removeEventListener("pointerup", handlePointerUp);
@@ -864,6 +1028,40 @@ function RefinedProduct3DStage({
     updateSurroundsRef.current?.(next);
   };
 
+  // Zoom Controls Handlers
+  const handleZoomIn = () => {
+    targetDistRef.current = Math.max(1.3, targetDistRef.current - 0.5);
+    setZoomLevel(Number((3.4 / targetDistRef.current).toFixed(1)));
+  };
+
+  const handleZoomOut = () => {
+    targetDistRef.current = Math.min(4.5, targetDistRef.current + 0.5);
+    setZoomLevel(Number((3.4 / targetDistRef.current).toFixed(1)));
+  };
+
+  const handleResetZoom = () => {
+    targetDistRef.current = 3.4;
+    targetYRef.current = 0;
+    setZoomLevel(1.0);
+    resetAngleRef.current?.(35);
+  };
+
+  const handleFocusMacroOptics = () => {
+    targetDistRef.current = 1.6;
+    targetYRef.current = 0.45;
+    setZoomLevel(2.1);
+    // Orient to rear hardware to inspect camera rings directly
+    resetAngleRef.current?.(180);
+  };
+
+  const handleFocusHingeOrProfile = () => {
+    targetDistRef.current = 1.65;
+    targetYRef.current = 0.05;
+    setZoomLevel(2.0);
+    // Orient to side profile to inspect hinge spine and tactile buttons
+    resetAngleRef.current?.(90);
+  };
+
   if (webGlFailed) {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center p-4">
@@ -878,19 +1076,80 @@ function RefinedProduct3DStage({
 
   return (
     <div className="relative w-full h-full flex flex-col justify-between">
-      {/* 360° Orientation Dial Badge & View Description */}
-      <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-slate-900/85 text-white backdrop-blur-md border border-slate-700/60 shadow-lg pointer-events-none">
-        <Compass className="w-3 h-3 text-[#FF8A00] animate-spin-slow" />
-        <span>
-          {viewAngleDeg}° &bull;{" "}
-          {viewAngleDeg >= 315 || viewAngleDeg < 45
-            ? "Front Display View"
-            : viewAngleDeg >= 45 && viewAngleDeg < 135
-            ? "Right Profile & Ports"
-            : viewAngleDeg >= 135 && viewAngleDeg < 225
-            ? "Rear Hardware & Optics"
-            : "Left Profile & Controls"}
+      {/* Top Left: 360° Orientation Dial Badge & Zoom Guidance */}
+      <div className="absolute top-2 left-2 z-10 flex flex-col gap-1.5 pointer-events-none">
+        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-slate-900/85 text-white backdrop-blur-md border border-slate-700/60 shadow-lg">
+          <Compass className="w-3 h-3 text-[#FF8A00] animate-spin-slow" />
+          <span>
+            {viewAngleDeg}° &bull;{" "}
+            {viewAngleDeg >= 315 || viewAngleDeg < 45
+              ? "Front Display View"
+              : viewAngleDeg >= 45 && viewAngleDeg < 135
+              ? "Right Profile & Ports"
+              : viewAngleDeg >= 135 && viewAngleDeg < 225
+              ? "Rear Hardware & Optics"
+              : "Left Profile & Controls"}
+          </span>
+        </div>
+        <div className="hidden sm:flex items-center gap-1 text-[9px] font-semibold text-slate-500 dark:text-slate-400 bg-white/75 dark:bg-slate-900/75 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-slate-200 dark:border-slate-800">
+          <span>Scroll wheel / pinch to zoom &bull; Drag to orbit 360°</span>
+        </div>
+      </div>
+
+      {/* Top Right: Interactive Zoom & Macro Focus Toolbar */}
+      <div className="absolute top-2 right-2 z-20 flex items-center gap-1 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-1 rounded-xl border border-slate-200 dark:border-slate-800 shadow-md">
+        <button
+          type="button"
+          onClick={handleZoomOut}
+          className="p-1 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          title="Zoom Out"
+        >
+          <ZoomOut className="w-3.5 h-3.5" />
+        </button>
+
+        <span className="px-1.5 text-[10px] font-mono font-bold text-slate-800 dark:text-slate-200 min-w-[36px] text-center">
+          {zoomLevel}x
         </span>
+
+        <button
+          type="button"
+          onClick={handleZoomIn}
+          className="p-1 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          title="Zoom In"
+        >
+          <ZoomIn className="w-3.5 h-3.5" />
+        </button>
+
+        <div className="w-[1px] h-3.5 bg-slate-200 dark:bg-slate-700 mx-0.5" />
+
+        <button
+          type="button"
+          onClick={handleFocusMacroOptics}
+          className="flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold text-slate-700 dark:text-slate-200 hover:bg-[#FF8A00] hover:text-white transition-all"
+          title="Zoom in directly onto sapphire camera rings"
+        >
+          <Focus className="w-3 h-3 text-[#FF8A00]" />
+          <span>Optics</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={handleFocusHingeOrProfile}
+          className="flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold text-slate-700 dark:text-slate-200 hover:bg-[#FF8A00] hover:text-white transition-all"
+          title="Zoom in directly on hinge spine and profile"
+        >
+          <Target className="w-3 h-3 text-[#FF8A00]" />
+          <span>Hinge</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={handleResetZoom}
+          className="p-1 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          title="Reset Zoom to 1.0x"
+        >
+          <RotateCcw className="w-3 h-3" />
+        </button>
       </div>
 
       {/* Interactive 3D Canvas */}
@@ -901,7 +1160,7 @@ function RefinedProduct3DStage({
 
       {/* Floating Hardware Hotspot Details Pill */}
       {activeHotspotId && (
-        <div className="absolute top-12 left-2 right-2 sm:left-auto sm:right-2 sm:max-w-xs z-20 p-3 rounded-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-700 shadow-xl text-left transition-all animate-fadeIn">
+        <div className="absolute top-14 left-2 right-2 sm:left-auto sm:right-2 sm:max-w-xs z-20 p-3 rounded-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-700 shadow-xl text-left transition-all animate-fadeIn">
           {(() => {
             const hs = slide.hotspots.find((h) => h.id === activeHotspotId);
             if (!hs) return null;
