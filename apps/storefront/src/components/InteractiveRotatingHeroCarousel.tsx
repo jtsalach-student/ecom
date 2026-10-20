@@ -528,53 +528,15 @@ export function InteractiveRotatingHeroCarousel({
               </div>
             </div>
 
-            {/* Right Column: Refined 3D CAD Hardware Model Stage */}
-            <div className="lg:col-span-6 p-3 sm:p-6 lg:p-8 flex flex-col items-center justify-center relative min-h-[420px] sm:min-h-[480px] lg:min-h-[580px]">
-              {/* Inspection Mode Switcher */}
-              <div className="absolute top-4 right-4 z-20 flex items-center bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-1 rounded-full border border-slate-200 dark:border-slate-800 shadow-md">
-                <button
-                  type="button"
-                  onClick={() => setStageMode("cad3d")}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                    stageMode === "cad3d"
-                      ? "bg-[#FF8A00] text-white shadow-sm"
-                      : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
-                  }`}
-                  title="Interactive 3D CAD physical hardware model with real moving parts and 360° free orbit"
-                >
-                  <Box className="w-3.5 h-3.5" />
-                  <span>3D CAD Model</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStageMode("gallery")}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                    stageMode === "gallery"
-                      ? "bg-[#FF8A00] text-white shadow-sm"
-                      : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
-                  }`}
-                  title="Inspect authentic high-resolution studio photography gallery"
-                >
-                  <Camera className="w-3.5 h-3.5" />
-                  <span>Studio Gallery</span>
-                </button>
-              </div>
-
-              {/* Product 3D Interactive Canvas */}
-              <div className="relative w-full h-[360px] sm:h-[440px] lg:h-[520px] flex items-center justify-center">
-                {stageMode === "cad3d" ? (
-                  <RefinedProduct3DStage
-                    key={`cad-${activeSlide.id}`}
-                    slide={activeSlide}
-                    onInteractionChange={setIsInteracting}
-                  />
-                ) : (
-                  <StudioPhotographyGallery
-                    key={`gallery-${activeSlide.id}`}
-                    slide={activeSlide}
-                  />
-                )}
-              </div>
+            {/* Right Column: Uniform Interactive 3D Showcase & Responsive Studio Gallery */}
+            <div className="lg:col-span-6 p-2 sm:p-4 lg:p-6 flex flex-col justify-between relative min-h-[480px] sm:min-h-[540px] lg:min-h-[620px]">
+              <RefinedProduct3DStage
+                key={`stage-${activeSlide.id}`}
+                slide={activeSlide}
+                stageMode={stageMode}
+                onSetStageMode={setStageMode}
+                onInteractionChange={setIsInteracting}
+              />
             </div>
           </div>
 
@@ -638,6 +600,8 @@ export function InteractiveRotatingHeroCarousel({
 
 interface RefinedProduct3DStageProps {
   slide: CarouselSlide;
+  stageMode: "cad3d" | "gallery";
+  onSetStageMode: (mode: "cad3d" | "gallery") => void;
   onInteractionChange?: (active: boolean) => void;
 }
 
@@ -649,8 +613,7 @@ function createStudioEnvironment(): THREE.CanvasTexture {
   const ctx = canvas.getContext("2d");
   if (!ctx) return new THREE.CanvasTexture(canvas);
 
-  // Dark studio ambient backdrop
-  ctx.fillStyle = "#0c0f14";
+  ctx.fillStyle = "#0a0d12";
   ctx.fillRect(0, 0, 512, 256);
 
   // Softbox Light 1 (Left Key Softbox)
@@ -776,6 +739,8 @@ function createShowroomPedestal(accentHex: string): {
 
 function RefinedProduct3DStage({
   slide,
+  stageMode,
+  onSetStageMode,
   onInteractionChange,
 }: RefinedProduct3DStageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -787,6 +752,7 @@ function RefinedProduct3DStage({
   const [lidAngleState, setLidAngleState] = useState<number>(115); // degrees for Surface Laptop
   const [surroundDocked, setSurroundDocked] = useState<boolean>(true); // for JBL Bar 800
   const [activeHotspotId, setActiveHotspotId] = useState<string | null>(null);
+  const [isRearView, setIsRearView] = useState(false);
 
   const autoSpinRef = useRef(false);
   const resetAngleRef = useRef<((targetDeg?: number) => void) | null>(null);
@@ -795,10 +761,12 @@ function RefinedProduct3DStage({
   const updateSurroundsRef = useRef<((docked: boolean) => void) | null>(null);
 
   // Zoom & Camera Target References
-  const targetDistRef = useRef(3.4); // 3.4 overview, 1.4 extreme macro
+  const targetDistRef = useRef(3.4);
   const targetYRef = useRef(0);
 
   useEffect(() => {
+    if (stageMode !== "cad3d") return;
+
     const container = containerRef.current;
     if (!container) return;
 
@@ -810,7 +778,7 @@ function RefinedProduct3DStage({
     let renderer: THREE.WebGLRenderer | null = null;
     let scene: THREE.Scene | null = null;
     let camera: THREE.PerspectiveCamera | null = null;
-    let modelRoot: THREE.Group | null = null;
+    let uniformWrapper: THREE.Group | null = null;
     let animationFrameId: number;
     let pedestalControls: { group: THREE.Group; updateTurntableRotation: (r: number) => void } | null = null;
 
@@ -836,7 +804,7 @@ function RefinedProduct3DStage({
 
       container.appendChild(renderer.domElement);
 
-      // Studio Lighting System (Softbox Key, Accent Rim, Soft Fill)
+      // Studio Lighting System
       const ambientLight = new THREE.AmbientLight(0xffffff, 1.1);
       scene.add(ambientLight);
 
@@ -848,7 +816,7 @@ function RefinedProduct3DStage({
       keyLight.shadow.mapSize.height = 1024;
       scene.add(keyLight);
 
-      // Accent Rim Light (Highlights metallic chamfers with device accent color)
+      // Accent Rim Light
       const rimLight = new THREE.DirectionalLight(new THREE.Color(slide.accentColor), 2.4);
       rimLight.position.set(-3.5, 2.5, -3.5);
       scene.add(rimLight);
@@ -863,12 +831,34 @@ function RefinedProduct3DStage({
       scene.add(pedestalControls.group);
 
       // Construct High-Precision 3D CAD Model
-      modelRoot = new THREE.Group();
-      modelRoot.rotation.y = (35 * Math.PI) / 180;
-      modelRoot.rotation.x = 0.08;
-
+      const modelRoot = new THREE.Group();
       const deviceControllers = buildRefinedHardwareCAD(modelRoot, slide.deviceModel, slide.accentColor);
-      scene.add(modelRoot);
+
+      // AUTOMATIC BOUNDING-BOX NORMALIZATION:
+      // Guarantees every single product CAD model (Fold6, iPhone, Surface, JBL Bar, iMac, TV, AC)
+      // is scaled to the EXACT SAME UNIFORM SIZE (1.90 max visual dimension) and perfectly centered!
+      modelRoot.updateMatrixWorld(true);
+      const box = new THREE.Box3().setFromObject(modelRoot);
+      const size = new THREE.Vector3();
+      box.getSize(size);
+      const center = new THREE.Vector3();
+      box.getCenter(center);
+
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const targetScale = 1.90 / (maxDim || 1);
+
+      uniformWrapper = new THREE.Group();
+      // Center modelRoot so its centroid sits at (0, 0, 0)
+      modelRoot.position.set(-center.x, -center.y, -center.z);
+      uniformWrapper.scale.setScalar(targetScale);
+      // Place slightly elevated above the showroom turntable disc
+      uniformWrapper.position.set(0, 0.12, 0);
+      uniformWrapper.add(modelRoot);
+
+      // Initial 35° Hero Angle
+      uniformWrapper.rotation.y = (35 * Math.PI) / 180;
+      uniformWrapper.rotation.x = 0.08;
+      scene.add(uniformWrapper);
 
       // Bind dynamic animation controllers
       if (deviceControllers.setFoldAngle) {
@@ -899,12 +889,12 @@ function RefinedProduct3DStage({
       };
 
       const handlePointerMove = (e: PointerEvent) => {
-        if (!isDragging || !modelRoot) return;
+        if (!isDragging || !uniformWrapper) return;
         const deltaX = e.clientX - prevPointerPos.x;
         const deltaY = e.clientY - prevPointerPos.y;
 
-        modelRoot.rotation.y += deltaX * 0.012;
-        modelRoot.rotation.x = Math.max(-0.45, Math.min(0.45, modelRoot.rotation.x + deltaY * 0.008));
+        uniformWrapper.rotation.y += deltaX * 0.012;
+        uniformWrapper.rotation.x = Math.max(-0.45, Math.min(0.45, uniformWrapper.rotation.x + deltaY * 0.008));
         velocity = { x: deltaY * 0.003, y: deltaX * 0.006 };
 
         prevPointerPos = { x: e.clientX, y: e.clientY };
@@ -926,11 +916,11 @@ function RefinedProduct3DStage({
       container.addEventListener("wheel", handleWheel, { passive: false });
 
       resetAngleRef.current = (targetDeg: number = 0) => {
-        if (modelRoot) {
+        if (uniformWrapper) {
           autoSpinRef.current = false;
           setIsAutoSpinning(false);
-          modelRoot.rotation.y = (targetDeg * Math.PI) / 180;
-          modelRoot.rotation.x = targetDeg === 0 ? 0 : 0.08;
+          uniformWrapper.rotation.y = (targetDeg * Math.PI) / 180;
+          uniformWrapper.rotation.x = targetDeg === 0 ? 0 : 0.08;
           velocity = { x: 0, y: 0 };
         }
       };
@@ -943,29 +933,29 @@ function RefinedProduct3DStage({
       const render = () => {
         animationFrameId = requestAnimationFrame(render);
 
-        if (modelRoot) {
+        if (uniformWrapper) {
           if (autoSpinRef.current) {
-            modelRoot.rotation.y += 0.012;
+            uniformWrapper.rotation.y += 0.012;
           } else if (!isDragging) {
-            modelRoot.rotation.y += velocity.y;
-            modelRoot.rotation.x += velocity.x;
+            uniformWrapper.rotation.y += velocity.y;
+            uniformWrapper.rotation.x += velocity.x;
             velocity.x *= 0.92;
             velocity.y *= 0.92;
 
             if (Math.abs(velocity.y) < 0.0004) {
-              modelRoot.rotation.y += 0.0015;
+              uniformWrapper.rotation.y += 0.0015;
             }
           }
 
-          modelRoot.position.y = Math.sin(Date.now() * 0.0016) * 0.035;
+          uniformWrapper.position.y = 0.12 + Math.sin(Date.now() * 0.0016) * 0.035;
 
           // Synchronize Showroom Turntable Disc with Product Orbit
           if (pedestalControls) {
-            pedestalControls.updateTurntableRotation(modelRoot.rotation.y);
+            pedestalControls.updateTurntableRotation(uniformWrapper.rotation.y);
           }
 
           const rawDeg = Math.round(
-            ((((modelRoot.rotation.y % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)) *
+            ((((uniformWrapper.rotation.y % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)) *
               180) /
               Math.PI
           );
@@ -976,7 +966,7 @@ function RefinedProduct3DStage({
         if (camera) {
           camera.position.z += (targetDistRef.current - camera.position.z) * 0.12;
           camera.position.y += (targetYRef.current - camera.position.y) * 0.12;
-          camera.lookAt(0, targetYRef.current * 0.6, 0);
+          camera.lookAt(0, targetYRef.current * 0.5, 0);
         }
 
         if (renderer && scene && camera) {
@@ -1010,7 +1000,7 @@ function RefinedProduct3DStage({
     } catch {
       setWebGlFailed(true);
     }
-  }, [slide, onInteractionChange]);
+  }, [slide, stageMode, onInteractionChange]);
 
   const handleSetFoldAngle = (deg: number) => {
     setFoldAngleState(deg);
@@ -1048,9 +1038,8 @@ function RefinedProduct3DStage({
 
   const handleFocusMacroOptics = () => {
     targetDistRef.current = 1.6;
-    targetYRef.current = 0.45;
+    targetYRef.current = 0.35;
     setZoomLevel(2.1);
-    // Orient to rear hardware to inspect camera rings directly
     resetAngleRef.current?.(180);
   };
 
@@ -1058,255 +1047,354 @@ function RefinedProduct3DStage({
     targetDistRef.current = 1.65;
     targetYRef.current = 0.05;
     setZoomLevel(2.0);
-    // Orient to side profile to inspect hinge spine and tactile buttons
     resetAngleRef.current?.(90);
   };
 
-  if (webGlFailed) {
-    return (
-      <div className="w-full h-full flex flex-col items-center justify-center p-4">
-        <img
-          src={slide.imageUrl}
-          alt={slide.title}
-          className="w-full max-h-[360px] object-contain drop-shadow-2xl rounded-2xl"
-        />
-      </div>
-    );
-  }
+  const activePhoto = isRearView && slide.backImageUrl ? slide.backImageUrl : slide.imageUrl;
 
   return (
-    <div className="relative w-full h-full flex flex-col justify-between">
-      {/* Top Left: 360° Orientation Dial Badge & Zoom Guidance */}
-      <div className="absolute top-2 left-2 z-10 flex flex-col gap-1.5 pointer-events-none">
-        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-slate-900/85 text-white backdrop-blur-md border border-slate-700/60 shadow-lg">
-          <Compass className="w-3 h-3 text-[#FF8A00] animate-spin-slow" />
-          <span>
-            {viewAngleDeg}° &bull;{" "}
-            {viewAngleDeg >= 315 || viewAngleDeg < 45
-              ? "Front Display View"
-              : viewAngleDeg >= 45 && viewAngleDeg < 135
-              ? "Right Profile & Ports"
-              : viewAngleDeg >= 135 && viewAngleDeg < 225
-              ? "Rear Hardware & Optics"
-              : "Left Profile & Controls"}
-          </span>
+    <div className="w-full h-full flex flex-col justify-between select-none">
+      {/* 1. HEADER RIBBON: Placed strictly ABOVE the viewport (Zero text over product) */}
+      <div className="w-full flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-200/80 dark:border-slate-800/80">
+        {/* Left: Live Status Pill */}
+        <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-slate-900/90 dark:bg-slate-800/90 text-white shadow-sm border border-slate-700/60">
+            <Compass className="w-3.5 h-3.5 text-[#FF8A00] animate-spin-slow" />
+            <span>
+              {stageMode === "cad3d"
+                ? `${viewAngleDeg}° • ${
+                    viewAngleDeg >= 315 || viewAngleDeg < 45
+                      ? "Front Display"
+                      : viewAngleDeg >= 45 && viewAngleDeg < 135
+                      ? "Right Profile"
+                      : viewAngleDeg >= 135 && viewAngleDeg < 225
+                      ? "Rear Optics"
+                      : "Left Profile"
+                  }`
+                : isRearView
+                ? "Rear Hardware View"
+                : "Front Display View"}
+            </span>
+          </div>
         </div>
-        <div className="hidden sm:flex items-center gap-1 text-[9px] font-semibold text-slate-500 dark:text-slate-400 bg-white/75 dark:bg-slate-900/75 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-slate-200 dark:border-slate-800">
-          <span>Scroll wheel / pinch to zoom &bull; Drag to orbit 360°</span>
+
+        {/* Center: Clean Inspection Mode Switcher */}
+        <div className="flex items-center bg-slate-100 dark:bg-slate-800/90 p-1 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+          <button
+            type="button"
+            onClick={() => onSetStageMode("cad3d")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              stageMode === "cad3d"
+                ? "bg-[#FF8A00] text-white shadow-sm"
+                : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+            }`}
+          >
+            <Box className="w-3.5 h-3.5" />
+            <span>3D CAD Model</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => onSetStageMode("gallery")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              stageMode === "gallery"
+                ? "bg-[#FF8A00] text-white shadow-sm"
+                : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+            }`}
+          >
+            <Camera className="w-3.5 h-3.5" />
+            <span>Studio Gallery</span>
+          </button>
         </div>
+
+        {/* Right: Zoom / View Toolbar */}
+        {stageMode === "cad3d" ? (
+          <div className="flex items-center gap-1 bg-white/90 dark:bg-slate-900/90 p-1 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <button
+              type="button"
+              onClick={handleZoomOut}
+              className="p-1 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              title="Zoom Out"
+            >
+              <ZoomOut className="w-3.5 h-3.5" />
+            </button>
+            <span className="px-1.5 text-[10px] font-mono font-bold text-slate-800 dark:text-slate-200 min-w-[34px] text-center">
+              {zoomLevel}x
+            </span>
+            <button
+              type="button"
+              onClick={handleZoomIn}
+              className="p-1 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              title="Zoom In"
+            >
+              <ZoomIn className="w-3.5 h-3.5" />
+            </button>
+            <div className="w-[1px] h-3.5 bg-slate-200 dark:bg-slate-700 mx-0.5" />
+            <button
+              type="button"
+              onClick={handleFocusMacroOptics}
+              className="px-2 py-0.5 rounded-lg text-[10px] font-bold text-slate-700 dark:text-slate-200 hover:bg-[#FF8A00] hover:text-white transition-all"
+              title="Zoom to sapphire camera optics"
+            >
+              Optics
+            </button>
+            <button
+              type="button"
+              onClick={handleFocusHingeOrProfile}
+              className="px-2 py-0.5 rounded-lg text-[10px] font-bold text-slate-700 dark:text-slate-200 hover:bg-[#FF8A00] hover:text-white transition-all"
+              title="Zoom to hinge and ports"
+            >
+              Hinge
+            </button>
+            <button
+              type="button"
+              onClick={handleResetZoom}
+              className="p-1 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors"
+              title="Reset View to 1.0x"
+            >
+              <RotateCcw className="w-3 h-3" />
+            </button>
+          </div>
+        ) : (
+          /* Gallery Mode View Switcher */
+          <div className="flex items-center gap-1 bg-white/90 dark:bg-slate-900/90 p-1 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <button
+              type="button"
+              onClick={() => setIsRearView(false)}
+              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                !isRearView
+                  ? "bg-[#FF8A00] text-white shadow-sm"
+                  : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              Front Screen
+            </button>
+            {slide.backImageUrl && (
+              <button
+                type="button"
+                onClick={() => setIsRearView(true)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                  isRearView
+                    ? "bg-[#FF8A00] text-white shadow-sm"
+                    : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                }`}
+              >
+                Rear Hardware
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Top Right: Interactive Zoom & Macro Focus Toolbar */}
-      <div className="absolute top-2 right-2 z-20 flex items-center gap-1 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-1 rounded-xl border border-slate-200 dark:border-slate-800 shadow-md">
-        <button
-          type="button"
-          onClick={handleZoomOut}
-          className="p-1 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          title="Zoom Out"
-        >
-          <ZoomOut className="w-3.5 h-3.5" />
-        </button>
-
-        <span className="px-1.5 text-[10px] font-mono font-bold text-slate-800 dark:text-slate-200 min-w-[36px] text-center">
-          {zoomLevel}x
-        </span>
-
-        <button
-          type="button"
-          onClick={handleZoomIn}
-          className="p-1 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          title="Zoom In"
-        >
-          <ZoomIn className="w-3.5 h-3.5" />
-        </button>
-
-        <div className="w-[1px] h-3.5 bg-slate-200 dark:bg-slate-700 mx-0.5" />
-
-        <button
-          type="button"
-          onClick={handleFocusMacroOptics}
-          className="flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold text-slate-700 dark:text-slate-200 hover:bg-[#FF8A00] hover:text-white transition-all"
-          title="Zoom in directly onto sapphire camera rings"
-        >
-          <Focus className="w-3 h-3 text-[#FF8A00]" />
-          <span>Optics</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={handleFocusHingeOrProfile}
-          className="flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold text-slate-700 dark:text-slate-200 hover:bg-[#FF8A00] hover:text-white transition-all"
-          title="Zoom in directly on hinge spine and profile"
-        >
-          <Target className="w-3 h-3 text-[#FF8A00]" />
-          <span>Hinge</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={handleResetZoom}
-          className="p-1 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          title="Reset Zoom to 1.0x"
-        >
-          <RotateCcw className="w-3 h-3" />
-        </button>
+      {/* 2. MAIN PRODUCT VIEWPORT (100% UNIMPEDED & UNIFORM DIMENSION) */}
+      {/* Zero text, zero badges, zero buttons float over the product or image! */}
+      <div className="relative w-full h-[320px] sm:h-[380px] lg:h-[420px] my-2.5 rounded-2xl overflow-hidden flex items-center justify-center bg-gradient-to-b from-slate-100/40 via-white/20 to-slate-200/40 dark:from-[#0d131f]/70 dark:via-[#111827]/40 dark:to-[#090d15]/80 border border-slate-200/70 dark:border-slate-800/70 shadow-inner">
+        {stageMode === "cad3d" ? (
+          webGlFailed ? (
+            <div className="w-full h-full max-w-[340px] sm:max-w-[400px] flex items-center justify-center p-3">
+              <img
+                src={slide.imageUrl}
+                alt={slide.title}
+                className="max-h-full max-w-full w-auto h-auto object-contain drop-shadow-2xl"
+              />
+            </div>
+          ) : (
+            <div
+              ref={containerRef}
+              className="w-full h-full cursor-grab active:cursor-grabbing select-none"
+            />
+          )
+        ) : (
+          /* RESPONSIVE & UNIFORMLY SIZED STUDIO PHOTOGRAPHY */
+          <div className="w-full h-full max-w-[340px] sm:max-w-[400px] lg:max-w-[440px] flex items-center justify-center p-3">
+            <img
+              src={activePhoto}
+              alt={slide.title}
+              className="max-h-full max-w-full w-auto h-auto object-contain drop-shadow-2xl transition-all duration-300"
+            />
+          </div>
+        )}
       </div>
 
-      {/* Interactive 3D Canvas */}
-      <div
-        ref={containerRef}
-        className="w-full h-full cursor-grab active:cursor-grabbing select-none"
-      />
-
-      {/* Floating Hardware Hotspot Details Pill */}
-      {activeHotspotId && (
-        <div className="absolute top-14 left-2 right-2 sm:left-auto sm:right-2 sm:max-w-xs z-20 p-3 rounded-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-700 shadow-xl text-left transition-all animate-fadeIn">
-          {(() => {
-            const hs = slide.hotspots.find((h) => h.id === activeHotspotId);
-            if (!hs) return null;
-            return (
-              <div>
-                <div className="flex items-center justify-between gap-2 mb-1">
-                  <span className="text-xs font-bold text-slate-900 dark:text-white">
-                    {hs.title}
-                  </span>
-                  <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#FF8A00]/10 text-[#FF8A00]">
-                    {hs.badge}
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-snug">
-                  {hs.description}
-                </p>
+      {/* 3. FOOTER CONTROLS DOCK: Placed strictly BELOW the viewport */}
+      <div className="w-full flex flex-col gap-2 pt-2 border-t border-slate-200/80 dark:border-slate-800/80">
+        {/* Row 1: Camera Angle Presets & Interactive Moving Hardware Controls */}
+        <div className="flex flex-wrap items-center justify-between gap-1.5 px-3 py-2 rounded-xl bg-slate-100/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-sm">
+          {stageMode === "cad3d" ? (
+            <>
+              {/* Auto Spin & Angle Presets */}
+              <div className="flex items-center gap-1">
                 <button
                   type="button"
-                  onClick={() => setActiveHotspotId(null)}
-                  className="mt-2 text-[10px] font-bold text-[#FF8A00] hover:underline"
+                  onClick={() => {
+                    const next = !isAutoSpinning;
+                    setIsAutoSpinning(next);
+                    autoSpinRef.current = next;
+                  }}
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all shadow-sm ${
+                    isAutoSpinning
+                      ? "bg-[#FF8A00] text-white"
+                      : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700"
+                  }`}
+                  title="360 Continuous Auto-Spin"
                 >
-                  Dismiss Callout
+                  <RotateCw className={`w-3 h-3 ${isAutoSpinning ? "animate-spin" : "text-[#FF8A00]"}`} />
+                  <span>{isAutoSpinning ? "Pause 360°" : "Auto 360°"}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => resetAngleRef.current?.(35)}
+                  className="px-2 py-1 rounded-lg text-[11px] font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 transition-all shadow-sm"
+                >
+                  Hero 45°
+                </button>
+                <button
+                  type="button"
+                  onClick={() => resetAngleRef.current?.(0)}
+                  className="px-2 py-1 rounded-lg text-[11px] font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 transition-all shadow-sm"
+                >
+                  Front
+                </button>
+                <button
+                  type="button"
+                  onClick={() => resetAngleRef.current?.(90)}
+                  className="px-2 py-1 rounded-lg text-[11px] font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 transition-all shadow-sm"
+                >
+                  Profile
+                </button>
+                <button
+                  type="button"
+                  onClick={() => resetAngleRef.current?.(180)}
+                  className="px-2 py-1 rounded-lg text-[11px] font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 transition-all shadow-sm"
+                >
+                  Rear
                 </button>
               </div>
-            );
-          })()}
+
+              {/* Device-Specific Moving Hardware Controls */}
+              {slide.deviceModel === "fold6" && (
+                <div className="flex items-center gap-1 text-[11px]">
+                  <span className="font-bold text-slate-500 flex items-center gap-1">
+                    <Sliders className="w-3 h-3 text-[#FF8A00]" /> Hinge:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleSetFoldAngle(25)}
+                    className={`px-2 py-0.5 rounded font-bold transition-all ${
+                      foldAngleState <= 35
+                        ? "bg-[#FF8A00] text-white"
+                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                    }`}
+                  >
+                    Closed
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSetFoldAngle(90)}
+                    className={`px-2 py-0.5 rounded font-bold transition-all ${
+                      foldAngleState > 70 && foldAngleState < 120
+                        ? "bg-[#FF8A00] text-white"
+                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                    }`}
+                  >
+                    90° Flex
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSetFoldAngle(152)}
+                    className={`px-2 py-0.5 rounded font-bold transition-all ${
+                      foldAngleState > 140 && foldAngleState < 170
+                        ? "bg-[#FF8A00] text-white"
+                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                    }`}
+                  >
+                    150° Hero
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSetFoldAngle(180)}
+                    className={`px-2 py-0.5 rounded font-bold transition-all ${
+                      foldAngleState >= 175
+                        ? "bg-[#FF8A00] text-white"
+                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                    }`}
+                  >
+                    180° Flat
+                  </button>
+                </div>
+              )}
+
+              {slide.deviceModel === "surface7" && (
+                <div className="flex items-center gap-1 text-[11px]">
+                  <span className="font-bold text-slate-500 flex items-center gap-1">
+                    <Sliders className="w-3 h-3 text-[#FF8A00]" /> Lid:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleSetLidAngle(115)}
+                    className={`px-2.5 py-0.5 rounded font-bold transition-all ${
+                      lidAngleState === 115
+                        ? "bg-[#FF8A00] text-white"
+                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                    }`}
+                  >
+                    115° Work View
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSetLidAngle(140)}
+                    className={`px-2.5 py-0.5 rounded font-bold transition-all ${
+                      lidAngleState === 140
+                        ? "bg-[#FF8A00] text-white"
+                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                    }`}
+                  >
+                    140° Wide
+                  </button>
+                </div>
+              )}
+
+              {slide.deviceModel === "jbl800" && (
+                <div className="flex items-center gap-1 text-[11px]">
+                  <span className="font-bold text-slate-500 flex items-center gap-1">
+                    <Sliders className="w-3 h-3 text-[#FF8A00]" /> Surrounds:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleToggleSurrounds}
+                    className={`px-2.5 py-0.5 rounded font-bold transition-all ${
+                      !surroundDocked
+                        ? "bg-[#FF8A00] text-white shadow-sm"
+                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                    }`}
+                  >
+                    {surroundDocked ? "Detach Surrounds (5.1.2 Setup)" : "Dock to Soundbar"}
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="w-full flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
+              <span className="font-semibold">
+                Official manufacturer studio catalog photograph &bull; Accra East Legon Stock
+              </span>
+              <span className="font-bold text-[#FF8A00]">Authentic 1:1 Scale</span>
+            </div>
+          )}
         </div>
-      )}
 
-      {/* Floating Bottom Control Bar */}
-      <div className="absolute bottom-2 left-2 right-2 z-10 flex flex-col gap-2 pointer-events-auto">
-        {/* Device-Specific Moving Hardware Controls */}
-        <div className="flex flex-wrap items-center justify-between gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 shadow-md">
-          {/* Fold6 Folding Controls */}
-          {slide.deviceModel === "fold6" && (
-            <div className="flex items-center gap-1.5 text-[10px]">
-              <span className="font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
-                <Sliders className="w-3 h-3 text-[#FF8A00]" /> Hinge Flex:
-              </span>
-              <button
-                type="button"
-                onClick={() => handleSetFoldAngle(25)}
-                className={`px-2 py-0.5 rounded font-semibold transition-all ${
-                  foldAngleState <= 35
-                    ? "bg-[#FF8A00] text-white"
-                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-                }`}
-              >
-                Closed (Compact)
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSetFoldAngle(90)}
-                className={`px-2 py-0.5 rounded font-semibold transition-all ${
-                  foldAngleState > 70 && foldAngleState < 120
-                    ? "bg-[#FF8A00] text-white"
-                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-                }`}
-              >
-                90° Flex Mode
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSetFoldAngle(152)}
-                className={`px-2 py-0.5 rounded font-semibold transition-all ${
-                  foldAngleState > 140 && foldAngleState < 170
-                    ? "bg-[#FF8A00] text-white"
-                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-                }`}
-              >
-                150° Hero
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSetFoldAngle(180)}
-                className={`px-2 py-0.5 rounded font-semibold transition-all ${
-                  foldAngleState >= 175
-                    ? "bg-[#FF8A00] text-white"
-                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-                }`}
-              >
-                180° Flat
-              </button>
-            </div>
-          )}
-
-          {/* Surface Laptop 7 Lid Controls */}
-          {slide.deviceModel === "surface7" && (
-            <div className="flex items-center gap-1.5 text-[10px]">
-              <span className="font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
-                <Sliders className="w-3 h-3 text-[#FF8A00]" /> Display Lid:
-              </span>
-              <button
-                type="button"
-                onClick={() => handleSetLidAngle(115)}
-                className={`px-2 py-0.5 rounded font-semibold transition-all ${
-                  lidAngleState === 115
-                    ? "bg-[#FF8A00] text-white"
-                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-                }`}
-              >
-                115° Work View
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSetLidAngle(140)}
-                className={`px-2 py-0.5 rounded font-semibold transition-all ${
-                  lidAngleState === 140
-                    ? "bg-[#FF8A00] text-white"
-                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-                }`}
-              >
-                140° Wide
-              </button>
-            </div>
-          )}
-
-          {/* JBL Bar 800 Surround Detach Controls */}
-          {slide.deviceModel === "jbl800" && (
-            <div className="flex items-center gap-1.5 text-[10px]">
-              <span className="font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
-                <Sliders className="w-3 h-3 text-[#FF8A00]" /> Wireless Surrounds:
-              </span>
-              <button
-                type="button"
-                onClick={handleToggleSurrounds}
-                className={`px-2.5 py-0.5 rounded font-semibold transition-all ${
-                  !surroundDocked
-                    ? "bg-[#FF8A00] text-white shadow-sm"
-                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-                }`}
-              >
-                {surroundDocked ? "Detach Surrounds (5.1.2 Setup)" : "Dock to Soundbar"}
-              </button>
-            </div>
-          )}
-
-          {/* Hotspots Trigger Buttons */}
-          <div className="flex items-center gap-1">
-            <span className="text-[10px] font-bold text-slate-500 mr-1">Inspect:</span>
-            {slide.hotspots.slice(0, 3).map((hs) => (
+        {/* Row 2: Engineered Feature Hotspot Badges */}
+        <div className="flex flex-wrap items-center justify-between gap-1.5 px-2">
+          <div className="flex flex-wrap items-center gap-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mr-1">
+              Inspect:
+            </span>
+            {slide.hotspots.map((hs) => (
               <button
                 key={hs.id}
                 type="button"
                 onClick={() => setActiveHotspotId(activeHotspotId === hs.id ? null : hs.id)}
-                className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-all ${
+                className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${
                   activeHotspotId === hs.id
                     ? "bg-[#FF8A00] text-white shadow-sm"
                     : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
@@ -1316,124 +1404,45 @@ function RefinedProduct3DStage({
               </button>
             ))}
           </div>
+
+          <span className="text-[10px] font-semibold text-slate-400">
+            Scroll to zoom &bull; Drag to rotate
+          </span>
         </div>
 
-        {/* Camera Quick-Angle Presets Toolbar */}
-        <div className="flex items-center justify-between gap-1.5">
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => {
-                const next = !isAutoSpinning;
-                setIsAutoSpinning(next);
-                autoSpinRef.current = next;
-              }}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold backdrop-blur-md border transition-all shadow-sm ${
-                isAutoSpinning
-                  ? "bg-[#FF8A00] text-white border-orange-500 shadow-orange-500/20"
-                  : "bg-white/90 dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
-              }`}
-              title="Continuous 360-degree rotation"
-            >
-              <RotateCw className={`w-3 h-3 ${isAutoSpinning ? "animate-spin" : "text-[#FF8A00]"}`} />
-              <span>{isAutoSpinning ? "Pause Spin" : "Auto Spin"}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => resetAngleRef.current?.(35)}
-              className="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm"
-              title="View from 45-degree hero perspective"
-            >
-              Hero 45°
-            </button>
-
-            <button
-              type="button"
-              onClick={() => resetAngleRef.current?.(0)}
-              className="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm"
-              title="Front screen view"
-            >
-              Front (0°)
-            </button>
+        {/* Row 3: Hotspot Info Drawer (Renders cleanly underneath dock, NEVER over product) */}
+        {activeHotspotId && (
+          <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md animate-fadeIn text-left">
+            {(() => {
+              const hs = slide.hotspots.find((h) => h.id === activeHotspotId);
+              if (!hs) return null;
+              return (
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-xs font-bold text-slate-900 dark:text-white">
+                        {hs.title}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#FF8A00]/10 text-[#FF8A00]">
+                        {hs.badge}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                      {hs.description}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveHotspotId(null)}
+                    className="text-[10px] font-bold text-[#FF8A00] hover:underline shrink-0"
+                  >
+                    Close
+                  </button>
+                </div>
+              );
+            })()}
           </div>
-
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => resetAngleRef.current?.(90)}
-              className="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm"
-              title="Inspect side rail frame and buttons"
-            >
-              Profile (90°)
-            </button>
-
-            <button
-              type="button"
-              onClick={() => resetAngleRef.current?.(180)}
-              className="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all shadow-sm"
-              title="Inspect rear cameras and materials"
-            >
-              Rear (180°)
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// =============================================================================
-// STUDIO PHOTOGRAPHY GALLERY TAB
-// Clean, museum-quality high-res official photography viewer with front/rear
-// photo toggle and clean zoom without any fake CSS 3D distortions.
-// =============================================================================
-
-function StudioPhotographyGallery({ slide }: { slide: CarouselSlide }) {
-  const [isRearView, setIsRearView] = useState(false);
-  const activeImage = isRearView && slide.backImageUrl ? slide.backImageUrl : slide.imageUrl;
-
-  return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center p-4">
-      {/* Front / Rear Switcher */}
-      {slide.backImageUrl && (
-        <div className="absolute top-2 left-2 z-10 flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setIsRearView(false)}
-            className={`px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border transition-all ${
-              !isRearView
-                ? "bg-[#FF8A00] text-white border-orange-500 shadow-sm"
-                : "bg-white/80 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300"
-            }`}
-          >
-            Front View
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsRearView(true)}
-            className={`px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border transition-all ${
-              isRearView
-                ? "bg-[#FF8A00] text-white border-orange-500 shadow-sm"
-                : "bg-white/80 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300"
-            }`}
-          >
-            Rear Hardware
-          </button>
-        </div>
-      )}
-
-      {/* Verified Photo Card */}
-      <div className="relative max-w-full max-h-[380px] sm:max-h-[440px] flex items-center justify-center">
-        <img
-          src={activeImage}
-          alt={slide.title}
-          className="max-h-[340px] sm:max-h-[400px] w-auto object-contain rounded-2xl drop-shadow-2xl transition-all duration-300"
-        />
-      </div>
-
-      <div className="mt-3 text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800">
-        Official manufacturer studio catalog photograph • In showroom stock
+        )}
       </div>
     </div>
   );
