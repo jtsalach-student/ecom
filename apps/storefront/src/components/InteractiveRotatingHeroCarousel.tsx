@@ -2185,7 +2185,7 @@ function buildRefinedHardwareCAD(
     case "fold6": {
       // Armor Aluminum Frame Material (Silver Shadow with Physical Clearcoat)
       const armorAluminumMat = new THREE.MeshPhysicalMaterial({
-        color: 0x98a2ad,
+        color: 0x9ca3af,
         metalness: 0.94,
         roughness: 0.16,
         clearcoat: 0.35,
@@ -2194,9 +2194,9 @@ function buildRefinedHardwareCAD(
 
       // Frosted Silk Glass Rear Material
       const frostedGlassMat = new THREE.MeshPhysicalMaterial({
-        color: 0xb0b8c2,
-        metalness: 0.18,
-        roughness: 0.35,
+        color: 0xbac3ce,
+        metalness: 0.16,
+        roughness: 0.32,
         clearcoat: 0.45,
       });
 
@@ -2237,14 +2237,14 @@ function buildRefinedHardwareCAD(
 
       // Deep Sapphire Optical Camera Lenses with AR coating
       const lensRingMat = new THREE.MeshPhysicalMaterial({
-        color: 0xa8b2bd,
+        color: 0x6b7280,
         metalness: 0.96,
         roughness: 0.12,
         clearcoat: 0.5,
       });
       const lensGlassMat = new THREE.MeshPhysicalMaterial({
-        color: 0x060814,
-        metalness: 0.96,
+        color: 0x050711,
+        metalness: 0.98,
         roughness: 0.02,
         clearcoat: 1.0,
         clearcoatRoughness: 0.03,
@@ -2260,17 +2260,17 @@ function buildRefinedHardwareCAD(
         roughness: 0.18,
         clearcoat: 0.3,
       });
-      const hingeGeo = new THREE.CylinderGeometry(0.026, 0.026, 1.84, 32);
+      const hingeGeo = new THREE.CylinderGeometry(0.022, 0.022, 1.80, 32);
       const hingeMesh = new THREE.Mesh(hingeGeo, spineMat);
-      hingeMesh.position.set(0, 0, -0.018);
+      hingeMesh.position.set(0, 0, -0.016);
       hingeMesh.castShadow = true;
       root.add(hingeMesh);
 
       // Hinge End Caps (Top & Bottom)
-      [-0.92, 0.92].forEach((y) => {
-        const capGeo = new THREE.CylinderGeometry(0.028, 0.028, 0.018, 32);
+      [-0.90, 0.90].forEach((y) => {
+        const capGeo = new THREE.CylinderGeometry(0.024, 0.024, 0.018, 32);
         const cap = new THREE.Mesh(capGeo, armorAluminumMat);
-        cap.position.set(0, y, -0.018);
+        cap.position.set(0, y, -0.016);
         root.add(cap);
       });
 
@@ -2278,25 +2278,26 @@ function buildRefinedHardwareCAD(
       const leftWing = new THREE.Group();
       root.add(leftWing);
 
-      // Left Slab Body with Filleted Chamfer Contours (Accurate Unfolded 132.6mm x 153.5mm Aspect Ratio)
+      // Left Slab Body: width 0.76, height 1.78, depth 0.036
       const slabShape = createRoundedRectShape(0.76, 1.78, 0.034);
-      const slabGeo = new THREE.ExtrudeGeometry(slabShape, {
-        depth: 0.034,
+      const leftSlabGeo = new THREE.ExtrudeGeometry(slabShape, {
+        depth: 0.036,
         bevelEnabled: true,
-        bevelSegments: 6,
+        bevelSegments: 4,
         steps: 1,
-        bevelSize: 0.012,
-        bevelThickness: 0.012,
+        bevelSize: 0.008,
+        bevelThickness: 0.008,
       });
+      leftSlabGeo.center();
 
-      const leftSlab = new THREE.Mesh(slabGeo, armorAluminumMat);
-      leftSlab.position.set(-0.38, 0, -0.017);
+      const leftSlab = new THREE.Mesh(leftSlabGeo, armorAluminumMat);
+      leftSlab.position.set(-0.38, 0, 0);
       leftSlab.castShadow = true;
       leftWing.add(leftSlab);
 
-      // Antenna Bands on Left Slab (Top and Bottom edges)
+      // Antenna Bands on Left Slab
       [-0.22, -0.62].forEach((xPos) => {
-        const bandGeo = new THREE.BoxGeometry(0.016, 0.036, 0.062);
+        const bandGeo = new THREE.BoxGeometry(0.014, 0.028, 0.054);
         const topBand = new THREE.Mesh(bandGeo, antennaMat);
         topBand.position.set(xPos, 0.895, 0);
         leftWing.add(topBand);
@@ -2306,62 +2307,75 @@ function buildRefinedHardwareCAD(
         leftWing.add(botBand);
       });
 
-      // Top Speaker Grille on Left Slab (4 CNC Milled Micro Capsule Slots)
+      // Top Speaker Grille on Left Slab
       for (let i = 0; i < 4; i++) {
-        const slot = new THREE.Mesh(new THREE.BoxGeometry(0.022, 0.012, 0.026), interiorMat);
-        slot.position.set(-0.46 + i * 0.036, 0.902, 0);
+        const slot = new THREE.Mesh(new THREE.BoxGeometry(0.020, 0.010, 0.024), interiorMat);
+        slot.position.set(-0.46 + i * 0.036, 0.898, 0);
         leftWing.add(slot);
       }
 
-      // Bottom Speaker Grille on Left Slab (4 CNC Milled Micro Capsule Slots)
+      // Bottom Speaker Grille on Left Slab
       for (let i = 0; i < 4; i++) {
-        const slot = new THREE.Mesh(new THREE.BoxGeometry(0.022, 0.012, 0.026), interiorMat);
-        slot.position.set(-0.46 + i * 0.036, -0.902, 0);
+        const slot = new THREE.Mesh(new THREE.BoxGeometry(0.020, 0.010, 0.024), interiorMat);
+        slot.position.set(-0.46 + i * 0.036, -0.898, 0);
         leftWing.add(slot);
       }
 
-      // Top Microphone Pinhole
-      const topMic = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.01, 16), interiorMat);
-      topMic.position.set(-0.28, 0.902, 0);
-      leftWing.add(topMic);
+      // Left Half of Inner 7.6" OLED Display (Front Face at z = +0.023)
+      const innerLeftScreenGeo = new THREE.PlaneGeometry(0.75, 1.76);
+      const innerLeftScreen = new THREE.Mesh(innerLeftScreenGeo, innerScreenMat);
+      innerLeftScreen.position.set(-0.375, 0, 0.023);
+      leftWing.add(innerLeftScreen);
 
-      // Rear Frosted Silk Glass on Left Slab
-      const rearGlassGeo = new THREE.PlaneGeometry(0.74, 1.76);
-      const leftRearGlass = new THREE.Mesh(rearGlassGeo, frostedGlassMat);
-      leftRearGlass.position.set(-0.38, 0, -0.031);
+      // Raised Protective Screen Bumper Lip (0.8mm rim)
+      const bumperMat = new THREE.MeshStandardMaterial({ color: 0x1f242c, roughness: 0.7 });
+      const topBumper = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.012, 0.004), bumperMat);
+      topBumper.position.set(-0.375, 0.886, 0.024);
+      leftWing.add(topBumper);
+
+      const botBumper = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.012, 0.004), bumperMat);
+      botBumper.position.set(-0.375, -0.886, 0.024);
+      leftWing.add(botBumper);
+
+      // Rear Frosted Silk Glass on Left Slab (Back Face at z = -0.023)
+      const leftRearGlass = new THREE.Mesh(new THREE.PlaneGeometry(0.74, 1.76), frostedGlassMat);
+      leftRearGlass.position.set(-0.38, 0, -0.023);
       leftRearGlass.rotation.y = Math.PI;
       leftWing.add(leftRearGlass);
 
-      // Raised Camera Island Base Plateau (Armor Aluminum Squircle)
-      const camPlateauShape = createRoundedRectShape(0.20, 0.78, 0.08);
+      // Raised Camera Island Base Plateau (Armor Aluminum Squircle on Rear)
+      const camPlateauShape = createRoundedRectShape(0.18, 0.74, 0.07);
       const camPlateauGeo = new THREE.ExtrudeGeometry(camPlateauShape, {
-        depth: 0.016,
+        depth: 0.014,
         bevelEnabled: true,
         bevelSegments: 4,
-        bevelSize: 0.008,
-        bevelThickness: 0.008,
+        bevelSize: 0.006,
+        bevelThickness: 0.006,
       });
+      camPlateauGeo.center();
+
       const camPlateau = new THREE.Mesh(camPlateauGeo, armorAluminumMat);
-      camPlateau.position.set(-0.52, 0.32, -0.031);
+      camPlateau.position.set(-0.54, 0.36, -0.034);
       camPlateau.rotation.y = Math.PI;
       leftWing.add(camPlateau);
 
-      // Triple Vertically Stacked ProVisual Camera Island Rings
-      const cameraY = [0.57, 0.32, 0.07];
+      // Plateau outer face is at z = -0.044
+      // Triple Vertically Stacked ProVisual Camera Island Rings (protruding cleanly outward)
+      const cameraY = [0.58, 0.36, 0.14];
       cameraY.forEach((yPos) => {
         // Outer knurled beveled metallic ring
-        const outerRingGeo = new THREE.CylinderGeometry(0.062, 0.062, 0.028, 32);
+        const outerRingGeo = new THREE.CylinderGeometry(0.058, 0.058, 0.022, 32);
         const ring = new THREE.Mesh(outerRingGeo, lensRingMat);
         ring.rotation.x = Math.PI / 2;
-        ring.position.set(-0.52, yPos, -0.054);
+        ring.position.set(-0.54, yPos, -0.052);
 
         // Stepped inner dark lens barrel
-        const innerRingGeo = new THREE.CylinderGeometry(0.052, 0.052, 0.029, 32);
+        const innerRingGeo = new THREE.CylinderGeometry(0.048, 0.048, 0.023, 32);
         const innerRing = new THREE.Mesh(innerRingGeo, interiorMat);
         ring.add(innerRing);
 
         // Deep optical sapphire lens glass with AR highlight
-        const lensGeo = new THREE.CylinderGeometry(0.044, 0.044, 0.031, 32);
+        const lensGeo = new THREE.CylinderGeometry(0.042, 0.042, 0.024, 32);
         const lens = new THREE.Mesh(lensGeo, lensGlassMat);
         ring.add(lens);
 
@@ -2369,64 +2383,51 @@ function buildRefinedHardwareCAD(
         const irisGeo = new THREE.RingGeometry(0.016, 0.036, 32);
         const irisMat = new THREE.MeshBasicMaterial({ color: 0x020408, side: THREE.DoubleSide });
         const iris = new THREE.Mesh(irisGeo, irisMat);
-        iris.position.z = 0.0155;
+        iris.position.z = 0.0125;
         ring.add(iris);
 
         leftWing.add(ring);
       });
 
-      // True Tone Dual-LED Flash with concentric optic ring
-      const flashRing = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.008, 24), lensRingMat);
+      // True Tone Dual-LED Flash
+      const flashRing = new THREE.Mesh(new THREE.CylinderGeometry(0.020, 0.020, 0.008, 24), lensRingMat);
       flashRing.rotation.x = Math.PI / 2;
-      flashRing.position.set(-0.36, 0.45, -0.040);
-      const flashGeo = new THREE.CylinderGeometry(0.017, 0.017, 0.01, 16);
-      const flashMat = new THREE.MeshStandardMaterial({
-        color: 0xfff5df,
-        emissive: 0xffeab3,
-        emissiveIntensity: 0.9,
-      });
-      const flash = new THREE.Mesh(flashGeo, flashMat);
+      flashRing.position.set(-0.40, 0.48, -0.025);
+      const flash = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.016, 0.016, 0.009, 16),
+        new THREE.MeshStandardMaterial({ color: 0xfff5df, emissive: 0xffeab3, emissiveIntensity: 0.9 })
+      );
       flashRing.add(flash);
       leftWing.add(flashRing);
 
       // Camera Island Microphone Hole
-      const camMic = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.01, 16), interiorMat);
+      const camMic = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.008, 16), interiorMat);
       camMic.rotation.x = Math.PI / 2;
-      camMic.position.set(-0.36, 0.20, -0.040);
+      camMic.position.set(-0.40, 0.24, -0.024);
       leftWing.add(camMic);
-
-      // Left Half of Inner 7.6" OLED Display
-      const innerLeftScreenGeo = new THREE.PlaneGeometry(0.75, 1.76);
-      const innerLeftScreen = new THREE.Mesh(innerLeftScreenGeo, innerScreenMat);
-      innerLeftScreen.position.set(-0.375, 0, 0.020);
-      leftWing.add(innerLeftScreen);
-
-      // Raised TPU Protective Perimeter Screen Bumper Lip (0.8mm impact rim)
-      const bumperMat = new THREE.MeshStandardMaterial({ color: 0x1f242c, roughness: 0.7 });
-      const topBumper = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.014, 0.006), bumperMat);
-      topBumper.position.set(-0.375, 0.887, 0.021);
-      leftWing.add(topBumper);
-
-      const botBumper = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.014, 0.006), bumperMat);
-      botBumper.position.set(-0.375, -0.887, 0.021);
-      leftWing.add(botBumper);
-
-      const sideBumper = new THREE.Mesh(new THREE.BoxGeometry(0.014, 1.78, 0.006), bumperMat);
-      sideBumper.position.set(-0.755, 0, 0.021);
-      leftWing.add(sideBumper);
 
       // RIGHT WING (Pivots at x = 0)
       const rightWing = new THREE.Group();
       root.add(rightWing);
 
-      const rightSlab = new THREE.Mesh(slabGeo, armorAluminumMat);
-      rightSlab.position.set(0.38, 0, -0.017);
+      const rightSlabGeo = new THREE.ExtrudeGeometry(slabShape, {
+        depth: 0.036,
+        bevelEnabled: true,
+        bevelSegments: 4,
+        steps: 1,
+        bevelSize: 0.008,
+        bevelThickness: 0.008,
+      });
+      rightSlabGeo.center();
+
+      const rightSlab = new THREE.Mesh(rightSlabGeo, armorAluminumMat);
+      rightSlab.position.set(0.38, 0, 0);
       rightSlab.castShadow = true;
       rightWing.add(rightSlab);
 
       // Antenna Bands on Right Slab
       [0.22, 0.62].forEach((xPos) => {
-        const bandGeo = new THREE.BoxGeometry(0.016, 0.036, 0.062);
+        const bandGeo = new THREE.BoxGeometry(0.014, 0.028, 0.054);
         const topBand = new THREE.Mesh(bandGeo, antennaMat);
         topBand.position.set(xPos, 0.895, 0);
         rightWing.add(topBand);
@@ -2436,104 +2437,73 @@ function buildRefinedHardwareCAD(
         rightWing.add(botBand);
       });
 
-      // Rear 6.3" Outer Cover Screen on Right Slab
-      const coverScreenGeo = new THREE.PlaneGeometry(0.74, 1.76);
-      const rightCoverScreen = new THREE.Mesh(coverScreenGeo, coverScreenMat);
-      rightCoverScreen.position.set(0.38, 0, -0.031);
+      // Right Half of Inner Display (Front Face at z = +0.023)
+      const innerRightScreenGeo = new THREE.PlaneGeometry(0.75, 1.76);
+      const innerRightScreen = new THREE.Mesh(innerRightScreenGeo, innerScreenMat);
+      innerRightScreen.position.set(0.375, 0, 0.023);
+      rightWing.add(innerRightScreen);
+
+      // Under-Display Selfie Camera Aperture on Right Half
+      const udcDot = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.004, 16), new THREE.MeshStandardMaterial({ color: 0x090c12, roughness: 0.5 }));
+      udcDot.rotation.x = Math.PI / 2;
+      udcDot.position.set(0.56, 0.72, 0.024);
+      rightWing.add(udcDot);
+
+      // TPU Bumper Lip on Right Wing
+      const rTopBumper = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.012, 0.004), bumperMat);
+      rTopBumper.position.set(0.375, 0.886, 0.024);
+      rightWing.add(rTopBumper);
+
+      const rBotBumper = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.012, 0.004), bumperMat);
+      rBotBumper.position.set(0.375, -0.886, 0.024);
+      rightWing.add(rBotBumper);
+
+      const rSideBumper = new THREE.Mesh(new THREE.BoxGeometry(0.012, 1.78, 0.004), bumperMat);
+      rSideBumper.position.set(0.755, 0, 0.024);
+      rightWing.add(rSideBumper);
+
+      // Rear 6.3" Outer Cover Screen on Right Slab (Back Face at z = -0.023)
+      const rightCoverScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.74, 1.76), coverScreenMat);
+      rightCoverScreen.position.set(0.38, 0, -0.023);
       rightCoverScreen.rotation.y = Math.PI;
       rightWing.add(rightCoverScreen);
 
       // Cover Screen Punch-Hole Selfie Camera
-      const coverPunchGeo = new THREE.CylinderGeometry(0.014, 0.014, 0.008, 16);
-      const coverPunch = new THREE.Mesh(coverPunchGeo, interiorMat);
+      const coverPunch = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.006, 16), interiorMat);
       coverPunch.rotation.x = Math.PI / 2;
-      coverPunch.position.set(0.38, 0.72, -0.032);
+      coverPunch.position.set(0.38, 0.72, -0.024);
       rightWing.add(coverPunch);
 
       // Top Earpiece Speaker Slit on Cover Glass Edge
-      const earpieceGeo = new THREE.BoxGeometry(0.14, 0.008, 0.006);
-      const earpiece = new THREE.Mesh(earpieceGeo, interiorMat);
-      earpiece.position.set(0.38, 0.882, -0.031);
+      const earpiece = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.006, 0.005), interiorMat);
+      earpiece.position.set(0.38, 0.875, -0.024);
       rightWing.add(earpiece);
 
-      // Right Half of Inner Display
-      const innerRightScreenGeo = new THREE.PlaneGeometry(0.75, 1.76);
-      const innerRightScreen = new THREE.Mesh(innerRightScreenGeo, innerScreenMat);
-      innerRightScreen.position.set(0.375, 0, 0.020);
-      rightWing.add(innerRightScreen);
-
-      // Under-Display Selfie Camera Aperture on Right Half of Inner Display
-      const udcDot = new THREE.Mesh(new THREE.CylinderGeometry(0.009, 0.009, 0.005, 16), new THREE.MeshStandardMaterial({ color: 0x090c12, roughness: 0.5 }));
-      udcDot.rotation.x = Math.PI / 2;
-      udcDot.position.set(0.56, 0.72, 0.021);
-      rightWing.add(udcDot);
-
-      // TPU Bumper Lip on Right Wing
-      const rTopBumper = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.014, 0.006), bumperMat);
-      rTopBumper.position.set(0.375, 0.887, 0.021);
-      rightWing.add(rTopBumper);
-
-      const rBotBumper = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.014, 0.006), bumperMat);
-      rBotBumper.position.set(0.375, -0.887, 0.021);
-      rightWing.add(rBotBumper);
-
-      const rSideBumper = new THREE.Mesh(new THREE.BoxGeometry(0.014, 1.78, 0.006), bumperMat);
-      rSideBumper.position.set(0.755, 0, 0.021);
-      rightWing.add(rSideBumper);
-
-      // Right Frame Controls: Recessed Fingerprint Power Key & Sculpted Volume Rocker
-      const buttonMat = new THREE.MeshPhysicalMaterial({
-        color: 0x828d99,
-        metalness: 0.96,
-        roughness: 0.14,
-      });
-
-      // Recessed Power Key Slot
-      const pwrWellGeo = new THREE.BoxGeometry(0.006, 0.18, 0.032);
-      const pwrWell = new THREE.Mesh(pwrWellGeo, interiorMat);
-      pwrWell.position.set(0.762, 0.12, 0);
-      rightWing.add(pwrWell);
-
-      const pwrKeyGeo = new THREE.BoxGeometry(0.008, 0.16, 0.024);
-      const pwrKey = new THREE.Mesh(pwrKeyGeo, buttonMat);
-      pwrKey.position.set(0.764, 0.12, 0);
+      // Right Frame Controls: Recessed Fingerprint Power Key & Volume Rocker
+      const buttonMat = new THREE.MeshPhysicalMaterial({ color: 0x828d99, metalness: 0.96, roughness: 0.14 });
+      const pwrKey = new THREE.Mesh(new THREE.BoxGeometry(0.010, 0.22, 0.022), buttonMat);
+      pwrKey.position.set(0.764, 0.15, 0);
       rightWing.add(pwrKey);
 
-      // Sculpted Volume Rocker with Tactile Center Indent
-      const volKeyGeo = new THREE.BoxGeometry(0.014, 0.28, 0.024);
-      const volKey = new THREE.Mesh(volKeyGeo, buttonMat);
-      volKey.position.set(0.766, 0.44, 0);
+      const volKey = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.26, 0.022), buttonMat);
+      volKey.position.set(0.764, 0.44, 0);
       rightWing.add(volKey);
 
-      // SIM Tray Slot with Ejector Pinhole on Right Frame
-      const simSlotGeo = new THREE.BoxGeometry(0.004, 0.24, 0.012);
-      const simSlot = new THREE.Mesh(simSlotGeo, interiorMat);
-      simSlot.position.set(0.762, -0.35, 0);
+      // SIM Tray Slot
+      const simSlot = new THREE.Mesh(new THREE.BoxGeometry(0.004, 0.22, 0.010), interiorMat);
+      simSlot.position.set(0.762, -0.32, 0);
       rightWing.add(simSlot);
 
-      const simPinGeo = new THREE.CylinderGeometry(0.004, 0.004, 0.008, 12);
-      const simPin = new THREE.Mesh(simPinGeo, interiorMat);
-      simPin.rotation.z = Math.PI / 2;
-      simPin.position.set(0.764, -0.21, 0);
-      rightWing.add(simPin);
-
-      // Bottom USB-C Port Receptacle & Metallic Tongue
-      const usbcHousingGeo = new THREE.BoxGeometry(0.14, 0.018, 0.038);
-      const usbcHousing = new THREE.Mesh(usbcHousingGeo, interiorMat);
-      usbcHousing.position.set(0.38, -0.905, 0);
+      // Bottom USB-C Port
+      const usbcHousing = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.016, 0.030), interiorMat);
+      usbcHousing.position.set(0.38, -0.898, 0);
       rightWing.add(usbcHousing);
 
-      const usbcTongueGeo = new THREE.BoxGeometry(0.08, 0.005, 0.014);
-      const usbcTongue = new THREE.Mesh(usbcTongueGeo, armorAluminumMat);
-      usbcTongue.position.set(0.38, -0.905, 0);
+      const usbcTongue = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.004, 0.012), armorAluminumMat);
+      usbcTongue.position.set(0.38, -0.898, 0);
       rightWing.add(usbcTongue);
 
-      // Bottom Primary Mic Pinhole
-      const botMic = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.01, 16), interiorMat);
-      botMic.position.set(0.24, -0.905, 0);
-      rightWing.add(botMic);
-
-      // Controller: Interactive Folding Angle
+      // Interactive Folding Angle Controller
       controllers.setFoldAngle = (deg: number) => {
         const rad = (deg * Math.PI) / 180;
         const foldOffset = (Math.PI - rad) / 2;
@@ -2545,12 +2515,12 @@ function buildRefinedHardwareCAD(
     }
 
     // -------------------------------------------------------------------------
-    // 2. APPLE IPHONE 16 PRO MAX (Grade 5 Titanium & 3D Dynamic Island)
+    // 2. APPLE IPHONE 16 PRO MAX (Grade 5 Titanium & Ceramic Shield)
     // -------------------------------------------------------------------------
     case "iphone16": {
       // Satin Brushed Grade 5 Titanium Frame Material (Desert Titanium)
       const titaniumMat = new THREE.MeshPhysicalMaterial({
-        color: 0x9e968b,
+        color: 0x9e9589,
         metalness: 0.94,
         roughness: 0.22,
         clearcoat: 0.35,
@@ -2593,70 +2563,40 @@ function buildRefinedHardwareCAD(
       // Ergonomically Filleted Titanium Perimeter Unibody (77.6mm x 163.0mm true proportions)
       const bodyShape = createRoundedRectShape(0.895, 1.88, 0.12);
       const bodyGeo = new THREE.ExtrudeGeometry(bodyShape, {
-        depth: 0.062,
+        depth: 0.064,
         bevelEnabled: true,
-        bevelSegments: 7,
+        bevelSegments: 5,
         steps: 1,
-        bevelSize: 0.015,
-        bevelThickness: 0.015,
+        bevelSize: 0.012,
+        bevelThickness: 0.012,
       });
+      bodyGeo.center();
 
       const phoneBody = new THREE.Mesh(bodyGeo, titaniumMat);
-      phoneBody.position.z = -0.031;
       phoneBody.castShadow = true;
       root.add(phoneBody);
 
-      // 6 Precision Antenna Isolation Cuts around Titanium Frame
-      [-0.465, 0.465].forEach((x) => {
+      // Antenna Isolation Cuts around Titanium Frame
+      [-0.460, 0.460].forEach((x) => {
         [0.65, -0.65].forEach((y) => {
-          const ant = new THREE.Mesh(new THREE.BoxGeometry(0.022, 0.018, 0.092), antennaMat);
+          const ant = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.016, 0.068), antennaMat);
           ant.position.set(x, y, 0);
           root.add(ant);
         });
       });
-      // Top and Bottom antenna bands
-      const topAnt = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.022, 0.092), antennaMat);
-      topAnt.position.set(0.30, 0.955, 0);
-      root.add(topAnt);
 
-      const botAnt = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.022, 0.092), antennaMat);
-      botAnt.position.set(-0.30, -0.955, 0);
-      root.add(botAnt);
-
-      // Front OLED Glass Screen (Razor-Thin 1.15mm Uniform Borders)
-      const frontScreenGeo = new THREE.PlaneGeometry(0.87, 1.85);
-      const frontScreen = new THREE.Mesh(frontScreenGeo, screenMat);
-      frontScreen.position.z = 0.032;
+      // Front OLED Glass Screen (Razor-Thin 1.15mm Uniform Borders, Ceramic Shield)
+      const frontScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.87, 1.85), screenMat);
+      frontScreen.position.z = 0.033;
       root.add(frontScreen);
 
-      // PHYSICAL 3D DYNAMIC ISLAND PILL
-      const pillShape = createRoundedRectShape(0.26, 0.068, 0.034);
-      const pillGeo = new THREE.ExtrudeGeometry(pillShape, {
-        depth: 0.005,
-        bevelEnabled: false,
-      });
-      const pillMat = new THREE.MeshBasicMaterial({ color: 0x010204 });
-      const dynamicIslandPill = new THREE.Mesh(pillGeo, pillMat);
-      dynamicIslandPill.position.set(0, 0.81, 0.0325);
-      root.add(dynamicIslandPill);
-
-      // TrueDepth Camera Sensor Aperture inside Dynamic Island
-      const frontCamDot = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.008, 0.008, 0.006, 16),
-        new THREE.MeshStandardMaterial({ color: 0x081024, roughness: 0.1 })
-      );
-      frontCamDot.rotation.x = Math.PI / 2;
-      frontCamDot.position.set(0.065, 0.81, 0.0355);
-      root.add(frontCamDot);
-
       // Micro Earpiece Speaker Slit at Top Glass Edge
-      const earpiece = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.007, 0.006), interiorMat);
-      earpiece.position.set(0, 0.925, 0.0325);
+      const earpiece = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.006, 0.004), interiorMat);
+      earpiece.position.set(0, 0.925, 0.0335);
       root.add(earpiece);
 
-      // Rear Frosted Glass Back with Silky Sheen
-      const rearGlassGeo = new THREE.PlaneGeometry(0.87, 1.85);
-      const rearGlass = new THREE.Mesh(rearGlassGeo, rearGlassMat);
+      // Rear Frosted Glass Back with Silky Sheen (Back Face at z = -0.033)
+      const rearGlass = new THREE.Mesh(new THREE.PlaneGeometry(0.87, 1.85), rearGlassMat);
       rearGlass.position.z = -0.033;
       rearGlass.rotation.y = Math.PI;
       root.add(rearGlass);
@@ -2670,28 +2610,32 @@ function buildRefinedHardwareCAD(
         roughness: 0.05,
         clearcoat: 1.0,
       });
-      const appleLogoMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.24, 0.24), appleLogoMat);
-      appleLogoMesh.position.set(0, 0.08, -0.0345);
+      const appleLogoMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 0.22), appleLogoMat);
+      appleLogoMesh.position.set(0, 0.06, -0.0335);
       appleLogoMesh.rotation.y = Math.PI;
       root.add(appleLogoMesh);
 
-      // Sculpted Camera Plateau (Seamless Organic Glass Island)
-      const plateauShape = createRoundedRectShape(0.46, 0.48, 0.10);
+      // Sculpted Camera Plateau: Seamless Organic Glass Squircle in Top-Left Quadrant
+      // Corrected Proportions: width 0.36, height 0.38, depth 0.016
+      const plateauShape = createRoundedRectShape(0.36, 0.38, 0.09);
       const plateauGeo = new THREE.ExtrudeGeometry(plateauShape, {
-        depth: 0.026,
+        depth: 0.016,
         bevelEnabled: true,
-        bevelSegments: 5,
-        bevelSize: 0.010,
-        bevelThickness: 0.010,
+        bevelSegments: 4,
+        bevelSize: 0.008,
+        bevelThickness: 0.008,
       });
+      plateauGeo.center();
+
       const plateau = new THREE.Mesh(plateauGeo, rearGlassMat);
-      plateau.position.set(-0.19, 0.60, -0.059);
+      plateau.position.set(-0.22, 0.58, -0.041);
       plateau.rotation.y = Math.PI;
       root.add(plateau);
 
-      // 3 Pro Optical Sapphire Lens Systems
+      // Plateau outer face is at z = -0.049
+      // 3 Pro Optical Sapphire Lens Systems (Protruding cleanly outward)
       const lensRingMat = new THREE.MeshPhysicalMaterial({
-        color: 0x989289,
+        color: 0x6b6660,
         metalness: 0.96,
         roughness: 0.14,
         clearcoat: 0.55,
@@ -2706,135 +2650,117 @@ function buildRefinedHardwareCAD(
       });
 
       const lensCoords = [
-        [-0.28, 0.72],
-        [-0.28, 0.48],
-        [-0.09, 0.60],
+        [-0.29, 0.68],
+        [-0.29, 0.48],
+        [-0.15, 0.58],
       ];
       lensCoords.forEach(([x, y]) => {
         // Outer knurled titanium bezel ring
-        const ringGeo = new THREE.CylinderGeometry(0.090, 0.090, 0.028, 32);
+        const ringGeo = new THREE.CylinderGeometry(0.058, 0.058, 0.022, 32);
         const ring = new THREE.Mesh(ringGeo, lensRingMat);
         ring.rotation.x = Math.PI / 2;
-        ring.position.set(x, y, -0.073);
+        ring.position.set(x, y, -0.057);
 
         // Stepped inner dark lens barrel
-        const innerRingGeo = new THREE.CylinderGeometry(0.078, 0.078, 0.029, 32);
+        const innerRingGeo = new THREE.CylinderGeometry(0.048, 0.048, 0.023, 32);
         const innerRing = new THREE.Mesh(innerRingGeo, interiorMat);
         ring.add(innerRing);
 
         // Deep sapphire optical lens with AR reflection
-        const lensGeo = new THREE.CylinderGeometry(0.068, 0.068, 0.031, 32);
+        const lensGeo = new THREE.CylinderGeometry(0.042, 0.042, 0.024, 32);
         const lens = new THREE.Mesh(lensGeo, lensGlassMat);
         ring.add(lens);
 
         // Aperture diaphragm iris
-        const irisGeo = new THREE.RingGeometry(0.022, 0.056, 32);
+        const irisGeo = new THREE.RingGeometry(0.015, 0.036, 32);
         const irisMat = new THREE.MeshBasicMaterial({ color: 0x020306, side: THREE.DoubleSide });
         const iris = new THREE.Mesh(irisGeo, irisMat);
-        iris.position.z = 0.0156;
+        iris.position.z = 0.0125;
         ring.add(iris);
 
         root.add(ring);
       });
 
-      // True Tone Dual-LED Flash with concentric fresnel ring
-      const flashRing = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.01, 24), lensRingMat);
+      // True Tone Dual-LED Flash
+      const flashRing = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.024, 0.008, 24), lensRingMat);
       flashRing.rotation.x = Math.PI / 2;
-      flashRing.position.set(-0.09, 0.74, -0.064);
-      const flashGeo = new THREE.CylinderGeometry(0.026, 0.026, 0.012, 24);
-      const flashMat = new THREE.MeshStandardMaterial({
-        color: 0xfff6dd,
-        emissive: 0xffeab3,
-        emissiveIntensity: 0.85,
-      });
-      const flash = new THREE.Mesh(flashGeo, flashMat);
+      flashRing.position.set(-0.15, 0.70, -0.051);
+      const flash = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.018, 0.018, 0.009, 24),
+        new THREE.MeshStandardMaterial({ color: 0xfff6dd, emissive: 0xffeab3, emissiveIntensity: 0.85 })
+      );
       flashRing.add(flash);
       root.add(flashRing);
 
       // LiDAR Scanner Dark Optical Sensor
-      const lidarRing = new THREE.Mesh(new THREE.CylinderGeometry(0.030, 0.030, 0.008, 24), lensRingMat);
+      const lidarRing = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.006, 24), lensRingMat);
       lidarRing.rotation.x = Math.PI / 2;
-      lidarRing.position.set(-0.09, 0.46, -0.064);
-      const lidarGeo = new THREE.CylinderGeometry(0.026, 0.026, 0.01, 24);
-      const lidarMat = new THREE.MeshStandardMaterial({
-        color: 0x0a0c10,
-        metalness: 0.92,
-        roughness: 0.08,
-      });
-      const lidar = new THREE.Mesh(lidarGeo, lidarMat);
+      lidarRing.position.set(-0.15, 0.46, -0.050);
+      const lidar = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.018, 0.018, 0.007, 24),
+        new THREE.MeshStandardMaterial({ color: 0x0a0c10, metalness: 0.92, roughness: 0.08 })
+      );
       lidarRing.add(lidar);
       root.add(lidarRing);
 
       // Rear Studio Microphone Pinhole
-      const rearMic = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.01, 16), interiorMat);
+      const rearMic = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.008, 16), interiorMat);
       rearMic.rotation.x = Math.PI / 2;
-      rearMic.position.set(-0.19, 0.46, -0.064);
+      rearMic.position.set(-0.08, 0.54, -0.050);
       root.add(rearMic);
 
       // Tactile Buttons & Camera Control Button
-      const buttonMat = new THREE.MeshPhysicalMaterial({
-        color: 0x7c756f,
-        metalness: 0.94,
-        roughness: 0.16,
-      });
+      const buttonMat = new THREE.MeshPhysicalMaterial({ color: 0x7c756f, metalness: 0.94, roughness: 0.16 });
 
       // IPHONE 16 CAMERA CONTROL SENSOR: Flush Recessed Sapphire Strip with Titanium Bezel
-      const camControlWellGeo = new THREE.BoxGeometry(0.008, 0.22, 0.034);
-      const camControlWell = new THREE.Mesh(camControlWellGeo, interiorMat);
-      camControlWell.position.set(0.462, -0.22, 0);
+      const camControlWell = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.20, 0.030), interiorMat);
+      camControlWell.position.set(0.448, -0.25, 0);
       root.add(camControlWell);
 
-      const camControlGeo = new THREE.BoxGeometry(0.008, 0.20, 0.028);
-      const camControlMat = new THREE.MeshPhysicalMaterial({
-        color: 0x2b323b,
-        metalness: 0.85,
-        roughness: 0.12,
-        clearcoat: 0.9,
-      });
-      const camControl = new THREE.Mesh(camControlGeo, camControlMat);
-      camControl.position.set(0.464, -0.22, 0);
+      const camControlMat = new THREE.MeshPhysicalMaterial({ color: 0x2b323b, metalness: 0.85, roughness: 0.12, clearcoat: 0.9 });
+      const camControl = new THREE.Mesh(new THREE.BoxGeometry(0.006, 0.18, 0.024), camControlMat);
+      camControl.position.set(0.450, -0.25, 0);
       root.add(camControl);
 
       // Power / Siri Side Button on Right Rail
-      const sideKey = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.26, 0.028), buttonMat);
-      sideKey.position.set(0.464, 0.35, 0);
+      const sideKey = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.24, 0.024), buttonMat);
+      sideKey.position.set(0.450, 0.35, 0);
       root.add(sideKey);
 
       // Action Button on Upper Left Rail
-      const actionKey = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.11, 0.028), buttonMat);
-      actionKey.position.set(-0.464, 0.65, 0);
+      const actionKey = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.10, 0.024), buttonMat);
+      actionKey.position.set(-0.450, 0.65, 0);
       root.add(actionKey);
 
       // Volume Up & Volume Down Buttons on Left Rail
-      const volUpKey = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.19, 0.028), buttonMat);
-      volUpKey.position.set(-0.464, 0.44, 0);
+      const volUpKey = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.18, 0.024), buttonMat);
+      volUpKey.position.set(-0.450, 0.44, 0);
       root.add(volUpKey);
 
-      const volDnKey = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.19, 0.028), buttonMat);
-      volDnKey.position.set(-0.464, 0.21, 0);
+      const volDnKey = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.18, 0.024), buttonMat);
+      volDnKey.position.set(-0.450, 0.21, 0);
       root.add(volDnKey);
 
-      // Bottom USB-C Port Receptacle with Interior Contact Tongue
-      const usbcHousingGeo = new THREE.BoxGeometry(0.14, 0.022, 0.038);
-      const usbcHousing = new THREE.Mesh(usbcHousingGeo, interiorMat);
-      usbcHousing.position.set(0, -0.955, 0);
+      // Bottom USB-C Port Receptacle
+      const usbcHousing = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.018, 0.032), interiorMat);
+      usbcHousing.position.set(0, -0.942, 0);
       root.add(usbcHousing);
 
-      const usbcTongue = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.006, 0.016), titaniumMat);
-      usbcTongue.position.set(0, -0.955, 0);
+      const usbcTongue = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.004, 0.014), titaniumMat);
+      usbcTongue.position.set(0, -0.942, 0);
       root.add(usbcTongue);
 
-      // Bottom Speaker CNC Hole Array (5 holes on right)
+      // Bottom Speaker CNC Hole Array
       for (let i = 0; i < 5; i++) {
-        const hole = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.02, 16), interiorMat);
-        hole.position.set(0.13 + i * 0.032, -0.955, 0);
+        const hole = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.014, 16), interiorMat);
+        hole.position.set(0.12 + i * 0.030, -0.942, 0);
         root.add(hole);
       }
 
-      // Bottom Microphone CNC Hole Array (3 holes on left)
+      // Bottom Microphone CNC Hole Array
       for (let i = 0; i < 3; i++) {
-        const hole = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.02, 16), interiorMat);
-        hole.position.set(-0.13 - i * 0.032, -0.955, 0);
+        const hole = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.014, 16), interiorMat);
+        hole.position.set(-0.12 - i * 0.030, -0.942, 0);
         root.add(hole);
       }
 
@@ -2894,63 +2820,70 @@ function buildRefinedHardwareCAD(
         emissiveIntensity: 0.36,
       });
 
-      // 1. Tapered Aerodynamic CNC Aluminum Base with Filleted Corners
+      // 1. Base Assembly (Group positioned at base level)
+      const baseGroup = new THREE.Group();
+      baseGroup.position.set(0, -0.40, 0);
+      root.add(baseGroup);
+
+      // Tapered Aerodynamic CNC Aluminum Base: width 2.12, height 0.044, depth 1.44
       const baseShape = createRoundedRectShape(2.12, 1.44, 0.07);
       const baseGeo = new THREE.ExtrudeGeometry(baseShape, {
-        depth: 0.048,
+        depth: 0.044,
         bevelEnabled: true,
-        bevelSegments: 5,
-        bevelSize: 0.012,
-        bevelThickness: 0.012,
+        bevelSegments: 4,
+        bevelSize: 0.010,
+        bevelThickness: 0.010,
       });
-      const base = new THREE.Mesh(baseGeo, aluminumMat);
-      base.rotation.x = Math.PI / 2;
-      base.position.set(0, -0.4, 0);
-      base.castShadow = true;
-      root.add(base);
+      baseGeo.center();
+
+      const baseMesh = new THREE.Mesh(baseGeo, aluminumMat);
+      baseMesh.rotation.x = Math.PI / 2;
+      baseMesh.castShadow = true;
+      baseGroup.add(baseMesh);
+
+      // Top surface of base is at y = +0.022. Front lip is at z = +0.72. Rear hinge is at z = -0.72.
 
       // Chamfered Front Lip Thumb Notch (Single-finger lid opener)
-      const notchGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.018, 24, 1, false, 0, Math.PI);
+      const notchGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.016, 24, 1, false, 0, Math.PI);
       const notch = new THREE.Mesh(notchGeo, aluminumMat);
-      notch.rotation.x = -Math.PI / 2;
-      notch.position.set(0, 0.725, 0.024);
-      base.add(notch);
+      notch.rotation.z = Math.PI;
+      notch.position.set(0, 0.018, 0.72);
+      baseGroup.add(notch);
 
-      // 2. Recessed Milled Keyboard Deck Well
-      const deckWellGeo = new THREE.BoxGeometry(1.78, 0.72, 0.008);
-      const deckWell = new THREE.Mesh(deckWellGeo, new THREE.MeshStandardMaterial({ color: 0x22262e, roughness: 0.8 }));
-      deckWell.position.set(0, -0.21, 0.025);
-      base.add(deckWell);
+      // Recessed Milled Keyboard Deck Well (under screen at z = -0.20)
+      const deckWell = new THREE.Mesh(
+        new THREE.BoxGeometry(1.78, 0.004, 0.68),
+        new THREE.MeshStandardMaterial({ color: 0x22262e, roughness: 0.8 })
+      );
+      deckWell.position.set(0, 0.023, -0.20);
+      baseGroup.add(deckWell);
 
-      // 3. Discrete Keycap Rows (6 Realistic Rows with Copilot Key)
+      // Discrete Keycap Rows (6 Realistic Rows with Copilot Key)
       const rowConfigs = [
-        { y: -0.52, count: 14, height: 0.07, wRatio: 1.0 },  // Function Row
-        { y: -0.40, count: 14, height: 0.09, wRatio: 1.0 },  // Number Row
-        { y: -0.28, count: 14, height: 0.09, wRatio: 1.0 },  // QWERTY Row
-        { y: -0.16, count: 13, height: 0.09, wRatio: 1.08 }, // Home Row
-        { y: -0.04, count: 12, height: 0.09, wRatio: 1.16 }, // Bottom Alpha Row
+        { z: -0.48, count: 14, depth: 0.065, wRatio: 1.0 },  // Function Row
+        { z: -0.38, count: 14, depth: 0.080, wRatio: 1.0 },  // Number Row
+        { z: -0.28, count: 14, depth: 0.080, wRatio: 1.0 },  // QWERTY Row
+        { z: -0.18, count: 13, depth: 0.080, wRatio: 1.08 }, // Home Row
+        { z: -0.08, count: 12, depth: 0.080, wRatio: 1.16 }, // Bottom Alpha Row
       ];
 
       rowConfigs.forEach((row) => {
         const keyWidth = (1.70 / row.count) * 0.92;
         const startX = -0.80 + keyWidth / 2;
         for (let i = 0; i < row.count; i++) {
-          const keyGeo = new THREE.BoxGeometry(keyWidth * row.wRatio, row.height * 0.92, 0.009);
+          const keyGeo = new THREE.BoxGeometry(keyWidth * row.wRatio, 0.008, row.depth * 0.92);
           const key = new THREE.Mesh(keyGeo, darkKeyMat);
-          key.position.set(startX + i * (keyWidth * row.wRatio * 1.08), row.y, 0.03);
-          base.add(key);
+          key.position.set(startX + i * (keyWidth * row.wRatio * 1.08), 0.026, row.z);
+          baseGroup.add(key);
         }
       });
 
-      // Bottom Row (Spacebar, Modifiers & Dedicated Copilot Key)
-      // Spacebar
-      const spaceGeo = new THREE.BoxGeometry(0.56, 0.09, 0.009);
-      const spacebar = new THREE.Mesh(spaceGeo, darkKeyMat);
-      spacebar.position.set(-0.06, 0.08, 0.03);
-      base.add(spacebar);
+      // Bottom Row (Spacebar, Modifiers & Dedicated Copilot Key at z = +0.02)
+      const spacebar = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.008, 0.080), darkKeyMat);
+      spacebar.position.set(-0.06, 0.026, 0.02);
+      baseGroup.add(spacebar);
 
       // Dedicated Glowing Copilot Key
-      const copilotGeo = new THREE.BoxGeometry(0.11, 0.09, 0.009);
       const copilotMat = new THREE.MeshStandardMaterial({
         color: 0x0284c7,
         emissive: 0x0284c7,
@@ -2958,139 +2891,108 @@ function buildRefinedHardwareCAD(
         metalness: 0.3,
         roughness: 0.4,
       });
-      const copilotKey = new THREE.Mesh(copilotGeo, copilotMat);
-      copilotKey.position.set(0.32, 0.08, 0.03);
-      base.add(copilotKey);
+      const copilotKey = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.008, 0.080), copilotMat);
+      copilotKey.position.set(0.32, 0.026, 0.02);
+      baseGroup.add(copilotKey);
 
-      // Remaining bottom modifier keys (Left Alt, Left Win, Left Fn, Left Ctrl, Right Alt, Right Ctrl)
+      // Modifier keys
       [-0.72, -0.60, -0.48, -0.36, 0.20, 0.44, 0.56, 0.68].forEach((kx) => {
-        const modKey = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.09, 0.009), darkKeyMat);
-        modKey.position.set(kx, 0.08, 0.03);
-        base.add(modKey);
+        const modKey = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.008, 0.080), darkKeyMat);
+        modKey.position.set(kx, 0.026, 0.02);
+        baseGroup.add(modKey);
       });
 
-      // 4. Precision Glass Haptic Trackpad with Milled Hairline Seam
-      const trackpadBorderGeo = new THREE.BoxGeometry(0.76, 0.50, 0.004);
-      const trackpadBorder = new THREE.Mesh(trackpadBorderGeo, interiorMat);
-      trackpadBorder.position.set(0, 0.40, 0.024);
-      base.add(trackpadBorder);
+      // Precision Glass Haptic Trackpad at FRONT palm rest (z = +0.40)
+      const trackpadBorder = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.003, 0.48), interiorMat);
+      trackpadBorder.position.set(0, 0.023, 0.40);
+      baseGroup.add(trackpadBorder);
 
-      const trackpadGeo = new THREE.BoxGeometry(0.74, 0.48, 0.006);
-      const trackpad = new THREE.Mesh(trackpadGeo, trackpadMat);
-      trackpad.position.set(0, 0.40, 0.026);
-      base.add(trackpad);
+      const trackpad = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.005, 0.46), trackpadMat);
+      trackpad.position.set(0, 0.025, 0.40);
+      baseGroup.add(trackpad);
 
-      // 5. Left Rail Ports: 2x USB-C (USB4), 1x USB-A 3.1, 1x 3.5mm Headphone Jack
-      // USB-C 1
-      const usbc1 = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.08, 0.024), interiorMat);
-      usbc1.position.set(-1.065, -0.30, 0.012);
-      base.add(usbc1);
-      const usbc1Tongue = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.045, 0.006), metalPinMat);
-      usbc1Tongue.position.set(-1.065, -0.30, 0.012);
-      base.add(usbc1Tongue);
+      // Left Rail Ports (2x USB-C USB4, 1x USB-A 3.1, 1x 3.5mm jack)
+      [-0.30, -0.16].forEach((pz) => {
+        const usbc = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.022, 0.075), interiorMat);
+        usbc.position.set(-1.062, 0.005, pz);
+        baseGroup.add(usbc);
 
-      // USB-C 2
-      const usbc2 = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.08, 0.024), interiorMat);
-      usbc2.position.set(-1.065, -0.16, 0.012);
-      base.add(usbc2);
-      const usbc2Tongue = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.045, 0.006), metalPinMat);
-      usbc2Tongue.position.set(-1.065, -0.16, 0.012);
-      base.add(usbc2Tongue);
+        const tongue = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.005, 0.040), metalPinMat);
+        tongue.position.set(-1.062, 0.005, pz);
+        baseGroup.add(tongue);
+      });
 
       // USB-A 3.1
-      const usba = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.12, 0.028), interiorMat);
-      usba.position.set(-1.065, 0.02, 0.012);
-      base.add(usba);
-      const usbaInsert = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.09, 0.012), new THREE.MeshStandardMaterial({ color: 0x0284c7 }));
-      usbaInsert.position.set(-1.065, 0.02, 0.017);
-      base.add(usbaInsert);
+      const usba = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.024, 0.11), interiorMat);
+      usba.position.set(-1.062, 0.005, 0.02);
+      baseGroup.add(usba);
 
-      // 3.5mm Audio Jack
-      const audioJack = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.018, 16), interiorMat);
+      // 3.5mm audio jack
+      const audioJack = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.016, 16), interiorMat);
       audioJack.rotation.z = Math.PI / 2;
-      audioJack.position.set(-1.065, 0.20, 0.012);
-      base.add(audioJack);
+      audioJack.position.set(-1.062, 0.005, 0.18);
+      baseGroup.add(audioJack);
 
-      // 6. Right Rail Port: Surface Connect Magnetic Charging Pill Port
-      const surfConnectGeo = new THREE.BoxGeometry(0.018, 0.22, 0.026);
-      const surfConnect = new THREE.Mesh(surfConnectGeo, interiorMat);
-      surfConnect.position.set(1.065, -0.22, 0.012);
-      base.add(surfConnect);
+      // Right Rail: Surface Connect Magnetic Charging Strip
+      const surfConnect = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.022, 0.20), interiorMat);
+      surfConnect.position.set(1.062, 0.005, -0.20);
+      baseGroup.add(surfConnect);
 
-      const surfPinStrip = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.15, 0.008), metalPinMat);
-      surfPinStrip.position.set(1.065, -0.22, 0.012);
-      base.add(surfPinStrip);
-
-      // 7. Base Underside: 4 Silicone Isolation Pill Feet
+      // 4 Silicone Isolation Feet on Underside
       [-0.85, 0.85].forEach((fx) => {
-        [-0.55, 0.55].forEach((fy) => {
-          const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.008, 16), new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.9 }));
-          foot.position.set(fx, fy, -0.049);
-          base.add(foot);
+        [-0.55, 0.55].forEach((fz) => {
+          const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.006, 16), new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.9 }));
+          foot.position.set(fx, -0.023, fz);
+          baseGroup.add(foot);
         });
       });
 
-      // 8. Continuous Friction Piano Hinge Barrel
-      const hingeGeo = new THREE.CylinderGeometry(0.018, 0.018, 1.94, 32);
-      const hinge = new THREE.Mesh(hingeGeo, aluminumMat);
+      // Continuous Friction Piano Hinge Barrel at rear
+      const hinge = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 1.94, 32), aluminumMat);
       hinge.rotation.z = Math.PI / 2;
       hinge.position.set(0, -0.38, -0.71);
       root.add(hinge);
 
-      // 9. Display Lid (Pivots at rear of base)
+      // Display Lid (Pivots at rear hinge)
       const lidGroup = new THREE.Group();
       lidGroup.position.set(0, -0.38, -0.71);
       root.add(lidGroup);
 
       const lidShape = createRoundedRectShape(2.12, 1.44, 0.07);
       const lidGeo = new THREE.ExtrudeGeometry(lidShape, {
-        depth: 0.032,
+        depth: 0.024,
         bevelEnabled: true,
-        bevelSegments: 5,
-        bevelSize: 0.010,
-        bevelThickness: 0.010,
+        bevelSegments: 4,
+        bevelSize: 0.008,
+        bevelThickness: 0.008,
       });
+      lidGeo.center();
+
       const lidMesh = new THREE.Mesh(lidGeo, aluminumMat);
       lidMesh.position.set(0, 0.72, 0);
       lidMesh.castShadow = true;
       lidGroup.add(lidMesh);
 
-      // Edge-to-edge Glass Front with 3:2 PixelSense Display Screen
-      const lidScreenGeo = new THREE.PlaneGeometry(2.04, 1.36);
-      const lidScreen = new THREE.Mesh(lidScreenGeo, screenMat);
-      lidScreen.position.set(0, 0.72, 0.018);
+      // Display Screen on Front Face (z = +0.014)
+      const lidScreen = new THREE.Mesh(new THREE.PlaneGeometry(2.04, 1.36), screenMat);
+      lidScreen.position.set(0, 0.72, 0.014);
       lidGroup.add(lidScreen);
 
-      // Top Bezel Studio Camera & Windows Hello IR Sensors
-      // 1080p Web Camera
-      const camLens = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.006, 16), interiorMat);
+      // Top Bezel Studio Camera & Windows Hello IR Sensor
+      const camLens = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.004, 16), interiorMat);
       camLens.rotation.x = Math.PI / 2;
-      camLens.position.set(0, 1.412, 0.019);
+      camLens.position.set(0, 1.412, 0.015);
       lidGroup.add(camLens);
 
-      // Dual Studio Mics
-      [-0.08, 0.08].forEach((mx) => {
-        const mic = new THREE.Mesh(new THREE.CylinderGeometry(0.003, 0.003, 0.006, 12), interiorMat);
-        mic.rotation.x = Math.PI / 2;
-        mic.position.set(mx, 1.412, 0.019);
-        lidGroup.add(mic);
-      });
-
-      // Windows Hello IR Sensor
-      const irSensor = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.006, 16), new THREE.MeshStandardMaterial({ color: 0x3b0764, roughness: 0.2 }));
+      const irSensor = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.004, 16), new THREE.MeshStandardMaterial({ color: 0x3b0764, roughness: 0.2 }));
       irSensor.rotation.x = Math.PI / 2;
-      irSensor.position.set(0.04, 1.412, 0.019);
+      irSensor.position.set(0.04, 1.412, 0.015);
       lidGroup.add(irSensor);
 
-      // Mirror 4-Square Microsoft Logo on Rear of Lid (4 distinct laser-cut chrome squares)
-      const chromeSquareMat = new THREE.MeshPhysicalMaterial({
-        color: 0xffffff,
-        metalness: 0.98,
-        roughness: 0.04,
-        clearcoat: 1.0,
-      });
-      const sqSize = 0.078;
-      const sqOffset = 0.044;
+      // Mirror 4-Square Microsoft Chrome Logo on Rear Face (z = -0.014)
+      const chromeSquareMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 0.98, roughness: 0.04, clearcoat: 1.0 });
+      const sqSize = 0.075;
+      const sqOffset = 0.042;
       [
         [-sqOffset, sqOffset],
         [sqOffset, sqOffset],
@@ -3098,7 +3000,7 @@ function buildRefinedHardwareCAD(
         [sqOffset, -sqOffset],
       ].forEach(([sx, sy]) => {
         const sq = new THREE.Mesh(new THREE.PlaneGeometry(sqSize, sqSize), chromeSquareMat);
-        sq.position.set(sx, 0.72 + sy, -0.018);
+        sq.position.set(sx, 0.72 + sy, -0.014);
         sq.rotation.y = Math.PI;
         lidGroup.add(sq);
       });
@@ -3113,7 +3015,7 @@ function buildRefinedHardwareCAD(
     }
 
     // -------------------------------------------------------------------------
-    // 4. JBL BAR 800 MK2 (Soundbar with Detachable Wireless Surrounds & 10" Sub)
+    // 4. JBL BAR 800 MK2 (Soundbar with Detachable Surrounds & 10" Wireless Sub)
     // -------------------------------------------------------------------------
     case "jbl800": {
       // Acoustic Perforated Micro-Mesh Titanium Grille
@@ -3125,7 +3027,7 @@ function buildRefinedHardwareCAD(
         clearcoatRoughness: 0.25,
       });
 
-      // Heavy MDF Subwoofer Body with Matte Textured Polyurea Finish
+      // Heavy MDF Subwoofer Body
       const subMat = new THREE.MeshPhysicalMaterial({
         color: 0x14171a,
         metalness: 0.22,
@@ -3145,203 +3047,162 @@ function buildRefinedHardwareCAD(
         emissiveIntensity: 0.55,
       });
 
-      // Dark Port & Interior Cavity Material
-      const darkMat = new THREE.MeshStandardMaterial({
-        color: 0x07080a,
-        roughness: 0.95,
-      });
+      const darkMat = new THREE.MeshStandardMaterial({ color: 0x07080a, roughness: 0.95 });
+      const goldPogoMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.98, roughness: 0.08 });
 
-      // Gold Spring-Loaded Pogo Contact Pin Material
-      const goldPogoMat = new THREE.MeshStandardMaterial({
-        color: 0xf59e0b,
-        metalness: 0.98,
-        roughness: 0.08,
-      });
-
-      // 1. Main Center Soundbar Bar (Racetrack Aerofoil Curved Unibody)
-      const mainBarShape = createRoundedRectShape(1.64, 0.20, 0.07);
+      // Main Soundbar Bar (Racetrack Aerofoil Curved Unibody): width 1.64, height 0.18, depth 0.22
+      const mainBarShape = createRoundedRectShape(1.64, 0.18, 0.06);
       const mainBarGeo = new THREE.ExtrudeGeometry(mainBarShape, {
-        depth: 0.26,
+        depth: 0.22,
         bevelEnabled: true,
         bevelSegments: 4,
-        bevelSize: 0.012,
-        bevelThickness: 0.012,
+        bevelSize: 0.010,
+        bevelThickness: 0.010,
       });
+      mainBarGeo.center();
+
       const mainBar = new THREE.Mesh(mainBarGeo, meshMat);
-      mainBar.position.set(0, -0.25, -0.13);
+      mainBar.position.set(-0.25, -0.35, 0.10);
       mainBar.castShadow = true;
       root.add(mainBar);
 
-      // Smoked Glass Pill Front LED Readout Display
-      const displayShape = createRoundedRectShape(0.68, 0.12, 0.04);
+      // Front face is at z = +0.12. Smoked Glass Pill Front Display
+      const displayShape = createRoundedRectShape(0.64, 0.10, 0.035);
       const displayGeo = new THREE.ExtrudeGeometry(displayShape, {
-        depth: 0.008,
+        depth: 0.006,
         bevelEnabled: true,
-        bevelSegments: 3,
-        bevelSize: 0.004,
-        bevelThickness: 0.004,
+        bevelSegments: 2,
+        bevelSize: 0.003,
+        bevelThickness: 0.003,
       });
+      displayGeo.center();
+
       const displayPlane = new THREE.Mesh(displayGeo, displayMat);
-      displayPlane.position.set(0, 0, 0.264);
+      displayPlane.position.set(0, 0, 0.123);
       mainBar.add(displayPlane);
 
-      // Top Control Strip on Main Bar (Embossed tactile buttons)
-      const topStrip = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.006, 0.08), new THREE.MeshStandardMaterial({ color: 0x181a20, roughness: 0.8 }));
-      topStrip.position.set(0, 0.104, 0.13);
+      // Top Control Strip on Main Bar (at y = +0.092)
+      const topStrip = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.004, 0.07), new THREE.MeshStandardMaterial({ color: 0x181a20, roughness: 0.8 }));
+      topStrip.position.set(0, 0.093, 0);
       mainBar.add(topStrip);
 
-      // Tactile Buttons: Power, Vol-, Vol+, Source
       [-0.12, -0.04, 0.04, 0.12].forEach((bx) => {
-        const btn = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.008, 16), new THREE.MeshStandardMaterial({ color: 0x374151, roughness: 0.3 }));
-        btn.position.set(bx, 0.108, 0.13);
+        const btn = new THREE.Mesh(new THREE.CylinderGeometry(0.010, 0.010, 0.006, 16), new THREE.MeshStandardMaterial({ color: 0x374151, roughness: 0.3 }));
+        btn.position.set(bx, 0.096, 0);
         mainBar.add(btn);
       });
 
-      // Dual Top Dolby Atmos Up-Firing Height Speaker Driver Grilles
-      [-0.52, 0.52].forEach((hx) => {
-        const heightGrille = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.065, 0.006, 24), darkMat);
-        heightGrille.position.set(hx, 0.104, 0.13);
+      // Dual Top Dolby Atmos Up-Firing Speaker Driver Grilles
+      [-0.48, 0.48].forEach((hx) => {
+        const heightGrille = new THREE.Mesh(new THREE.CylinderGeometry(0.060, 0.060, 0.004, 24), darkMat);
+        heightGrille.position.set(hx, 0.092, 0);
         mainBar.add(heightGrille);
       });
 
-      // 2. Left Detachable Surround Pod
-      const surroundShape = createRoundedRectShape(0.32, 0.20, 0.07);
+      // Detachable Surround Pods: width 0.30, height 0.18, depth 0.22
+      const surroundShape = createRoundedRectShape(0.30, 0.18, 0.06);
       const surroundGeo = new THREE.ExtrudeGeometry(surroundShape, {
-        depth: 0.26,
+        depth: 0.22,
+        bevelEnabled: true,
+        bevelSegments: 4,
+        bevelSize: 0.010,
+        bevelThickness: 0.010,
+      });
+      surroundGeo.center();
+
+      const leftPod = new THREE.Mesh(surroundGeo, meshMat);
+      leftPod.position.set(-0.25 - 0.98, -0.35, 0.10);
+      leftPod.castShadow = true;
+      root.add(leftPod);
+
+      const rightPod = new THREE.Mesh(surroundGeo, meshMat);
+      rightPod.position.set(-0.25 + 0.98, -0.35, 0.10);
+      rightPod.castShadow = true;
+      root.add(rightPod);
+
+      // Gold Pogo Pins on Mating Faces
+      [0.03, -0.03].forEach((py) => {
+        [-0.04, 0.04].forEach((pz) => {
+          const pogoL = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.008, 16), goldPogoMat);
+          pogoL.rotation.z = Math.PI / 2;
+          pogoL.position.set(0.152, py, pz);
+          leftPod.add(pogoL);
+
+          const pogoR = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.008, 16), goldPogoMat);
+          pogoR.rotation.z = Math.PI / 2;
+          pogoR.position.set(-0.152, py, pz);
+          rightPod.add(pogoR);
+        });
+      });
+
+      // 10-Inch Wireless Subwoofer Cube (Grounded on pedestal beside soundbar)
+      const subShape = createRoundedRectShape(0.66, 0.72, 0.06);
+      const subGeo = new THREE.ExtrudeGeometry(subShape, {
+        depth: 0.66,
         bevelEnabled: true,
         bevelSegments: 4,
         bevelSize: 0.012,
         bevelThickness: 0.012,
       });
+      subGeo.center();
 
-      const leftPod = new THREE.Mesh(surroundGeo, meshMat);
-      leftPod.position.set(-1.00, -0.25, -0.13);
-      leftPod.castShadow = true;
-      root.add(leftPod);
-
-      // Left Pod Up-firing Driver Grille
-      const leftUpGrille = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.006, 24), darkMat);
-      leftUpGrille.position.set(0, 0.104, 0.13);
-      leftPod.add(leftUpGrille);
-
-      // Left Pod Mating Face Gold Pogo Pin Contacts (4 pins)
-      [0.04, -0.04].forEach((py) => {
-        [0.08, 0.18].forEach((pz) => {
-          const pogo = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.012, 16), goldPogoMat);
-          pogo.rotation.z = Math.PI / 2;
-          pogo.position.set(0.165, py, pz);
-          leftPod.add(pogo);
-        });
-      });
-
-      // 3. Right Detachable Surround Pod
-      const rightPod = new THREE.Mesh(surroundGeo, meshMat);
-      rightPod.position.set(1.00, -0.25, -0.13);
-      rightPod.castShadow = true;
-      root.add(rightPod);
-
-      // Right Pod Up-firing Driver Grille
-      const rightUpGrille = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.006, 24), darkMat);
-      rightUpGrille.position.set(0, 0.104, 0.13);
-      rightPod.add(rightUpGrille);
-
-      // Right Pod Mating Face Gold Pogo Pin Contacts (4 pins)
-      [0.04, -0.04].forEach((py) => {
-        [0.08, 0.18].forEach((pz) => {
-          const pogo = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.012, 16), goldPogoMat);
-          pogo.rotation.z = Math.PI / 2;
-          pogo.position.set(-0.165, py, pz);
-          rightPod.add(pogo);
-        });
-      });
-
-      // 4. 10-Inch Wireless Subwoofer Cube with Contoured Edges
-      const subShape = createRoundedRectShape(0.72, 0.72, 0.06);
-      const subExtrudeGeo = new THREE.ExtrudeGeometry(subShape, {
-        depth: 0.78,
-        bevelEnabled: true,
-        bevelSegments: 4,
-        bevelSize: 0.015,
-        bevelThickness: 0.015,
-      });
-      const sub = new THREE.Mesh(subExtrudeGeo, subMat);
-      sub.rotation.x = Math.PI / 2;
-      sub.position.set(1.48, 0.50, -0.62);
+      const sub = new THREE.Mesh(subGeo, subMat);
+      sub.position.set(1.05, -0.15, -0.15);
       sub.castShadow = true;
       root.add(sub);
 
-      // 5. Authentic 10-Inch Down-Firing Subwoofer Driver Cone Assembly
-      // Recessed Driver Well
-      const driverWellGeo = new THREE.CylinderGeometry(0.28, 0.28, 0.04, 32);
-      const driverWell = new THREE.Mesh(driverWellGeo, darkMat);
-      driverWell.position.set(0, 0, 0.782);
+      // Down-Firing 10-Inch Driver Cone (at bottom y = -0.36)
+      const driverWell = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.02, 32), darkMat);
+      driverWell.position.set(0, -0.362, 0);
       sub.add(driverWell);
 
-      // High-Roll Rubber Surround Ring
-      const surroundRollGeo = new THREE.TorusGeometry(0.22, 0.024, 16, 32);
-      const surroundRollMat = new THREE.MeshStandardMaterial({ color: 0x1e2228, roughness: 0.85 });
-      const surroundRoll = new THREE.Mesh(surroundRollGeo, surroundRollMat);
-      surroundRoll.position.set(0, 0, 0.80);
+      const surroundRoll = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.020, 16, 32), new THREE.MeshStandardMaterial({ color: 0x1e2228, roughness: 0.85 }));
+      surroundRoll.rotation.x = Math.PI / 2;
+      surroundRoll.position.set(0, -0.365, 0);
       sub.add(surroundRoll);
 
-      // Pressed Cellulose Concave Woofer Cone
-      const coneGeo = new THREE.ConeGeometry(0.20, 0.06, 32, 1, true);
-      const coneMat = new THREE.MeshStandardMaterial({ color: 0x181c22, roughness: 0.7, metalness: 0.1 });
-      const cone = new THREE.Mesh(coneGeo, coneMat);
-      cone.rotation.x = Math.PI;
-      cone.position.set(0, 0, 0.78);
+      const cone = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.04, 32, 1, true), new THREE.MeshStandardMaterial({ color: 0x181c22, roughness: 0.7 }));
+      cone.position.set(0, -0.360, 0);
       sub.add(cone);
 
-      // Center Inverted Dust Cap
-      const dustCapGeo = new THREE.SphereGeometry(0.07, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2);
-      const dustCapMat = new THREE.MeshPhysicalMaterial({ color: 0x111317, roughness: 0.4, clearcoat: 0.3 });
-      const dustCap = new THREE.Mesh(dustCapGeo, dustCapMat);
-      dustCap.rotation.x = -Math.PI / 2;
-      dustCap.position.set(0, 0, 0.76);
-      sub.add(dustCap);
-
-      // 6. Rear Flared Aerodynamic Bass Reflex Port
-      const reflexPort = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.11, 0.14, 24), darkMat);
-      reflexPort.rotation.x = Math.PI / 2;
-      reflexPort.position.set(0, -0.365, 0.40);
-      sub.add(reflexPort);
-
-      // 7. Subwoofer Elevated High-Vibration Decoupling Feet (4 corner columns)
-      [-0.28, 0.28].forEach((x) => {
-        [-0.28, 0.28].forEach((y) => {
-          const footCol = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, 0.09, 20), new THREE.MeshStandardMaterial({ color: 0x22262e, roughness: 0.6 }));
-          footCol.rotation.x = Math.PI / 2;
-          footCol.position.set(x, y, 0.825);
-          sub.add(footCol);
-
-          // Non-slip rubber isolation base pad
-          const rubberPad = new THREE.Mesh(new THREE.CylinderGeometry(0.040, 0.040, 0.012, 20), darkMat);
-          rubberPad.rotation.x = Math.PI / 2;
-          rubberPad.position.set(x, y, 0.875);
-          sub.add(rubberPad);
+      // 4 Heavy Vibration-Isolation Rubber Feet on Subwoofer Bottom
+      [-0.26, 0.26].forEach((x) => {
+        [-0.26, 0.26].forEach((z) => {
+          const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.034, 0.034, 0.05, 20), darkMat);
+          foot.position.set(x, -0.385, z);
+          sub.add(foot);
         });
       });
 
-      // 8. Rear Amplifier Backplate with IEC AC power socket & Sync Button
-      const ampPlate = new THREE.Mesh(new THREE.PlaneGeometry(0.32, 0.42), new THREE.MeshStandardMaterial({ color: 0x1f242c, metalness: 0.7, roughness: 0.4 }));
-      ampPlate.rotation.x = -Math.PI / 2;
-      ampPlate.position.set(0, -0.365, 0.40);
+      // Rear Bass Reflex Port
+      const reflexPort = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.09, 0.10, 24), darkMat);
+      reflexPort.rotation.x = Math.PI / 2;
+      reflexPort.position.set(0, 0.15, -0.34);
+      sub.add(reflexPort);
+
+      // Rear Amp Plate & Green Pairing LED
+      const ampPlate = new THREE.Mesh(new THREE.PlaneGeometry(0.28, 0.36), new THREE.MeshStandardMaterial({ color: 0x1f242c, metalness: 0.7, roughness: 0.4 }));
+      ampPlate.position.set(0, -0.10, -0.332);
+      ampPlate.rotation.y = Math.PI;
       sub.add(ampPlate);
 
-      // Status LED
-      const subLed = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.006, 12), new THREE.MeshStandardMaterial({ color: 0x22c55e, emissive: 0x22c55e, emissiveIntensity: 0.8 }));
+      const subLed = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.004, 12), new THREE.MeshStandardMaterial({ color: 0x22c55e, emissive: 0x22c55e, emissiveIntensity: 0.9 }));
       subLed.rotation.x = Math.PI / 2;
-      subLed.position.set(0.10, -0.368, 0.52);
+      subLed.position.set(0.08, -0.22, -0.334);
       sub.add(subLed);
 
       // Controller: Detachable Surrounds
       controllers.setSurroundsDocked = (docked: boolean) => {
         if (docked) {
-          leftPod.position.set(-1.00, -0.25, -0.13);
-          rightPod.position.set(1.00, -0.25, -0.13);
+          leftPod.position.set(-0.25 - 0.98, -0.35, 0.10);
+          rightPod.position.set(-0.25 + 0.98, -0.35, 0.10);
+          leftPod.rotation.y = 0;
+          rightPod.rotation.y = 0;
         } else {
-          leftPod.position.set(-1.45, 0.1, -0.6);
-          rightPod.position.set(-0.25, 0.45, -0.6);
+          leftPod.position.set(-1.35, -0.20, -0.45);
+          rightPod.position.set(-0.25, 0.15, -0.55);
+          leftPod.rotation.y = 0.35;
+          rightPod.rotation.y = -0.35;
         }
       };
 
@@ -3361,7 +3222,6 @@ function buildRefinedHardwareCAD(
         clearcoatRoughness: 0.12,
       });
 
-      // Forged Cantilever Aluminum Stand
       const standMat = new THREE.MeshPhysicalMaterial({
         color: 0xcfd5dc,
         metalness: 0.95,
@@ -3369,11 +3229,7 @@ function buildRefinedHardwareCAD(
         clearcoat: 0.25,
       });
 
-      // Dark Interior / Cavity Material
-      const darkInteriorMat = new THREE.MeshStandardMaterial({
-        color: 0x0a0c10,
-        roughness: 0.9,
-      });
+      const darkInteriorMat = new THREE.MeshStandardMaterial({ color: 0x0a0c10, roughness: 0.9 });
 
       const screenTex = createIMacScreenTexture();
       const screenMat = new THREE.MeshPhysicalMaterial({
@@ -3386,78 +3242,46 @@ function buildRefinedHardwareCAD(
         emissiveIntensity: 0.38,
       });
 
-      // 1. 11.5mm Razor-Thin Screen Chassis with Diamond-Cut Chamfers
+      // 1. 11.5mm Razor-Thin Screen Chassis: width 2.24, height 1.44, depth 0.022
       const screenShape = createRoundedRectShape(2.24, 1.44, 0.06);
       const screenGeo = new THREE.ExtrudeGeometry(screenShape, {
-        depth: 0.024,
+        depth: 0.022,
         bevelEnabled: true,
-        bevelSegments: 5,
-        bevelSize: 0.008,
-        bevelThickness: 0.008,
+        bevelSegments: 4,
+        bevelSize: 0.006,
+        bevelThickness: 0.006,
       });
+      screenGeo.center();
+
       const screen = new THREE.Mesh(screenGeo, chassisMat);
-      screen.position.set(0, 0.25, -0.012);
+      screen.position.set(0, 0.20, 0);
       screen.castShadow = true;
       root.add(screen);
 
+      // Chassis front face is at z = +0.014. Chassis back is at z = -0.014.
+
       // 2. Front 4.5K Retina Display Glass with Iconic White Border Bezel
-      const displayPlaneGeo = new THREE.PlaneGeometry(2.14, 1.18);
-      const displayPlane = new THREE.Mesh(displayPlaneGeo, screenMat);
-      displayPlane.position.set(0, 0.09, 0.021);
+      const displayPlane = new THREE.Mesh(new THREE.PlaneGeometry(2.14, 1.18), screenMat);
+      displayPlane.position.set(0, 0.09, 0.015);
       screen.add(displayPlane);
 
       // 3. Front Color-Matched Satin Aluminum Chin
-      const chinShape = createRoundedRectShape(2.14, 0.21, 0.02);
-      const chinGeo = new THREE.ExtrudeGeometry(chinShape, {
-        depth: 0.005,
-        bevelEnabled: false,
-      });
-      const chin = new THREE.Mesh(chinGeo, chassisMat);
-      chin.position.set(0, -0.58, 0.019);
+      const chin = new THREE.Mesh(new THREE.PlaneGeometry(2.14, 0.21), chassisMat);
+      chin.position.set(0, -0.58, 0.015);
       screen.add(chin);
 
-      // 4. Front 12MP Center Stage Camera with Anti-Reflective Sapphire Element
-      const camHousing = new THREE.Mesh(new THREE.CylinderGeometry(0.009, 0.009, 0.006, 20), darkInteriorMat);
+      // 4. Center Stage Camera with Green Indicator LED
+      const camHousing = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.004, 20), darkInteriorMat);
       camHousing.rotation.x = Math.PI / 2;
-      camHousing.position.set(0, 0.695, 0.021);
+      camHousing.position.set(0, 0.695, 0.0155);
       screen.add(camHousing);
 
-      const camSapphire = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.006, 0.006, 0.007, 20),
-        new THREE.MeshPhysicalMaterial({
-          color: 0x0a1020,
-          metalness: 0.95,
-          roughness: 0.02,
-          clearcoat: 1.0,
-        })
-      );
-      camSapphire.rotation.x = Math.PI / 2;
-      camSapphire.position.set(0, 0.695, 0.0215);
-      screen.add(camSapphire);
+      const camLed = new THREE.Mesh(new THREE.CylinderGeometry(0.002, 0.002, 0.004, 12), new THREE.MeshStandardMaterial({ color: 0x22c55e, emissive: 0x22c55e, emissiveIntensity: 0.8 }));
+      camLed.rotation.x = Math.PI / 2;
+      camLed.position.set(0.025, 0.695, 0.0155);
+      screen.add(camLed);
 
-      // Dual Ambient Light Sensor Pinhole Openings
-      [-0.045, 0.045].forEach((ax) => {
-        const sensor = new THREE.Mesh(new THREE.CylinderGeometry(0.003, 0.003, 0.006, 12), darkInteriorMat);
-        sensor.rotation.x = Math.PI / 2;
-        sensor.position.set(ax, 0.695, 0.021);
-        screen.add(sensor);
-      });
-
-      // Top Edge Studio 3-Mic Beamforming Slits
-      [-0.18, 0, 0.18].forEach((mx) => {
-        const topMic = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.004, 0.008), darkInteriorMat);
-        topMic.position.set(mx, 0.722, 0.012);
-        screen.add(topMic);
-      });
-
-      // Bottom Dual Stereo Speaker Acoustic Grilles (Force-cancelling woofers)
-      [-0.55, 0.55].forEach((sx) => {
-        const spkGrille = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.004, 0.014), darkInteriorMat);
-        spkGrille.position.set(sx, -0.722, 0.012);
-        screen.add(spkGrille);
-      });
-
-      // 5. Mirror High-Gloss Apple Logo on Rear of iMac
+      // 5. Mirror High-Gloss Apple Logo on Rear Face (z = -0.014)
       const appleLogoTex = createAppleLogoTexture();
       const appleLogoMat = new THREE.MeshPhysicalMaterial({
         map: appleLogoTex,
@@ -3466,77 +3290,35 @@ function buildRefinedHardwareCAD(
         roughness: 0.04,
         clearcoat: 1.0,
       });
-      const appleLogoMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.34), appleLogoMat);
-      appleLogoMesh.position.set(0, 0.14, -0.013);
+      const appleLogoMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.32, 0.32), appleLogoMat);
+      appleLogoMesh.position.set(0, 0.14, -0.015);
       appleLogoMesh.rotation.y = Math.PI;
       screen.add(appleLogoMesh);
 
-      // 6. Cylindrical Precision Friction Stand Hinge
-      const hingeCylinder = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.22, 24), standMat);
-      hingeCylinder.rotation.z = Math.PI / 2;
-      hingeCylinder.position.set(0, -0.22, -0.026);
-      screen.add(hingeCylinder);
-
-      // 7. Cantilevered Forged Aluminum L-Stand with Cable Pass-Through Hole
-      const standPoleGeo = new THREE.BoxGeometry(0.40, 0.76, 0.038);
-      const standPole = new THREE.Mesh(standPoleGeo, standMat);
-      standPole.position.set(0, -0.72, -0.16);
-      standPole.rotation.x = 0.22;
-      screen.add(standPole);
-
-      // Circular Cable Hole with Soft Silicone Interior Lining
-      const holeLining = new THREE.Mesh(new THREE.CylinderGeometry(0.068, 0.068, 0.042, 32), new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.8 }));
-      holeLining.rotation.x = Math.PI / 2;
-      holeLining.position.set(0, 0.02, 0);
-      standPole.add(holeLining);
-
-      const holeCavity = new THREE.Mesh(new THREE.CylinderGeometry(0.056, 0.056, 0.046, 32), darkInteriorMat);
-      holeCavity.rotation.x = Math.PI / 2;
-      holeCavity.position.set(0, 0.02, 0);
-      standPole.add(holeCavity);
-
-      // Stand Base Foot with Silicone Isolation Runners
-      const standBaseShape = createRoundedRectShape(0.74, 0.64, 0.03);
-      const standBaseGeo = new THREE.ExtrudeGeometry(standBaseShape, {
-        depth: 0.024,
-        bevelEnabled: true,
-        bevelSegments: 4,
-        bevelSize: 0.005,
-        bevelThickness: 0.005,
-      });
-      const standBase = new THREE.Mesh(standBaseGeo, standMat);
-      standBase.rotation.x = Math.PI / 2;
-      standBase.position.set(0, -1.05, 0.32);
-      screen.add(standBase);
-
-      // 8. Rear I/O: 4x Thunderbolt 4 / USB-C Ports + Magnetic Power Socket
-      // 4 USB-C Ports
+      // 6. Rear I/O: 4x Thunderbolt 4 / USB-C Ports + Magnetic Power Socket
       [-0.14, -0.05, 0.05, 0.14].forEach((px) => {
-        const portWell = new THREE.Mesh(new THREE.BoxGeometry(0.022, 0.055, 0.012), darkInteriorMat);
-        portWell.position.set(0.68 + px, -0.38, -0.012);
+        const portWell = new THREE.Mesh(new THREE.BoxGeometry(0.020, 0.050, 0.006), darkInteriorMat);
+        portWell.position.set(0.68 + px, -0.38, -0.015);
         screen.add(portWell);
-
-        const pinTongue = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.032, 0.008), chassisMat);
-        pinTongue.position.set(0.68 + px, -0.38, -0.012);
-        screen.add(pinTongue);
       });
 
-      // Magnetic Circular Woven Power Port (Color-matched MagSafe)
-      const pwrRing = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.01, 24), standMat);
+      // Magnetic Circular MagSafe Power Port
+      const pwrRing = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.006, 24), standMat);
       pwrRing.rotation.x = Math.PI / 2;
-      pwrRing.position.set(0, -0.22, -0.014);
+      pwrRing.position.set(0, -0.22, -0.015);
       screen.add(pwrRing);
 
-      const pwrCavity = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.024, 0.012, 24), darkInteriorMat);
-      pwrCavity.rotation.x = Math.PI / 2;
-      pwrCavity.position.set(0, -0.22, -0.0145);
-      screen.add(pwrCavity);
+      // 7. Cantilevered Forged Aluminum Stand
+      const standPole = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.74, 0.034), standMat);
+      standPole.position.set(0, -0.48, -0.12);
+      standPole.rotation.x = 0.20;
+      root.add(standPole);
 
-      // Recessed Power Button on Lower Left Rear
-      const pwrBtn = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.006, 20), standMat);
-      pwrBtn.rotation.x = Math.PI / 2;
-      pwrBtn.position.set(-0.88, -0.52, -0.013);
-      screen.add(pwrBtn);
+      // Stand Base Foot resting solidly on pedestal at y = -0.52
+      const standBase = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.020, 0.60), standMat);
+      standBase.position.set(0, -0.52, 0.16);
+      standBase.castShadow = true;
+      root.add(standBase);
 
       break;
     }
@@ -3553,30 +3335,28 @@ function buildRefinedHardwareCAD(
         clearcoat: 0.4,
       });
 
-      // Dark Matte Rear Housing Polymer
       const rearBoxMat = new THREE.MeshStandardMaterial({
         color: 0x101318,
         roughness: 0.65,
         metalness: 0.2,
       });
 
-      // Dark Cavity / Port Material
       const darkCavityMat = new THREE.MeshStandardMaterial({
         color: 0x06070a,
         roughness: 0.95,
       });
 
-      // 1. Cinema Screen 3-Sided Bezel-Less Frame with Razor Border
-      const tvScreenGeo = new THREE.BoxGeometry(2.62, 1.50, 0.028);
+      // 1. Cinema Screen 3-Sided Bezel-Less Frame: width 2.62, height 1.50, depth 0.024
+      const tvScreenGeo = new THREE.BoxGeometry(2.62, 1.50, 0.024);
       const tv = new THREE.Mesh(tvScreenGeo, tvFrameMat);
+      tv.position.set(0, 0.05, 0);
       tv.castShadow = true;
       root.add(tv);
 
-      // 2. Glowing Quantum Dot 4K QNED Screen Face
+      // 2. Glowing Quantum Dot 4K QNED Screen Face (at z = +0.013)
       const tvTex = createLGTVDisplayTexture();
-      const screenFaceGeo = new THREE.PlaneGeometry(2.58, 1.46);
       const screenFace = new THREE.Mesh(
-        screenFaceGeo,
+        new THREE.PlaneGeometry(2.58, 1.46),
         new THREE.MeshPhysicalMaterial({
           map: tvTex,
           emissiveMap: tvTex,
@@ -3587,112 +3367,56 @@ function buildRefinedHardwareCAD(
           clearcoat: 1.0,
         })
       );
-      screenFace.position.z = 0.015;
+      screenFace.position.z = 0.013;
       tv.add(screenFace);
 
       // 3. Lower Center LG Brand Island & Standby Micro-LED
-      const lgChinShape = createRoundedRectShape(0.18, 0.042, 0.012);
-      const lgChinGeo = new THREE.ExtrudeGeometry(lgChinShape, {
-        depth: 0.035,
-        bevelEnabled: true,
-        bevelSegments: 3,
-        bevelSize: 0.005,
-        bevelThickness: 0.005,
-      });
-      const lgChin = new THREE.Mesh(lgChinGeo, tvFrameMat);
-      lgChin.position.set(0, -0.758, 0.008);
+      const lgChin = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.038, 0.030), tvFrameMat);
+      lgChin.position.set(0, -0.756, 0.008);
       tv.add(lgChin);
 
-      // Standby Micro-LED (Pure White glow)
       const led = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.005, 0.005, 0.006, 16),
-        new THREE.MeshStandardMaterial({
-          color: 0xffffff,
-          emissive: 0xffffff,
-          emissiveIntensity: 1.8,
-        })
+        new THREE.CylinderGeometry(0.004, 0.004, 0.006, 16),
+        new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 1.8 })
       );
       led.rotation.x = Math.PI / 2;
-      led.position.set(0, -0.014, 0.026);
+      led.position.set(0, -0.012, 0.016);
       lgChin.add(led);
 
-      // Ambient Light Sensor / IR Receiver Window
-      const irWin = new THREE.Mesh(
-        new THREE.PlaneGeometry(0.04, 0.012),
-        new THREE.MeshBasicMaterial({ color: 0x05070a })
-      );
-      irWin.position.set(0, 0.006, 0.026);
-      lgChin.add(irWin);
-
-      // Multi-Directional Jog Controller on Underside of Chin
-      const jogKey = new THREE.Mesh(new THREE.CylinderGeometry(0.009, 0.009, 0.008, 16), new THREE.MeshStandardMaterial({ color: 0x334155 }));
-      jogKey.position.set(0, -0.024, 0.01);
-      lgChin.add(jogKey);
-
-      // 4. Dual Cast-Metal Boomerang Tabletop Stand Feet
+      // 4. Dual Cast-Metal Boomerang Tabletop Stand Feet (grounded at y = -0.76)
       [-0.94, 0.94].forEach((x) => {
-        // Angled Boomerang Arm
-        const footGeo = new THREE.BoxGeometry(0.038, 0.18, 0.48);
-        const foot = new THREE.Mesh(footGeo, tvFrameMat);
-        foot.position.set(x, -0.82, 0);
+        const foot = new THREE.Mesh(new THREE.BoxGeometry(0.036, 0.12, 0.44), tvFrameMat);
+        foot.position.set(x, -0.78, 0);
         tv.add(foot);
-
-        // Underside Rubber Pads (Front and Rear)
-        [-0.20, 0.20].forEach((fz) => {
-          const pad = new THREE.Mesh(new THREE.BoxGeometry(0.042, 0.008, 0.06), darkCavityMat);
-          pad.position.set(0, -0.094, fz);
-          foot.add(pad);
-        });
       });
 
       // 5. Rear Electronics Housing Box with Sculpted Heat Louvers & VESA 400x400
-      const rearBoxGeo = new THREE.BoxGeometry(1.72, 0.92, 0.055);
-      const rearBox = new THREE.Mesh(rearBoxGeo, rearBoxMat);
-      rearBox.position.set(0, -0.08, -0.042);
+      const rearBox = new THREE.Mesh(new THREE.BoxGeometry(1.70, 0.88, 0.050), rearBoxMat);
+      rearBox.position.set(0, -0.08, -0.038);
       tv.add(rearBox);
 
-      // VESA 400x400 M6 Threaded Bolt Inserts (4 metallic holes)
+      // VESA 400x400 M6 Threaded Bolt Inserts
       const vesaMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, roughness: 0.2 });
-      [-0.32, 0.32].forEach((vx) => {
-        [-0.32, 0.32].forEach((vy) => {
-          const boltHole = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.01, 16), vesaMat);
+      [-0.30, 0.30].forEach((vx) => {
+        [-0.30, 0.30].forEach((vy) => {
+          const boltHole = new THREE.Mesh(new THREE.CylinderGeometry(0.010, 0.010, 0.006, 16), vesaMat);
           boltHole.rotation.x = Math.PI / 2;
-          boltHole.position.set(vx, vy, -0.029);
+          boltHole.position.set(vx, vy, -0.026);
           rearBox.add(boltHole);
-
-          const boltCenter = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.012, 16), darkCavityMat);
-          boltCenter.rotation.x = Math.PI / 2;
-          boltCenter.position.set(vx, vy, -0.029);
-          rearBox.add(boltCenter);
         });
       });
 
-      // Horizontal Thermal Ventilation Louver Slats along Top of Rear Box
+      // Horizontal Ventilation Louver Slats along Top
       for (let i = 0; i < 6; i++) {
-        const louver = new THREE.Mesh(new THREE.BoxGeometry(1.52, 0.006, 0.008), darkCavityMat);
-        louver.position.set(0, 0.36 - i * 0.022, -0.028);
+        const louver = new THREE.Mesh(new THREE.BoxGeometry(1.48, 0.005, 0.006), darkCavityMat);
+        louver.position.set(0, 0.34 - i * 0.022, -0.026);
         rearBox.add(louver);
       }
 
-      // Recessed Side I/O Connection Bay (HDMI 2.1 x 4, USB x 2, LAN, Optical)
-      const bayGeo = new THREE.BoxGeometry(0.02, 0.38, 0.16);
-      const bay = new THREE.Mesh(bayGeo, darkCavityMat);
-      bay.position.set(0.865, -0.10, 0);
+      // Recessed Side HDMI Bay
+      const bay = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.34, 0.14), darkCavityMat);
+      bay.position.set(0.855, -0.10, 0);
       rearBox.add(bay);
-
-      // 4x HDMI Ports in Bay
-      for (let h = 0; h < 4; h++) {
-        const hdmi = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.045, 0.022), new THREE.MeshStandardMaterial({ color: 0xd4d4d8, metalness: 0.8 }));
-        hdmi.position.set(0.006, 0.12 - h * 0.07, 0);
-        bay.add(hdmi);
-      }
-
-      // 6. Integrated Downward-Firing 20W Stereo Sound Ports
-      [-0.65, 0.65].forEach((sx) => {
-        const spk = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.008, 0.018), darkCavityMat);
-        spk.position.set(sx, -0.748, 0);
-        tv.add(spk);
-      });
 
       break;
     }
@@ -3710,131 +3434,89 @@ function buildRefinedHardwareCAD(
         clearcoatRoughness: 0.05,
       });
 
-      // Dark Discharge Chamber Cavity
-      const darkCavityMat = new THREE.MeshStandardMaterial({
-        color: 0x12151c,
-        roughness: 0.85,
-      });
+      const darkCavityMat = new THREE.MeshStandardMaterial({ color: 0x12151c, roughness: 0.85 });
+      const chromeMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 0.98, roughness: 0.05, clearcoat: 1.0 });
 
-      // Chrome Trim Accent Line
-      const chromeMat = new THREE.MeshPhysicalMaterial({
-        color: 0xffffff,
-        metalness: 0.98,
-        roughness: 0.05,
-        clearcoat: 1.0,
-      });
-
-      // 1. Aerodynamic Curved Unibody Chassis with Filleted Ends
+      // Aerodynamic Curved Unibody Chassis: width 2.24, height 0.68, depth 0.36
       const acShape = createRoundedRectShape(2.24, 0.68, 0.12);
       const acGeo = new THREE.ExtrudeGeometry(acShape, {
-        depth: 0.38,
+        depth: 0.36,
         bevelEnabled: true,
-        bevelSegments: 5,
-        bevelSize: 0.018,
-        bevelThickness: 0.018,
+        bevelSegments: 4,
+        bevelSize: 0.015,
+        bevelThickness: 0.015,
       });
+      acGeo.center();
+
       const ac = new THREE.Mesh(acGeo, acChassisMat);
-      ac.position.set(0, 0, -0.19);
+      ac.position.set(0, 0, 0);
       ac.castShadow = true;
       root.add(ac);
 
-      // 2. High-Gloss Front Panel Fascia with Digital LED 21°C Readout
+      // Front face is at z = +0.18. Back is at z = -0.18.
+
+      // Front Panel Fascia with Digital LED 21°C Readout (Cleanly on front face)
       const acTex = createTCLACDisplayTexture();
-      const frontPlaneGeo = new THREE.PlaneGeometry(2.20, 0.65);
-      const frontPlaneMat = new THREE.MeshPhysicalMaterial({
-        map: acTex,
-        roughness: 0.06,
-        metalness: 0.04,
-        clearcoat: 1.0,
-        emissiveMap: acTex,
-        emissive: new THREE.Color(0xffffff),
-        emissiveIntensity: 0.32,
-      });
-      const frontPlane = new THREE.Mesh(frontPlaneGeo, frontPlaneMat);
-      frontPlane.position.set(0, 0, 0.192);
+      const frontPlane = new THREE.Mesh(
+        new THREE.PlaneGeometry(2.20, 0.64),
+        new THREE.MeshPhysicalMaterial({
+          map: acTex,
+          roughness: 0.06,
+          metalness: 0.04,
+          clearcoat: 1.0,
+          emissiveMap: acTex,
+          emissive: new THREE.Color(0xffffff),
+          emissiveIntensity: 0.32,
+        })
+      );
+      frontPlane.position.set(0, 0, 0.182);
       ac.add(frontPlane);
 
       // Brushed Chrome Trim Accent Bar along lower fascia
-      const chromeStrip = new THREE.Mesh(new THREE.BoxGeometry(2.18, 0.008, 0.012), chromeMat);
-      chromeStrip.position.set(0, -0.18, 0.193);
+      const chromeStrip = new THREE.Mesh(new THREE.BoxGeometry(2.18, 0.008, 0.006), chromeMat);
+      chromeStrip.position.set(0, -0.18, 0.183);
       ac.add(chromeStrip);
 
-      // 3. Side Air Induction Intake Vents
-      [-1.125, 1.125].forEach((sx) => {
-        for (let i = 0; i < 4; i++) {
-          const sideVent = new THREE.Mesh(new THREE.BoxGeometry(0.006, 0.012, 0.18), darkCavityMat);
-          sideVent.position.set(sx, 0.12 - i * 0.045, 0.08);
-          ac.add(sideVent);
-        }
-      });
-
-      // 4. Top Air Intake Grille Louvers with Micro-Ribbed Filter Mesh
-      const intakeChamber = new THREE.Mesh(new THREE.PlaneGeometry(2.14, 0.30), darkCavityMat);
+      // Top Air Intake Grille Louvers
+      const intakeChamber = new THREE.Mesh(new THREE.PlaneGeometry(2.14, 0.28), darkCavityMat);
       intakeChamber.rotation.x = -Math.PI / 2;
       intakeChamber.position.set(0, 0.342, 0);
       ac.add(intakeChamber);
 
-      // 8 Molded Horizontal Intake Louvers
       for (let i = 0; i < 8; i++) {
-        const louverBlade = new THREE.Mesh(new THREE.BoxGeometry(2.12, 0.008, 0.024), acChassisMat);
-        louverBlade.position.set(0, 0.345, -0.12 + i * 0.038);
+        const louverBlade = new THREE.Mesh(new THREE.BoxGeometry(2.12, 0.006, 0.022), acChassisMat);
+        louverBlade.position.set(0, 0.345, -0.11 + i * 0.034);
         ac.add(louverBlade);
       }
 
-      // 5. Motorized Directional Airflow Discharge Chute
-      const ventChuteGeo = new THREE.BoxGeometry(2.14, 0.14, 0.12);
-      const ventChute = new THREE.Mesh(ventChuteGeo, darkCavityMat);
-      ventChute.position.set(0, -0.25, 0.14);
+      // Motorized Directional Airflow Discharge Chute
+      const ventChute = new THREE.Mesh(new THREE.BoxGeometry(2.14, 0.12, 0.10), darkCavityMat);
+      ventChute.position.set(0, -0.26, 0.14);
       ac.add(ventChute);
 
-      // Primary Motorized Airflow Guide Louver Blade (Aerofoil blade angled down 22°)
-      const primaryLouverGeo = new THREE.BoxGeometry(2.10, 0.022, 0.10);
-      const primaryLouver = new THREE.Mesh(primaryLouverGeo, acChassisMat);
-      primaryLouver.position.set(0, 0, 0.04);
-      primaryLouver.rotation.x = -0.38; // 22-degree downward cooling sweep
+      // Primary Motorized Airflow Guide Louver Blade
+      const primaryLouver = new THREE.Mesh(new THREE.BoxGeometry(2.10, 0.018, 0.08), acChassisMat);
+      primaryLouver.position.set(0, 0, 0.03);
+      primaryLouver.rotation.x = -0.38;
       ventChute.add(primaryLouver);
 
-      // Secondary Internal Vertical Directional Vanes (Array of 12 oscillation fins)
-      for (let v = 0; v < 12; v++) {
-        const finGeo = new THREE.BoxGeometry(0.008, 0.08, 0.04);
-        const fin = new THREE.Mesh(finGeo, new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.6 }));
-        fin.position.set(-0.95 + v * 0.17, 0, 0);
-        fin.rotation.y = 0.15 * Math.sin(v * 0.8); // Natural oscillation angle distribution
-        ventChute.add(fin);
-      }
-
-      // 6. Rear Installation Details: Galvanized Wall Bracket & Insulated Copper Piping Stub
+      // Rear Wall Bracket & Insulated Copper Piping Stub
       const backplate = new THREE.Mesh(
         new THREE.PlaneGeometry(2.18, 0.64),
         new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.8, roughness: 0.35 })
       );
-      backplate.position.set(0, 0, -0.001);
+      backplate.position.set(0, 0, -0.181);
       backplate.rotation.y = Math.PI;
       ac.add(backplate);
 
-      // Insulated Copper Line Pair (Refrigerant tubes with white thermal foam wrap)
-      const suctionPipe = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.018, 0.018, 0.16, 16),
-        new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.7 })
-      );
-      suctionPipe.position.set(0.85, -0.28, -0.08);
+      // Insulated Copper Line Pair
+      const suctionPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.14, 16), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.7 }));
+      suctionPipe.position.set(0.85, -0.28, -0.24);
       suctionPipe.rotation.x = 0.5;
       ac.add(suctionPipe);
 
-      const liquidPipe = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.012, 0.012, 0.16, 16),
-        new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.7 })
-      );
-      liquidPipe.position.set(0.90, -0.28, -0.08);
-      liquidPipe.rotation.x = 0.5;
-      ac.add(liquidPipe);
-
-      // Corrugated Drain Tube Stub
-      const drainPipe = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.014, 0.014, 0.18, 16),
-        new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.9 })
-      );
-      drainPipe.position.set(0.80, -0.30, -0.08);
+      const drainPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.16, 16), new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.9 }));
+      drainPipe.position.set(0.80, -0.30, -0.24);
       drainPipe.rotation.x = 0.6;
       ac.add(drainPipe);
 
