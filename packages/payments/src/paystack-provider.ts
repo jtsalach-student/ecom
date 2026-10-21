@@ -34,10 +34,11 @@ export class PaystackPaymentProvider {
     const reference = `TGM_ORD_${order.orderNumber}_${Date.now()}`;
     const amountInSubunits = Math.round(order.grandTotal * 100); // Ghana Pesewas
 
-    // Attempt live Paystack API initialization if active secret key is configured
-    if (this.secretKey && this.secretKey.startsWith("sk_") && !this.secretKey.includes("sample")) {
+    // Attempt live Paystack API initialization if active secret key is configured and not a mock key
+    if (this.secretKey && this.secretKey.startsWith("sk_") && !this.secretKey.includes("sample") && !this.secretKey.includes("mock")) {
       try {
         const response = await fetch("https://api.paystack.co/transaction/initialize", {
+          signal: AbortSignal.timeout(2500),
           method: "POST",
           headers: {
             Authorization: `Bearer ${this.secretKey}`,
