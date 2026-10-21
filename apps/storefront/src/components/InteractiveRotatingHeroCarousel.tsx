@@ -866,9 +866,9 @@ function RefinedProduct3DStage({
       const modelRoot = new THREE.Group();
       const deviceControllers = buildRefinedHardwareCAD(modelRoot, slide.deviceModel, slide.accentColor);
 
-      // AUTOMATIC BOUNDING-BOX NORMALIZATION:
-      // Guarantees every single product CAD model (Fold6, iPhone, Surface, JBL Bar, iMac, TV, AC)
-      // is scaled to the EXACT SAME UNIFORM SIZE (1.90 max visual dimension) and perfectly centered!
+      // AUTOMATIC BOUNDING-BOX NORMALIZATION & PHYSICAL TURNTABLE GROUNDING:
+      // Calibrates every 3D model to uniform visual scale (1.95 units) and grounds its lowest point
+      // solidly on the showroom turntable surface (y = -1.08) with zero floating gap.
       modelRoot.updateMatrixWorld(true);
       const box = new THREE.Box3().setFromObject(modelRoot);
       const size = new THREE.Vector3();
@@ -877,14 +877,15 @@ function RefinedProduct3DStage({
       box.getCenter(center);
 
       const maxDim = Math.max(size.x, size.y, size.z);
-      const targetScale = 1.90 / (maxDim || 1);
+      const targetScale = 1.95 / (maxDim || 1);
 
       uniformWrapper = new THREE.Group();
-      // Center modelRoot so its centroid sits at (0, 0, 0)
-      modelRoot.position.set(-center.x, -center.y, -center.z);
+      // Center horizontally on (X, Z) and ground vertically so the lowest point touches the turntable
+      modelRoot.position.set(-center.x, -box.min.y, -center.z);
       uniformWrapper.scale.setScalar(targetScale);
-      // Place slightly elevated above the showroom turntable disc
-      uniformWrapper.position.set(0, 0.12, 0);
+      
+      const PEDESTAL_SURFACE_Y = -1.08;
+      uniformWrapper.position.set(0, PEDESTAL_SURFACE_Y, 0);
       uniformWrapper.add(modelRoot);
 
       // Initial 35° Hero Angle
@@ -979,7 +980,7 @@ function RefinedProduct3DStage({
             }
           }
 
-          uniformWrapper.position.y = 0.12 + Math.sin(Date.now() * 0.0016) * 0.035;
+          uniformWrapper.position.y = -1.08;
 
           // Synchronize Showroom Turntable Disc with Product Orbit
           if (pedestalControls) {
@@ -1493,124 +1494,94 @@ function createFold6InnerScreenTexture(): THREE.CanvasTexture {
   const ctx = canvas.getContext("2d");
   if (!ctx) return new THREE.CanvasTexture(canvas);
 
-  // Deep AMOLED pure black
-  ctx.fillStyle = "#06080e";
+  // Deep OLED true black base
+  ctx.fillStyle = "#040508";
   ctx.fillRect(0, 0, 1024, 1024);
 
-  // Samsung Galaxy AI Iridescent Ribbon Wallpaper
-  const grad = ctx.createLinearGradient(120, 150, 900, 850);
-  grad.addColorStop(0, "rgba(59, 130, 246, 0.75)"); // Electric Blue
-  grad.addColorStop(0.35, "rgba(139, 92, 246, 0.85)"); // Violet
-  grad.addColorStop(0.7, "rgba(236, 72, 153, 0.8)"); // Pink
-  grad.addColorStop(1, "rgba(245, 158, 11, 0.7)"); // Amber
-
+  // GALAXY Z FOLD6 SILK ORIGAMI BUTTERFLY WINGS WALLPAPER
+  // Dual-wing multi-layered radiant origami petals
   ctx.save();
-  ctx.filter = "blur(70px)";
+  // Left Wing (Cool cyan, sapphire, and electric blue silk)
+  const leftGrad = ctx.createLinearGradient(512, 512, 100, 250);
+  leftGrad.addColorStop(0, "rgba(59, 130, 246, 0.95)");
+  leftGrad.addColorStop(0.35, "rgba(99, 102, 241, 0.85)");
+  leftGrad.addColorStop(0.7, "rgba(139, 92, 246, 0.65)");
+  leftGrad.addColorStop(1, "rgba(2, 6, 23, 0)");
+
   ctx.beginPath();
-  ctx.ellipse(512, 512, 420, 280, Math.PI / 4, 0, Math.PI * 2);
-  ctx.fillStyle = grad;
+  ctx.moveTo(512, 512);
+  ctx.bezierCurveTo(450, 320, 260, 220, 180, 340);
+  ctx.bezierCurveTo(120, 440, 280, 680, 512, 512);
+  ctx.fillStyle = leftGrad;
+  ctx.fill();
+
+  // Right Wing (Warm amber, molten gold, and champagne silk)
+  const rightGrad = ctx.createLinearGradient(512, 512, 900, 750);
+  rightGrad.addColorStop(0, "rgba(245, 158, 11, 0.95)");
+  rightGrad.addColorStop(0.4, "rgba(234, 88, 12, 0.85)");
+  rightGrad.addColorStop(0.75, "rgba(217, 70, 239, 0.65)");
+  rightGrad.addColorStop(1, "rgba(2, 6, 23, 0)");
+
+  ctx.beginPath();
+  ctx.moveTo(512, 512);
+  ctx.bezierCurveTo(580, 340, 760, 240, 840, 360);
+  ctx.bezierCurveTo(900, 460, 740, 700, 512, 512);
+  ctx.fillStyle = rightGrad;
+  ctx.fill();
+
+  // Core Iridescent Fold Highlight
+  const coreGrad = ctx.createRadialGradient(512, 512, 10, 512, 512, 280);
+  coreGrad.addColorStop(0, "rgba(255, 255, 255, 0.9)");
+  coreGrad.addColorStop(0.25, "rgba(251, 191, 36, 0.8)");
+  coreGrad.addColorStop(0.6, "rgba(96, 165, 250, 0.5)");
+  coreGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+  ctx.fillStyle = coreGrad;
+  ctx.beginPath();
+  ctx.arc(512, 512, 280, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 
-  // Subtle Hinge Crease Guide down center
-  const creaseGrad = ctx.createLinearGradient(506, 0, 518, 0);
-  creaseGrad.addColorStop(0, "rgba(255,255,255,0)");
-  creaseGrad.addColorStop(0.5, "rgba(255,255,255,0.06)");
-  creaseGrad.addColorStop(1, "rgba(255,255,255,0)");
+  // Subtle Hinge Center Seam Guide
+  const creaseGrad = ctx.createLinearGradient(508, 0, 516, 0);
+  creaseGrad.addColorStop(0, "rgba(255, 255, 255, 0)");
+  creaseGrad.addColorStop(0.5, "rgba(255, 255, 255, 0.06)");
+  creaseGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
   ctx.fillStyle = creaseGrad;
-  ctx.fillRect(506, 0, 12, 1024);
+  ctx.fillRect(508, 0, 8, 1024);
 
   // Status Bar at Top
   ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 26px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillText("10:24", 50, 60);
-
+  ctx.font = "bold 24px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("10:09", 56, 58);
   ctx.textAlign = "right";
   ctx.font = "bold 20px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillText("5G • 100%", 974, 60);
+  ctx.fillText("5G • 100%", 968, 58);
 
-  // Under-display Camera Dot Indicator at top inner right
-  ctx.beginPath();
-  ctx.arc(768, 60, 6, 0, Math.PI * 2);
-  ctx.fillStyle = "rgba(10, 12, 18, 0.65)";
-  ctx.fill();
-
-  // Minimalist Clock & Galaxy AI Date
+  // Minimalist Clock & Date
   ctx.textAlign = "center";
   ctx.font = "200 96px -apple-system, BlinkMacSystemFont, sans-serif";
   ctx.fillStyle = "#ffffff";
-  ctx.fillText("10:24", 512, 360);
+  ctx.fillText("10:09", 512, 340);
 
   ctx.font = "500 24px -apple-system, BlinkMacSystemFont, sans-serif";
   ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-  ctx.fillText("Monday, October 19 • Accra 29°C", 512, 410);
+  ctx.fillText("Wednesday, October 21 • Accra 29°C", 512, 390);
 
-  // Galaxy AI Search Bar Pill
-  ctx.beginPath();
-  ctx.roundRect(262, 460, 500, 64, 32);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.12)";
-  ctx.fill();
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-
-  ctx.textAlign = "left";
-  ctx.font = "500 22px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-  ctx.fillText("Ask Galaxy AI or search...", 310, 500);
-
-  // Multi-Window Multitasking Split Tiles
-  ctx.beginPath();
-  ctx.roundRect(140, 560, 744, 280, 24);
-  ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
-  ctx.fill();
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
-  ctx.stroke();
-
-  // Left Tile: Samsung Notes AI
-  ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
-  ctx.beginPath();
-  ctx.roundRect(160, 580, 340, 240, 16);
-  ctx.fill();
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 20px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillText("Samsung Notes AI", 185, 625);
-  ctx.font = "16px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
-  ctx.fillText("• Live Audio Translation", 185, 665);
-  ctx.fillText("• Note Assist: Auto-Format", 185, 695);
-  ctx.fillText("• S-Pen Stylus Detection", 185, 725);
-  ctx.fillText("• 7.6\" Dynamic AMOLED 2X", 185, 755);
-
-  // Right Tile: Workspace Analytics
-  ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
-  ctx.beginPath();
-  ctx.roundRect(524, 580, 340, 240, 16);
-  ctx.fill();
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 20px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillText("Snapdragon 8 Gen 3", 549, 625);
-  ctx.font = "16px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
-  ctx.fillText("• 1-120Hz Adaptive Refresh", 549, 665);
-  ctx.fillText("• 2,600 Nits Peak Outdoor", 549, 695);
-  ctx.fillText("• Dual Armor Aluminum Rail", 549, 725);
-  ctx.fillText("• Accra Stock Confirmed", 549, 755);
-
-  // App Dock at Bottom (5 rounded squares)
-  const appColors = ["#10b981", "#3b82f6", "#f59e0b", "#ec4899", "#8b5cf6"];
-  const appIcons = ["Call", "Chat", "Web", "Cam", "AI"];
-  const startX = 312;
-  for (let i = 0; i < 5; i++) {
-    const x = startX + i * 85;
+  // Samsung One UI App Dock at Bottom (6 rounded icons)
+  const appDockColors = ["#22c55e", "#3b82f6", "#ea580c", "#f59e0b", "#ec4899", "#ef4444"];
+  const appDockLabels = ["Phone", "Chat", "Chrome", "Notes", "Gallery", "Camera"];
+  const startX = 262;
+  for (let i = 0; i < 6; i++) {
+    const x = startX + i * 86;
     ctx.beginPath();
-    ctx.roundRect(x, 890, 64, 64, 18);
-    ctx.fillStyle = appColors[i];
+    ctx.roundRect(x, 900, 68, 68, 20);
+    ctx.fillStyle = appDockColors[i];
     ctx.fill();
     ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 16px -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(appIcons[i], x + 32, 928);
+    ctx.fillText(appDockLabels[i], x + 34, 940);
   }
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -1625,42 +1596,34 @@ function createFold6CoverScreenTexture(): THREE.CanvasTexture {
   const ctx = canvas.getContext("2d");
   if (!ctx) return new THREE.CanvasTexture(canvas);
 
-  ctx.fillStyle = "#07090e";
+  ctx.fillStyle = "#05070a";
   ctx.fillRect(0, 0, 512, 1024);
 
-  // Sleek dark gradient
+  // Vertical Cover Silk Gradient
   const grad = ctx.createLinearGradient(0, 0, 512, 1024);
-  grad.addColorStop(0, "rgba(59, 130, 246, 0.5)");
-  grad.addColorStop(1, "rgba(139, 92, 246, 0.4)");
+  grad.addColorStop(0, "rgba(59, 130, 246, 0.65)");
+  grad.addColorStop(0.5, "rgba(139, 92, 246, 0.55)");
+  grad.addColorStop(1, "rgba(245, 158, 11, 0.5)");
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 512, 1024);
-
-  // Punch-hole Camera Cutout at top
-  ctx.beginPath();
-  ctx.arc(256, 45, 12, 0, Math.PI * 2);
-  ctx.fillStyle = "#000000";
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(256, 45, 6, 0, Math.PI * 2);
-  ctx.fillStyle = "#1e293b";
-  ctx.fill();
 
   // Status Bar
   ctx.fillStyle = "#ffffff";
   ctx.font = "bold 22px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillText("10:24", 40, 52);
+  ctx.textAlign = "left";
+  ctx.fillText("10:09", 40, 52);
   ctx.textAlign = "right";
   ctx.fillText("5G 100%", 472, 52);
 
-  // Large Lockscreen Clock
+  // Lockscreen Clock
   ctx.textAlign = "center";
-  ctx.font = "300 90px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.font = "200 90px -apple-system, BlinkMacSystemFont, sans-serif";
   ctx.fillStyle = "#ffffff";
-  ctx.fillText("10:24", 256, 320);
+  ctx.fillText("10:09", 256, 320);
 
   ctx.font = "500 22px -apple-system, BlinkMacSystemFont, sans-serif";
   ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-  ctx.fillText("Mon, Oct 19 • 29°C", 256, 370);
+  ctx.fillText("Wed, Oct 21 • 29°C", 256, 370);
 
   // Notification Pill
   ctx.beginPath();
@@ -1676,13 +1639,7 @@ function createFold6CoverScreenTexture(): THREE.CanvasTexture {
   ctx.fillText("WhatsApp • Gadget Master", 84, 495);
   ctx.font = "14px -apple-system, BlinkMacSystemFont, sans-serif";
   ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
-  ctx.fillText("Your Z Fold6 order is confirmed for delivery", 84, 518);
-
-  // Swipe to unlock bar
-  ctx.beginPath();
-  ctx.roundRect(176, 960, 160, 6, 3);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
-  ctx.fill();
+  ctx.fillText("Accra East Legon warranty confirmed", 84, 518);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -1696,59 +1653,76 @@ function createIPhoneScreenTexture(): THREE.CanvasTexture {
   const ctx = canvas.getContext("2d");
   if (!ctx) return new THREE.CanvasTexture(canvas);
 
-  ctx.fillStyle = "#050608";
+  // True Desert Titanium Wallpaper: Flowing Champagne & Golden Sand Dunes
+  ctx.fillStyle = "#0b0a08";
   ctx.fillRect(0, 0, 512, 1024);
 
-  // iOS 18 Titanium radial glow
-  const grad = ctx.createRadialGradient(256, 512, 50, 256, 512, 400);
-  grad.addColorStop(0, "rgba(147, 140, 130, 0.4)");
-  grad.addColorStop(1, "rgba(5, 6, 8, 1)");
-  ctx.fillStyle = grad;
+  // Nested ambient golden curves
+  const bgGrad = ctx.createLinearGradient(0, 0, 512, 1024);
+  bgGrad.addColorStop(0, "#2c2317");
+  bgGrad.addColorStop(0.4, "#634e32");
+  bgGrad.addColorStop(0.7, "#9c7c50");
+  bgGrad.addColorStop(1, "#18140e");
+  ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, 512, 1024);
 
-  // Dynamic Island Pill at Top
+  // Flowing Dune Arch 1 (Upper)
+  ctx.save();
   ctx.beginPath();
-  ctx.roundRect(176, 32, 160, 36, 18);
+  ctx.ellipse(256, 380, 220, 310, Math.PI / 8, 0, Math.PI * 2);
+  const arch1Grad = ctx.createLinearGradient(120, 200, 400, 550);
+  arch1Grad.addColorStop(0, "rgba(240, 215, 175, 0.85)");
+  arch1Grad.addColorStop(0.5, "rgba(180, 140, 95, 0.65)");
+  arch1Grad.addColorStop(1, "rgba(35, 25, 15, 0)");
+  ctx.fillStyle = arch1Grad;
+  ctx.fill();
+
+  // Flowing Dune Arch 2 (Lower)
+  ctx.beginPath();
+  ctx.ellipse(280, 720, 260, 240, -Math.PI / 6, 0, Math.PI * 2);
+  const arch2Grad = ctx.createLinearGradient(150, 600, 420, 850);
+  arch2Grad.addColorStop(0, "rgba(250, 230, 195, 0.9)");
+  arch2Grad.addColorStop(0.5, "rgba(160, 120, 75, 0.7)");
+  arch2Grad.addColorStop(1, "rgba(15, 10, 5, 0)");
+  ctx.fillStyle = arch2Grad;
+  ctx.fill();
+  ctx.restore();
+
+  // Dynamic Island Pill at Top (with Apple Music icon & Live Waveform)
+  ctx.beginPath();
+  ctx.roundRect(172, 34, 168, 38, 19);
   ctx.fillStyle = "#000000";
   ctx.fill();
 
-  // Dynamic Island subtle waveform
-  ctx.fillStyle = "#10b981";
-  ctx.fillRect(300, 44, 4, 12);
-  ctx.fillRect(308, 40, 4, 20);
-  ctx.fillRect(316, 46, 4, 8);
+  // Red Music App Square inside Dynamic Island
+  ctx.beginPath();
+  ctx.roundRect(180, 42, 22, 22, 6);
+  ctx.fillStyle = "#fa2d48";
+  ctx.fill();
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("♫", 191, 58);
+
+  // Green Audio Spectrum Waveform
+  ctx.fillStyle = "#22c55e";
+  ctx.fillRect(302, 46, 3, 14);
+  ctx.fillRect(308, 41, 3, 24);
+  ctx.fillRect(314, 48, 3, 10);
+  ctx.fillRect(320, 43, 3, 20);
 
   // Status Bar
   ctx.fillStyle = "#ffffff";
   ctx.font = "bold 20px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillText("9:41", 45, 56);
+  ctx.textAlign = "left";
+  ctx.fillText("10:09", 48, 58);
   ctx.textAlign = "right";
-  ctx.fillText("5G 100%", 467, 56);
+  ctx.fillText("5G 100%", 464, 58);
 
-  // Lockscreen Clock
-  ctx.textAlign = "center";
-  ctx.font = "200 96px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillText("9:41", 256, 280);
-
-  ctx.font = "500 22px -apple-system, BlinkMacSystemFont, sans-serif";
+  // iOS Home Bar at Bottom
+  ctx.beginPath();
+  ctx.roundRect(176, 990, 160, 5, 2.5);
   ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-  ctx.fillText("Monday, October 19", 256, 330);
-
-  // Lockscreen Quick Action Buttons (Flashlight & Camera)
-  ctx.beginPath();
-  ctx.arc(70, 920, 28, 0, Math.PI * 2);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.18)";
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.arc(442, 920, 28, 0, Math.PI * 2);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.18)";
-  ctx.fill();
-
-  // Home Bar
-  ctx.beginPath();
-  ctx.roundRect(176, 980, 160, 6, 3);
-  ctx.fillStyle = "#ffffff";
   ctx.fill();
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -1763,76 +1737,86 @@ function createSurfaceScreenTexture(): THREE.CanvasTexture {
   const ctx = canvas.getContext("2d");
   if (!ctx) return new THREE.CanvasTexture(canvas);
 
-  ctx.fillStyle = "#031428";
-  ctx.fillRect(0, 0, 1024, 680);
+  // Windows 11 Copilot+ Lake & Mountain Bloom Landscape
+  const skyGrad = ctx.createLinearGradient(0, 0, 0, 450);
+  skyGrad.addColorStop(0, "#4895ef");
+  skyGrad.addColorStop(0.6, "#a0c4e2");
+  skyGrad.addColorStop(1, "#f3f8fc");
+  ctx.fillStyle = skyGrad;
+  ctx.fillRect(0, 0, 1024, 450);
 
-  // Windows 11 Copilot+ PC Bloom Artwork
-  const grad = ctx.createLinearGradient(200, 100, 800, 600);
-  grad.addColorStop(0, "rgba(2, 132, 199, 0.85)");
-  grad.addColorStop(0.5, "rgba(99, 102, 241, 0.8)");
-  grad.addColorStop(1, "rgba(14, 165, 233, 0.7)");
+  // Pristine Turquoise Mountain Lake
+  const lakeGrad = ctx.createLinearGradient(0, 450, 0, 680);
+  lakeGrad.addColorStop(0, "#0077b6");
+  lakeGrad.addColorStop(0.5, "#0096c7");
+  lakeGrad.addColorStop(1, "#48cae4");
+  ctx.fillStyle = lakeGrad;
+  ctx.fillRect(0, 450, 1024, 230);
 
-  ctx.save();
-  ctx.filter = "blur(50px)";
+  // Mountain Silhouette
+  ctx.fillStyle = "#2c4c68";
   ctx.beginPath();
-  ctx.ellipse(512, 300, 320, 220, Math.PI / 6, 0, Math.PI * 2);
-  ctx.fillStyle = grad;
+  ctx.moveTo(0, 450);
+  ctx.lineTo(180, 320);
+  ctx.lineTo(340, 410);
+  ctx.lineTo(540, 270);
+  ctx.lineTo(760, 420);
+  ctx.lineTo(920, 310);
+  ctx.lineTo(1024, 390);
+  ctx.lineTo(1024, 450);
+  ctx.closePath();
   ctx.fill();
-  ctx.restore();
 
-  // Windows 11 Centered Taskbar
-  ctx.fillStyle = "rgba(15, 23, 42, 0.75)";
-  ctx.fillRect(0, 624, 1024, 56);
+  // Windows 11 Floating Centered Start Menu Window
+  ctx.beginPath();
+  ctx.roundRect(332, 280, 360, 310, 16);
+  ctx.fillStyle = "rgba(240, 245, 250, 0.92)";
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
 
-  // Centered Icons (Windows Logo, Copilot, Search, Explorer, Edge)
-  const icons = ["Win", "AI", "🔍", "📁", "🌐"];
-  const startX = 420;
-  for (let i = 0; i < icons.length; i++) {
-    const x = startX + i * 42;
-    ctx.beginPath();
-    ctx.roundRect(x, 632, 34, 34, 8);
-    ctx.fillStyle = i === 1 ? "#0284c7" : "rgba(255, 255, 255, 0.15)";
-    ctx.fill();
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(icons[i], x + 17, 654);
-  }
+  // Search Bar inside Start Menu
+  ctx.beginPath();
+  ctx.roundRect(352, 296, 320, 34, 17);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+  ctx.fill();
+  ctx.fillStyle = "#64748b";
+  ctx.font = "13px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("🔍 Search apps, files, web...", 372, 318);
 
-  // Right Tray Clock
-  ctx.textAlign = "right";
-  ctx.font = "12px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillStyle = "#ffffff";
-  ctx.fillText("10:24 AM • 10/19/2026", 990, 656);
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  return texture;
-}
-
-function createJblDisplayTexture(): THREE.CanvasTexture {
-  const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 128;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return new THREE.CanvasTexture(canvas);
-
-  ctx.fillStyle = "#121417";
-  ctx.fillRect(0, 0, 512, 128);
-
-  // Dot Matrix Acoustic Grille Texture
-  ctx.fillStyle = "#1a1d22";
-  for (let x = 0; x < 512; x += 6) {
-    for (let y = 0; y < 128; y += 6) {
-      ctx.fillRect(x, y, 2, 2);
+  // Pinned App Grid
+  const appColors = ["#0284c7", "#22c55e", "#ea580c", "#8b5cf6", "#ec4899", "#3b82f6"];
+  for (let r = 0; r < 2; r++) {
+    for (let c = 0; c < 3; c++) {
+      const x = 370 + c * 105;
+      const y = 350 + r * 65;
+      ctx.beginPath();
+      ctx.roundRect(x, y, 40, 40, 10);
+      ctx.fillStyle = appColors[r * 3 + c];
+      ctx.fill();
     }
   }
 
-  // Glowing Amber/Cyan Dot-Matrix LED Readout
-  ctx.fillStyle = "#ff8a00";
-  ctx.font = "bold 32px 'Courier New', monospace";
-  ctx.textAlign = "center";
-  ctx.fillText("DOLBY ATMOS 5.1.2", 256, 72);
+  // Windows 11 Centered Taskbar at Bottom
+  ctx.fillStyle = "rgba(235, 242, 250, 0.85)";
+  ctx.fillRect(0, 628, 1024, 52);
+
+  // Centered Icons (Windows Logo, Copilot AI, Search, Explorer, Edge)
+  const taskIcons = ["⊞", "AI", "🔍", "📁", "🌐"];
+  const startX = 428;
+  for (let i = 0; i < taskIcons.length; i++) {
+    const x = startX + i * 38;
+    ctx.beginPath();
+    ctx.roundRect(x, 636, 32, 32, 8);
+    ctx.fillStyle = i === 1 ? "#0284c7" : "rgba(100, 116, 139, 0.15)";
+    ctx.fill();
+    ctx.fillStyle = i === 1 ? "#ffffff" : "#1e293b";
+    ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(taskIcons[i], x + 16, 656);
+  }
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -1846,36 +1830,50 @@ function createIMacScreenTexture(): THREE.CanvasTexture {
   const ctx = canvas.getContext("2d");
   if (!ctx) return new THREE.CanvasTexture(canvas);
 
-  // macOS Sequoia Landscape
+  // macOS Sonoma / Sequoia Rolling Hills Wallpaper (Emerald Green & Teal Curves)
   const grad = ctx.createLinearGradient(0, 0, 1024, 640);
-  grad.addColorStop(0, "#ff7b00");
-  grad.addColorStop(0.5, "#802090");
-  grad.addColorStop(1, "#1c224a");
+  grad.addColorStop(0, "#0284c7");
+  grad.addColorStop(0.35, "#0d9488");
+  grad.addColorStop(0.7, "#16a34a");
+  grad.addColorStop(1, "#064e3b");
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 1024, 640);
 
+  // Flowing Top Light Crest
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(512, 180, 520, 260, 0, 0, Math.PI * 2);
+  const crest = ctx.createRadialGradient(512, 180, 30, 512, 180, 480);
+  crest.addColorStop(0, "rgba(56, 189, 248, 0.75)");
+  crest.addColorStop(0.5, "rgba(45, 212, 191, 0.5)");
+  crest.addColorStop(1, "rgba(0, 0, 0, 0)");
+  ctx.fillStyle = crest;
+  ctx.fill();
+  ctx.restore();
+
   // Top macOS Menu Bar
-  ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
-  ctx.fillRect(0, 0, 1024, 30);
+  ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
+  ctx.fillRect(0, 0, 1024, 28);
   ctx.fillStyle = "#ffffff";
   ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
   ctx.textAlign = "left";
-  ctx.fillText("  Finder  File  Edit  View  Go  Window  Help", 20, 20);
+  ctx.fillText("  Finder  File  Edit  View  Go  Window  Help", 20, 19);
 
-  // Floating Glass Dock at Bottom
+  // Floating Glass App Dock at Bottom
   ctx.beginPath();
-  ctx.roundRect(312, 575, 400, 55, 18);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.22)";
+  ctx.roundRect(292, 574, 440, 56, 18);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.28)";
   ctx.fill();
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+  ctx.lineWidth = 1;
   ctx.stroke();
 
-  const dockIcons = ["Finder", "Safari", "Mail", "Music", "Notes", "Xcode"];
-  for (let i = 0; i < dockIcons.length; i++) {
-    const x = 335 + i * 62;
+  const dockColors = ["#38bdf8", "#10b981", "#6366f1", "#ec4899", "#f59e0b", "#ef4444", "#8b5cf6"];
+  for (let i = 0; i < 7; i++) {
+    const x = 312 + i * 60;
     ctx.beginPath();
-    ctx.roundRect(x, 584, 38, 38, 10);
-    ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
+    ctx.roundRect(x, 582, 40, 40, 10);
+    ctx.fillStyle = dockColors[i];
     ctx.fill();
   }
 
@@ -1884,9 +1882,161 @@ function createIMacScreenTexture(): THREE.CanvasTexture {
   return texture;
 }
 
-// -----------------------------------------------------------------------------
-// Mirror Chrome Apple Logo Texture (iPhone & iMac rear)
-// -----------------------------------------------------------------------------
+function createLGTVDisplayTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 576;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return new THREE.CanvasTexture(canvas);
+
+  // Breathtaking 4K HDR Vivid Fjord Landscape (as seen on official LG demo screen)
+  // Sky Gradient: Golden sunrise to azure blue
+  const skyGrad = ctx.createLinearGradient(0, 0, 0, 360);
+  skyGrad.addColorStop(0, "#1e3a8a");
+  skyGrad.addColorStop(0.4, "#38bdf8");
+  skyGrad.addColorStop(0.7, "#fed7aa");
+  skyGrad.addColorStop(1, "#fdba74");
+  ctx.fillStyle = skyGrad;
+  ctx.fillRect(0, 0, 1024, 360);
+
+  // Azure Deep Fjord Water
+  const waterGrad = ctx.createLinearGradient(0, 360, 0, 576);
+  waterGrad.addColorStop(0, "#0284c7");
+  waterGrad.addColorStop(0.5, "#0369a1");
+  waterGrad.addColorStop(1, "#082f49");
+  ctx.fillStyle = waterGrad;
+  ctx.fillRect(0, 360, 1024, 216);
+
+  // Dramatic Sunlit Mountain Ridge
+  ctx.fillStyle = "#1e293b";
+  ctx.beginPath();
+  ctx.moveTo(0, 360);
+  ctx.lineTo(160, 210);
+  ctx.lineTo(340, 310);
+  ctx.lineTo(520, 170);
+  ctx.lineTo(740, 300);
+  ctx.lineTo(890, 220);
+  ctx.lineTo(1024, 290);
+  ctx.lineTo(1024, 360);
+  ctx.closePath();
+  ctx.fill();
+
+  // Emerald Green Foreground Fjord Peninsula
+  ctx.fillStyle = "#15803d";
+  ctx.beginPath();
+  ctx.moveTo(0, 576);
+  ctx.lineTo(0, 460);
+  ctx.lineTo(240, 410);
+  ctx.lineTo(460, 480);
+  ctx.lineTo(720, 430);
+  ctx.lineTo(1024, 510);
+  ctx.lineTo(1024, 576);
+  ctx.closePath();
+  ctx.fill();
+
+  // Subtle webOS Bottom Navigation Bar
+  ctx.beginPath();
+  ctx.roundRect(142, 490, 740, 60, 18);
+  ctx.fillStyle = "rgba(15, 23, 42, 0.72)";
+  ctx.fill();
+
+  const tvAppNames = ["Home", "Live TV", "Netflix", "Prime", "Disney+", "YouTube", "Apple TV"];
+  const tvAppColors = ["#ff8a00", "#3b82f6", "#e50914", "#00a8e1", "#113ccf", "#ff0000", "#000000"];
+  for (let i = 0; i < 7; i++) {
+    const x = 168 + i * 102;
+    ctx.beginPath();
+    ctx.roundRect(x, 498, 82, 44, 12);
+    ctx.fillStyle = tvAppColors[i];
+    ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 12px -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(tvAppNames[i], x + 41, 525);
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+function createTCLACDisplayTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 300;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return new THREE.CanvasTexture(canvas);
+
+  // Pure High-Gloss Enamel White
+  ctx.fillStyle = "#fcfdfd";
+  ctx.fillRect(0, 0, 1024, 300);
+
+  // Soft Horizon Specular Curve
+  const specGrad = ctx.createLinearGradient(0, 0, 0, 120);
+  specGrad.addColorStop(0, "rgba(255, 255, 255, 0.9)");
+  specGrad.addColorStop(1, "rgba(240, 244, 248, 0.1)");
+  ctx.fillStyle = specGrad;
+  ctx.fillRect(0, 0, 1024, 120);
+
+  // Centered TCL Brand Logo
+  ctx.fillStyle = "#1e293b";
+  ctx.font = "900 48px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("TCL", 512, 138);
+
+  ctx.fillStyle = "#64748b";
+  ctx.font = "bold 15px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("SMART INVERTER • 1.5HP", 512, 172);
+
+  // Right Side: Glowing Ice-White 7-Segment Digital LED Readout "21°C"
+  ctx.fillStyle = "rgba(14, 165, 233, 0.95)";
+  ctx.font = "bold 64px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.textAlign = "right";
+  ctx.fillText("21°C", 880, 155);
+
+  ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("🍃 ECO COOL", 880, 185);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+
+function createSamsungSpineTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 128;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return new THREE.CanvasTexture(canvas);
+
+  // Brushed satin metallic spine background
+  const grad = ctx.createLinearGradient(0, 0, 128, 0);
+  grad.addColorStop(0, "#7a889b");
+  grad.addColorStop(0.3, "#94a3b8");
+  grad.addColorStop(0.5, "#cbd5e1");
+  grad.addColorStop(0.7, "#94a3b8");
+  grad.addColorStop(1, "#64748b");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 128, 512);
+
+  // Vertical laser-etched SAMSUNG logo
+  ctx.save();
+  ctx.translate(64, 256);
+  ctx.rotate(-Math.PI / 2);
+  ctx.font = "bold 22px system-ui, -apple-system, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "#334155";
+  ctx.fillText("S A M S U N G", 0, 0);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+  ctx.fillText("S A M S U N G", 0, 1);
+  ctx.restore();
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.anisotropy = 4;
+  return tex;
+}
+
 function createAppleLogoTexture(): THREE.CanvasTexture {
   const canvas = document.createElement("canvas");
   canvas.width = 256;
@@ -1895,250 +2045,81 @@ function createAppleLogoTexture(): THREE.CanvasTexture {
   if (!ctx) return new THREE.CanvasTexture(canvas);
 
   ctx.clearRect(0, 0, 256, 256);
+
+  // Mirrored chrome Apple silhouette
   ctx.fillStyle = "#ffffff";
-
-  // Leaf
+  
+  // Apple leaf
   ctx.beginPath();
-  ctx.moveTo(136, 42);
-  ctx.quadraticCurveTo(165, 24, 165, 58);
-  ctx.quadraticCurveTo(138, 76, 136, 42);
+  ctx.moveTo(136, 44);
+  ctx.bezierCurveTo(154, 44, 168, 62, 164, 82);
+  ctx.bezierCurveTo(146, 82, 132, 64, 136, 44);
   ctx.fill();
 
-  // Apple Body with Bite
+  // Apple body
   ctx.beginPath();
-  ctx.arc(104, 138, 56, 0, Math.PI * 2);
-  ctx.arc(152, 138, 56, 0, Math.PI * 2);
+  ctx.arc(104, 150, 48, 0, Math.PI * 2);
+  ctx.arc(152, 150, 48, 0, Math.PI * 2);
   ctx.fill();
 
-  // Bottom indent
   ctx.beginPath();
-  ctx.arc(128, 192, 16, 0, Math.PI * 2);
-  ctx.fillStyle = "rgba(0, 0, 0, 1)";
-  ctx.globalCompositeOperation = "destination-out";
+  ctx.arc(104, 126, 44, 0, Math.PI * 2);
+  ctx.arc(152, 126, 44, 0, Math.PI * 2);
   ctx.fill();
 
   // Bite cutout on right
+  ctx.globalCompositeOperation = "destination-out";
   ctx.beginPath();
-  ctx.arc(196, 134, 30, 0, Math.PI * 2);
+  ctx.arc(188, 138, 30, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Top notch cutout
+  ctx.beginPath();
+  ctx.arc(128, 86, 14, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Bottom indent cutout
+  ctx.beginPath();
+  ctx.arc(128, 198, 16, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.globalCompositeOperation = "source-over";
 
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  return texture;
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.anisotropy = 4;
+  return tex;
 }
 
-// -----------------------------------------------------------------------------
-// Samsung Armor Aluminum Spine Texture
-// -----------------------------------------------------------------------------
-function createSamsungSpineTexture(): THREE.CanvasTexture {
+function createJblDisplayTexture(): THREE.CanvasTexture {
   const canvas = document.createElement("canvas");
-  canvas.width = 128;
-  canvas.height = 512;
+  canvas.width = 512;
+  canvas.height = 128;
   const ctx = canvas.getContext("2d");
   if (!ctx) return new THREE.CanvasTexture(canvas);
 
-  // Brushed aluminum metallic background
-  ctx.fillStyle = "#949ea8";
-  ctx.fillRect(0, 0, 128, 512);
+  // Smoked acrylic display face
+  ctx.fillStyle = "#0b0e14";
+  ctx.fillRect(0, 0, 512, 128);
 
-  // Subtle brushed longitudinal grain
-  ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
-  for (let y = 0; y < 512; y += 4) {
-    ctx.fillRect(0, y, 128, 1.5);
-  }
-
-  // Laser-etched SAMSUNG branding along center
-  ctx.save();
-  ctx.translate(64, 256);
-  ctx.rotate(-Math.PI / 2);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.55)";
-  ctx.font = "bold 20px -apple-system, BlinkMacSystemFont, sans-serif";
+  // Digital LED dot-matrix readout
+  ctx.font = "bold 38px 'SF Mono', 'Courier New', monospace";
+  ctx.fillStyle = "#ff8a00";
+  ctx.shadowColor = "#ff8a00";
+  ctx.shadowBlur = 12;
   ctx.textAlign = "center";
-  ctx.letterSpacing = "6px";
-  ctx.fillText("SAMSUNG", 0, 7);
-  ctx.restore();
+  ctx.textBaseline = "middle";
+  ctx.fillText("DOLBY ATMOS", 256, 48);
 
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  return texture;
-}
-
-// -----------------------------------------------------------------------------
-// LG 75" 4K QNED TV Vivid Display Texture
-// -----------------------------------------------------------------------------
-function createLGTVDisplayTexture(): THREE.CanvasTexture {
-  const canvas = document.createElement("canvas");
-  canvas.width = 1024;
-  canvas.height = 576;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return new THREE.CanvasTexture(canvas);
-
-  // Cinematic Quantum Dot Aurora Sky
-  const grad = ctx.createLinearGradient(0, 0, 1024, 576);
-  grad.addColorStop(0, "#050b18");
-  grad.addColorStop(0.35, "#0b2545");
-  grad.addColorStop(0.65, "#134e5e");
-  grad.addColorStop(0.85, "#71b280");
-  grad.addColorStop(1, "#071e22");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, 1024, 576);
-
-  // Glowing Aurora Light Ribbon
-  ctx.save();
-  ctx.filter = "blur(40px)";
-  const aurora = ctx.createRadialGradient(512, 220, 60, 512, 220, 420);
-  aurora.addColorStop(0, "rgba(52, 211, 153, 0.85)");
-  aurora.addColorStop(0.4, "rgba(14, 165, 233, 0.7)");
-  aurora.addColorStop(0.7, "rgba(168, 85, 247, 0.5)");
-  aurora.addColorStop(1, "rgba(0, 0, 0, 0)");
-  ctx.fillStyle = aurora;
-  ctx.beginPath();
-  ctx.ellipse(512, 200, 460, 160, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-
-  // Mountain Silhouettes in Foreground
-  ctx.fillStyle = "#030712";
-  ctx.beginPath();
-  ctx.moveTo(0, 576);
-  ctx.lineTo(0, 390);
-  ctx.lineTo(160, 310);
-  ctx.lineTo(340, 410);
-  ctx.lineTo(512, 260);
-  ctx.lineTo(720, 430);
-  ctx.lineTo(890, 330);
-  ctx.lineTo(1024, 420);
-  ctx.lineTo(1024, 576);
-  ctx.closePath();
-  ctx.fill();
-
-  // Header Badge Info (Top Left & Top Right)
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 20px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillText("LG webOS 23", 40, 52);
-  ctx.textAlign = "right";
-  ctx.font = "bold 16px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-  ctx.fillText("4K HDR10 Pro • Quantum Dot QNED • 120Hz", 984, 52);
-
-  // webOS Translucent App Dock at Bottom
-  ctx.beginPath();
-  ctx.roundRect(142, 470, 740, 74, 22);
-  ctx.fillStyle = "rgba(15, 23, 42, 0.75)";
-  ctx.fill();
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-
-  const tvApps = [
-    { name: "Live TV", color: "#3b82f6" },
-    { name: "Netflix", color: "#e50914" },
-    { name: "Prime", color: "#00a8e1" },
-    { name: "Disney+", color: "#113ccf" },
-    { name: "YouTube", color: "#ff0000" },
-    { name: "Apple TV", color: "#000000" },
-    { name: "Spotify", color: "#1db954" },
-  ];
-  for (let i = 0; i < tvApps.length; i++) {
-    const x = 168 + i * 102;
-    ctx.beginPath();
-    ctx.roundRect(x, 482, 82, 50, 14);
-    ctx.fillStyle = tvApps[i].color;
-    ctx.fill();
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(tvApps[i].name, x + 41, 513);
-  }
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  return texture;
-}
-
-// -----------------------------------------------------------------------------
-// TCL 1.5HP Smart Inverter AC Front Panel Texture
-// -----------------------------------------------------------------------------
-function createTCLACDisplayTexture(): THREE.CanvasTexture {
-  const canvas = document.createElement("canvas");
-  canvas.width = 1024;
-  canvas.height = 300;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return new THREE.CanvasTexture(canvas);
-
-  // Pure White Gloss Finish
-  ctx.fillStyle = "#fcfdfd";
-  ctx.fillRect(0, 0, 1024, 300);
-
-  // Subtle Pearl Gradient
-  const grad = ctx.createLinearGradient(0, 0, 0, 300);
-  grad.addColorStop(0, "rgba(240, 244, 248, 0.6)");
-  grad.addColorStop(0.4, "rgba(255, 255, 255, 1)");
-  grad.addColorStop(0.85, "rgba(235, 240, 245, 0.7)");
-  grad.addColorStop(1, "rgba(215, 222, 230, 0.9)");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, 1024, 300);
-
-  // Chrome Accent Stripe in Lower Third
-  const chromeGrad = ctx.createLinearGradient(0, 240, 1024, 240);
-  chromeGrad.addColorStop(0, "#cbd5e1");
-  chromeGrad.addColorStop(0.5, "#ffffff");
-  chromeGrad.addColorStop(1, "#cbd5e1");
-  ctx.fillStyle = chromeGrad;
-  ctx.fillRect(40, 240, 944, 4);
-
-  // Centered TCL Brand Logo
-  ctx.fillStyle = "#1e293b";
-  ctx.font = "bold 34px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText("TCL", 512, 115);
-
-  ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillStyle = "#64748b";
-  ctx.fillText("SMART INVERTER • 1.5HP", 512, 145);
-
-  // Glowing Digital LED Temperature Display on Right Fascia
-  ctx.save();
+  ctx.font = "bold 20px system-ui, sans-serif";
+  ctx.fillStyle = "#38bdf8";
   ctx.shadowColor = "#38bdf8";
-  ctx.shadowBlur = 18;
-  ctx.fillStyle = "#0284c7";
-  ctx.font = "bold 58px 'Courier New', monospace";
-  ctx.textAlign = "center";
-  ctx.fillText("21°C", 820, 120);
+  ctx.shadowBlur = 8;
+  ctx.fillText("720W TOTAL  •  WIRELESS SUB  •  DETACHABLE REARS", 256, 94);
 
-  ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillStyle = "#0369a1";
-  ctx.fillText("ECO COOL • AUTO", 820, 148);
-  ctx.restore();
-
-  // TitanGold Protection Badge on Left Fascia
-  ctx.beginPath();
-  ctx.roundRect(80, 85, 150, 48, 12);
-  ctx.fillStyle = "rgba(217, 119, 6, 0.1)";
-  ctx.fill();
-  ctx.strokeStyle = "rgba(217, 119, 6, 0.4)";
-  ctx.lineWidth = 1.2;
-  ctx.stroke();
-
-  ctx.font = "bold 12px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillStyle = "#d97706";
-  ctx.textAlign = "center";
-  ctx.fillText("TITANGOLD", 155, 105);
-  ctx.font = "10px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillStyle = "#b45309";
-  ctx.fillText("Anti-Corrosion Fin", 155, 122);
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  return texture;
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.anisotropy = 4;
+  return tex;
 }
-
-// =============================================================================
-// THREE.JS ROUNDED RECTANGLE EXTRUSION HELPER
-// Produces real filleted corners and chamfered edges that catch studio light.
-// =============================================================================
 
 function createRoundedRectShape(
   width: number,
@@ -2169,6 +2150,74 @@ interface DeviceCADControllers {
   setFoldAngle?: (deg: number) => void;
   setLidAngle?: (deg: number) => void;
   setSurroundsDocked?: (docked: boolean) => void;
+}
+
+
+function createPhoneShowroomStand(accentHex: string): THREE.Group {
+  const standGroup = new THREE.Group();
+
+  // 1. Precision Machined Circular Base Plinth resting on turntable
+  const baseGeo = new THREE.CylinderGeometry(0.36, 0.40, 0.024, 32);
+  const baseMat = new THREE.MeshPhysicalMaterial({
+    color: 0x181c22,
+    metalness: 0.94,
+    roughness: 0.20,
+    clearcoat: 0.6,
+  });
+  const baseMesh = new THREE.Mesh(baseGeo, baseMat);
+  baseMesh.position.y = 0.012;
+  baseMesh.castShadow = true;
+  standGroup.add(baseMesh);
+
+  // Concentric LED Halo Groove on Plinth
+  const ringGeo = new THREE.TorusGeometry(0.32, 0.005, 16, 48);
+  const ringMat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(accentHex),
+    emissive: new THREE.Color(accentHex),
+    emissiveIntensity: 0.8,
+    metalness: 0.8,
+    roughness: 0.2,
+  });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.rotation.x = -Math.PI / 2;
+  ring.position.y = 0.025;
+  standGroup.add(ring);
+
+  // 2. Slender Angled Satin Titanium Support Stem
+  const stemGeo = new THREE.CylinderGeometry(0.028, 0.034, 0.62, 24);
+  const stemMat = new THREE.MeshPhysicalMaterial({
+    color: 0x272d37,
+    metalness: 0.95,
+    roughness: 0.16,
+    clearcoat: 0.5,
+  });
+  const stem = new THREE.Mesh(stemGeo, stemMat);
+  stem.position.set(0, 0.31, -0.06);
+  stem.rotation.x = 0.22; // ~12.5 deg lean
+  standGroup.add(stem);
+
+  // 3. Magnetic Showroom Mounting Cradle Puck
+  const puckGeo = new THREE.CylinderGeometry(0.16, 0.16, 0.022, 32);
+  const puckMat = new THREE.MeshPhysicalMaterial({
+    color: 0x1f242c,
+    metalness: 0.88,
+    roughness: 0.3,
+  });
+  const puck = new THREE.Mesh(puckGeo, puckMat);
+  puck.position.set(0, 0.60, -0.13);
+  puck.rotation.x = 0.22 + Math.PI / 2;
+  standGroup.add(puck);
+
+  const padGeo = new THREE.CylinderGeometry(0.14, 0.14, 0.004, 32);
+  const padMat = new THREE.MeshStandardMaterial({
+    color: 0x0c0f14,
+    roughness: 0.95,
+  });
+  const pad = new THREE.Mesh(padGeo, padMat);
+  pad.position.y = 0.012;
+  puck.add(pad);
+
+  return standGroup;
 }
 
 function buildRefinedHardwareCAD(
@@ -3437,23 +3486,57 @@ function buildRefinedHardwareCAD(
       const darkCavityMat = new THREE.MeshStandardMaterial({ color: 0x12151c, roughness: 0.85 });
       const chromeMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 0.98, roughness: 0.05, clearcoat: 1.0 });
 
-      // Aerodynamic Curved Unibody Chassis: width 2.24, height 0.68, depth 0.36
+      // Architectural Showroom Exhibition Pylon (Matte dark charcoal back-panel on turntable)
+      const pylonGroup = new THREE.Group();
+      root.add(pylonGroup);
+
+      // Heavy Exhibition Base Plinth (rests on turntable at y = 0)
+      const plinthMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(2.30, 0.030, 0.60),
+        new THREE.MeshPhysicalMaterial({ color: 0x1c212a, metalness: 0.92, roughness: 0.25 })
+      );
+      plinthMesh.position.set(0, 0.015, -0.08);
+      plinthMesh.castShadow = true;
+      pylonGroup.add(plinthMesh);
+
+      // Slim Architectural Exhibition Backboard rising from plinth
+      const backboardMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(2.36, 1.48, 0.040),
+        new THREE.MeshStandardMaterial({ color: 0x12161f, roughness: 0.65, metalness: 0.3 })
+      );
+      backboardMesh.position.set(0, 0.77, -0.22);
+      backboardMesh.castShadow = true;
+      pylonGroup.add(backboardMesh);
+
+      // Exhibition Plaque Accent Trim
+      const plaqueMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.20, 0.08),
+        new THREE.MeshPhysicalMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.4 })
+      );
+      plaqueMesh.position.set(0, 0.14, -0.198);
+      pylonGroup.add(plaqueMesh);
+
+      // AC Indoor Unit Mounted on Backboard at y = 0.82
+      const acUnit = new THREE.Group();
+      acUnit.position.set(0, 0.82, 0);
+      root.add(acUnit);
+
+      // Aerodynamic Curved Unibody Chassis: width 2.24, height 0.68, depth 0.34
       const acShape = createRoundedRectShape(2.24, 0.68, 0.12);
       const acGeo = new THREE.ExtrudeGeometry(acShape, {
-        depth: 0.36,
+        depth: 0.34,
         bevelEnabled: true,
         bevelSegments: 4,
-        bevelSize: 0.015,
-        bevelThickness: 0.015,
+        bevelSize: 0.012,
+        bevelThickness: 0.012,
       });
       acGeo.center();
 
       const ac = new THREE.Mesh(acGeo, acChassisMat);
-      ac.position.set(0, 0, 0);
       ac.castShadow = true;
-      root.add(ac);
+      acUnit.add(ac);
 
-      // Front face is at z = +0.18. Back is at z = -0.18.
+      // Front face is at z = +0.182. Back is at z = -0.182.
 
       // Front Panel Fascia with Digital LED 21°C Readout (Cleanly on front face)
       const acTex = createTCLACDisplayTexture();
@@ -3466,33 +3549,33 @@ function buildRefinedHardwareCAD(
           clearcoat: 1.0,
           emissiveMap: acTex,
           emissive: new THREE.Color(0xffffff),
-          emissiveIntensity: 0.32,
+          emissiveIntensity: 0.38,
         })
       );
-      frontPlane.position.set(0, 0, 0.182);
-      ac.add(frontPlane);
+      frontPlane.position.set(0, 0, 0.184);
+      acUnit.add(frontPlane);
 
       // Brushed Chrome Trim Accent Bar along lower fascia
       const chromeStrip = new THREE.Mesh(new THREE.BoxGeometry(2.18, 0.008, 0.006), chromeMat);
-      chromeStrip.position.set(0, -0.18, 0.183);
-      ac.add(chromeStrip);
+      chromeStrip.position.set(0, -0.18, 0.185);
+      acUnit.add(chromeStrip);
 
       // Top Air Intake Grille Louvers
-      const intakeChamber = new THREE.Mesh(new THREE.PlaneGeometry(2.14, 0.28), darkCavityMat);
+      const intakeChamber = new THREE.Mesh(new THREE.PlaneGeometry(2.14, 0.26), darkCavityMat);
       intakeChamber.rotation.x = -Math.PI / 2;
       intakeChamber.position.set(0, 0.342, 0);
-      ac.add(intakeChamber);
+      acUnit.add(intakeChamber);
 
       for (let i = 0; i < 8; i++) {
         const louverBlade = new THREE.Mesh(new THREE.BoxGeometry(2.12, 0.006, 0.022), acChassisMat);
         louverBlade.position.set(0, 0.345, -0.11 + i * 0.034);
-        ac.add(louverBlade);
+        acUnit.add(louverBlade);
       }
 
       // Motorized Directional Airflow Discharge Chute
       const ventChute = new THREE.Mesh(new THREE.BoxGeometry(2.14, 0.12, 0.10), darkCavityMat);
       ventChute.position.set(0, -0.26, 0.14);
-      ac.add(ventChute);
+      acUnit.add(ventChute);
 
       // Primary Motorized Airflow Guide Louver Blade
       const primaryLouver = new THREE.Mesh(new THREE.BoxGeometry(2.10, 0.018, 0.08), acChassisMat);
@@ -3505,20 +3588,20 @@ function buildRefinedHardwareCAD(
         new THREE.PlaneGeometry(2.18, 0.64),
         new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.8, roughness: 0.35 })
       );
-      backplate.position.set(0, 0, -0.181);
+      backplate.position.set(0, 0, -0.183);
       backplate.rotation.y = Math.PI;
-      ac.add(backplate);
+      acUnit.add(backplate);
 
       // Insulated Copper Line Pair
       const suctionPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.14, 16), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.7 }));
-      suctionPipe.position.set(0.85, -0.28, -0.24);
+      suctionPipe.position.set(0.85, -0.28, -0.22);
       suctionPipe.rotation.x = 0.5;
-      ac.add(suctionPipe);
+      acUnit.add(suctionPipe);
 
       const drainPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.16, 16), new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.9 }));
-      drainPipe.position.set(0.80, -0.30, -0.24);
+      drainPipe.position.set(0.80, -0.30, -0.22);
       drainPipe.rotation.x = 0.6;
-      ac.add(drainPipe);
+      acUnit.add(drainPipe);
 
       break;
     }
