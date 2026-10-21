@@ -16,6 +16,7 @@ import {
   X,
   User,
   MapPin,
+  Info,
 } from "lucide-react";
 
 export interface NavbarProps {
@@ -40,15 +41,6 @@ export function Navbar({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [logoError, setLogoError] = useState(false);
 
-  const navCategories = [
-    { id: "ALL", label: "All Products" },
-    { id: "SMARTPHONES", label: "Smartphones" },
-    { id: "LAPTOPS", label: "Laptops & PC" },
-    { id: "AUDIO_HEADPHONES", label: "Audio & Sound" },
-    { id: "TELEVISIONS", label: "4K Televisions" },
-    { id: "HOME_APPLIANCES", label: "Appliances & AC" },
-    { id: "ACCESSORIES", label: "Accessories" },
-  ];
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/95 dark:bg-[#111827]/95 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
@@ -233,26 +225,6 @@ export function Navbar({
         </div>
       </div>
 
-      {/* Category Navigation Bar (Desktop) */}
-      <div className="hidden md:block bg-slate-50 dark:bg-[#0D1321] border-t border-slate-200 dark:border-slate-800/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex items-center gap-1 overflow-x-auto py-2 scrollbar-none">
-            {navCategories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => onSelectCategory?.(cat.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
-                  activeCategory === cat.id
-                    ? "bg-[#FF8A00] text-white shadow-sm"
-                    : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60"
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </nav>
-        </div>
-      </div>
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
@@ -269,24 +241,24 @@ export function Navbar({
             />
           </div>
 
-          {/* Mobile Category Links */}
+          {/* Mobile Quick Links */}
           <div className="grid grid-cols-2 gap-2 pt-2">
-            {navCategories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => {
-                  onSelectCategory?.(cat.id);
-                  setMobileMenuOpen(false);
-                }}
-                className={`px-3 py-2 rounded-lg text-xs font-medium text-left ${
-                  activeCategory === cat.id
-                    ? "bg-[#FF8A00] text-white font-bold"
-                    : "text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800"
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
+            <a
+              href="/#map-directions"
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-3 py-2 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 hover:text-[#FF8A00] flex items-center gap-1.5"
+            >
+              <MapPin className="w-3.5 h-3.5 text-[#FF8A00]" />
+              <span>Showroom Map</span>
+            </a>
+            <a
+              href="/faq"
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-3 py-2 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 hover:text-[#FF8A00] flex items-center gap-1.5"
+            >
+              <Info className="w-3.5 h-3.5 text-[#FF8A00]" />
+              <span>Store FAQ</span>
+            </a>
           </div>
 
           <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center text-xs">

@@ -236,10 +236,10 @@ export function FloatingProductsConstellation({
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 shadow-sm backdrop-blur-md">
             <span className="w-2 h-2 rounded-full bg-[#FF8A00] animate-pulse" />
             <span className="text-xs font-bold text-slate-800 dark:text-slate-200 tracking-wide uppercase">
-              Curated Accra Flagship Constellation
+              Next-Gen Flagships in Motion
             </span>
-            <span className="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-[#FF8A00] text-white">
-              NEW
+            <span className="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-[#FF8A00] text-white tracking-wider">
+              INTERACTIVE
             </span>
           </div>
           <h1 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
