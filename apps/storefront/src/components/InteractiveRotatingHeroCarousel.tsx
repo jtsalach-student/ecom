@@ -1993,52 +1993,157 @@ function createIMacScreenTexture(): THREE.CanvasTexture {
   const ctx = canvas.getContext("2d");
   if (!ctx) return new THREE.CanvasTexture(canvas);
 
-  // macOS Sonoma / Sequoia Rolling Hills Wallpaper (Emerald Green & Teal Curves)
-  const grad = ctx.createLinearGradient(0, 0, 1024, 640);
-  grad.addColorStop(0, "#0284c7");
-  grad.addColorStop(0.35, "#0d9488");
-  grad.addColorStop(0.7, "#16a34a");
-  grad.addColorStop(1, "#064e3b");
-  ctx.fillStyle = grad;
+  // AUTHENTIC MACOS SONOMA / SEQUOIA ROLLING HILLS WALLPAPER (From Reference Photo)
+  // Radiant Azure Sky to Deep Blue Ocean Gradient
+  const skyGrad = ctx.createLinearGradient(0, 0, 1024, 400);
+  skyGrad.addColorStop(0, "#0284c7"); // Deep Azure Sky
+  skyGrad.addColorStop(0.4, "#2563eb"); // Royal Blue
+  skyGrad.addColorStop(0.75, "#4f46e5"); // Indigo
+  skyGrad.addColorStop(1, "#0f172a"); // Deep Navy
+  ctx.fillStyle = skyGrad;
   ctx.fillRect(0, 0, 1024, 640);
 
-  // Flowing Top Light Crest
+  // Flowing Emerald Green & Teal Rolling Hills Waves (Lower Half)
   ctx.save();
+  const hillGrad = ctx.createLinearGradient(0, 240, 1024, 640);
+  hillGrad.addColorStop(0, "#22c55e"); // Bright Emerald
+  hillGrad.addColorStop(0.35, "#16a34a"); // Lush Green
+  hillGrad.addColorStop(0.7, "#0d9488"); // Teal
+  hillGrad.addColorStop(1, "#065f46"); // Deep Forest
+  ctx.fillStyle = hillGrad;
+
   ctx.beginPath();
-  ctx.ellipse(512, 180, 520, 260, 0, 0, Math.PI * 2);
-  const crest = ctx.createRadialGradient(512, 180, 30, 512, 180, 480);
-  crest.addColorStop(0, "rgba(56, 189, 248, 0.75)");
-  crest.addColorStop(0.5, "rgba(45, 212, 191, 0.5)");
-  crest.addColorStop(1, "rgba(0, 0, 0, 0)");
-  ctx.fillStyle = crest;
+  ctx.moveTo(0, 280);
+  ctx.bezierCurveTo(240, 160, 480, 420, 720, 260);
+  ctx.bezierCurveTo(860, 180, 960, 320, 1024, 280);
+  ctx.lineTo(1024, 640);
+  ctx.lineTo(0, 640);
+  ctx.closePath();
+  ctx.fill();
+
+  // Foreground Vibrant Lime Wave
+  const foreGrad = ctx.createLinearGradient(0, 400, 1024, 640);
+  foreGrad.addColorStop(0, "#4ade80");
+  foreGrad.addColorStop(0.5, "#22c55e");
+  foreGrad.addColorStop(1, "#15803d");
+  ctx.fillStyle = foreGrad;
+
+  ctx.beginPath();
+  ctx.moveTo(0, 440);
+  ctx.bezierCurveTo(320, 340, 620, 540, 1024, 420);
+  ctx.lineTo(1024, 640);
+  ctx.lineTo(0, 640);
+  ctx.closePath();
   ctx.fill();
   ctx.restore();
 
-  // Top macOS Menu Bar
-  ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
-  ctx.fillRect(0, 0, 1024, 28);
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.textAlign = "left";
-  ctx.fillText("  Finder  File  Edit  View  Go  Window  Help", 20, 19);
+  // Desktop App Icons Grid (4 rows x 6 columns matching reference photo)
+  const desktopApps = [
+    { name: "Mail", icon: "✉️", bg: "#0284c7" },
+    { name: "Messages", icon: "💬", bg: "#22c55e" },
+    { name: "Contacts", icon: "👤", bg: "#d97706" },
+    { name: "Calendar", icon: "📅", bg: "#ef4444" },
+    { name: "Reminders", icon: "📝", bg: "#ea580c" },
+    { name: "Notes", icon: "📒", bg: "#f59e0b" },
+    { name: "Maps", icon: "🗺️", bg: "#10b981" },
+    { name: "Photos", icon: "🌸", bg: "#ec4899" },
+    { name: "FaceTime", icon: "📹", bg: "#22c55e" },
+    { name: "Clock", icon: "⏰", bg: "#0284c7" },
+    { name: "Music", icon: "🎵", bg: "#f43f5e" },
+    { name: "Home", icon: "🏠", bg: "#d97706" },
+    { name: "Stocks", icon: "📈", bg: "#0284c7" },
+    { name: "Podcasts", icon: "🎙️", bg: "#8b5cf6" },
+    { name: "TV", icon: "📺", bg: "#1e293b" },
+    { name: "News", icon: "📰", bg: "#f43f5e" },
+    { name: "App Store", icon: "🅰️", bg: "#0284c7" },
+    { name: "Settings", icon: "⚙️", bg: "#475569" },
+  ];
 
-  // Floating Glass App Dock at Bottom
+  const gridStartX = 240;
+  const gridStartY = 160;
+  const colW = 96;
+  const rowH = 72;
+
+  desktopApps.forEach((app, i) => {
+    const col = i % 6;
+    const row = Math.floor(i / 6);
+    const x = gridStartX + col * colW;
+    const y = gridStartY + row * rowH;
+
+    ctx.beginPath();
+    ctx.roundRect(x, y, 44, 44, 12);
+    ctx.fillStyle = app.bg;
+    ctx.fill();
+
+    ctx.font = "22px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(app.icon, x + 22, y + 29);
+
+    ctx.font = "10px system-ui, sans-serif";
+    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+    ctx.fillText(app.name, x + 22, y + 56);
+  });
+
+  // Top macOS Menu Bar
+  ctx.fillStyle = "rgba(15, 23, 42, 0.45)";
+  ctx.fillRect(0, 0, 1024, 26);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 12px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("  Finder  File  Edit  View  Go  Window  Help", 18, 18);
+
+  ctx.textAlign = "right";
+  ctx.font = "12px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("📶  🔋 100%   Mon Oct 21  9:41 AM", 1006, 18);
+
+  // Floating macOS Dock at Bottom (Frosted Glass Acrylic Bar)
+  ctx.save();
+  ctx.shadowColor = "rgba(0, 0, 0, 0.35)";
+  ctx.shadowBlur = 18;
+  ctx.shadowOffsetY = 6;
+
   ctx.beginPath();
-  ctx.roundRect(292, 574, 440, 56, 18);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.28)";
+  ctx.roundRect(212, 576, 600, 52, 16);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
   ctx.fill();
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+  ctx.restore();
+
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.55)";
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  const dockColors = ["#38bdf8", "#10b981", "#6366f1", "#ec4899", "#f59e0b", "#ef4444", "#8b5cf6"];
-  for (let i = 0; i < 7; i++) {
-    const x = 312 + i * 60;
+  // Dock Icons (Finder, Launchpad, Safari, Mail, Messages, Maps, Photos, FaceTime, Music, App Store, Trash)
+  const dockIcons = [
+    { icon: "😀", bg: "#38bdf8" }, // Finder
+    { icon: "🚀", bg: "#818cf8" }, // Launchpad
+    { icon: "🧭", bg: "#0284c7" }, // Safari
+    { icon: "✉️", bg: "#3b82f6" }, // Mail
+    { icon: "💬", bg: "#22c55e" }, // Messages
+    { icon: "🗺️", bg: "#10b981" }, // Maps
+    { icon: "🌸", bg: "#ec4899" }, // Photos
+    { icon: "📹", bg: "#16a34a" }, // FaceTime
+    { icon: "🎵", bg: "#f43f5e" }, // Music
+    { icon: "🎙️", bg: "#8b5cf6" }, // Podcasts
+    { icon: "📺", bg: "#1e293b" }, // TV
+    { icon: "🅰️", bg: "#0284c7" }, // App Store
+    { icon: "⚙️", bg: "#475569" }, // Settings
+    { icon: "🗑️", bg: "#64748b" }, // Trash
+  ];
+
+  dockIcons.forEach((app, i) => {
+    const x = 228 + i * 41;
+    const y = 584;
+
     ctx.beginPath();
-    ctx.roundRect(x, 582, 40, 40, 10);
-    ctx.fillStyle = dockColors[i];
+    ctx.roundRect(x, y, 36, 36, 10);
+    ctx.fillStyle = app.bg;
     ctx.fill();
-  }
+
+    ctx.font = "18px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(app.icon, x + 18, y + 25);
+  });
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -3514,23 +3619,52 @@ function buildRefinedHardwareCAD(
     // 5. APPLE IMAC 24" M4 (11.5mm Ultra-Thin with Cantilever Stand)
     // -------------------------------------------------------------------------
     case "imac24": {
-      // Silver Anodized CNC Aerospace Aluminum
+      // Authentic Silver Aerospace Aluminum Material (Matching reference photo)
       const chassisMat = new THREE.MeshPhysicalMaterial({
-        color: 0xd8dde4,
+        color: 0xdce2e8, // Satin Silver Aluminum
         metalness: 0.94,
+        roughness: 0.16,
+        clearcoat: 0.45,
+        clearcoatRoughness: 0.12,
+      });
+
+      // Forged Satin Aluminum Stand Material
+      const standMat = new THREE.MeshPhysicalMaterial({
+        color: 0xd4dae2,
+        metalness: 0.95,
         roughness: 0.15,
         clearcoat: 0.35,
         clearcoatRoughness: 0.12,
       });
 
-      const standMat = new THREE.MeshPhysicalMaterial({
-        color: 0xcfd5dc,
-        metalness: 0.95,
-        roughness: 0.14,
-        clearcoat: 0.25,
+      // Iconic Uniform White Glass Perimeter Bezel Material
+      const whiteBezelMat = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        roughness: 0.15,
+        metalness: 0.05,
       });
 
-      const darkInteriorMat = new THREE.MeshStandardMaterial({ color: 0x0a0c10, roughness: 0.9 });
+      // Mirrored Chrome Apple Logo Material
+      const mirrorChromeMat = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        metalness: 0.98,
+        roughness: 0.04,
+        clearcoat: 1.0,
+      });
+
+      const darkInteriorMat = new THREE.MeshStandardMaterial({
+        color: 0x090b10,
+        roughness: 0.92,
+      });
+
+      const appleLogoTex = createAppleLogoTexture();
+      const appleLogoMat = new THREE.MeshPhysicalMaterial({
+        map: appleLogoTex,
+        transparent: true,
+        metalness: 0.98,
+        roughness: 0.04,
+        clearcoat: 1.0,
+      });
 
       const screenTex = createIMacScreenTexture();
       const screenMat = new THREE.MeshPhysicalMaterial({
@@ -3540,93 +3674,190 @@ function buildRefinedHardwareCAD(
         clearcoat: 1.0,
         emissiveMap: screenTex,
         emissive: new THREE.Color(0xffffff),
-        emissiveIntensity: 0.38,
+        emissiveIntensity: 0.42,
       });
 
-      // 1. 11.5mm Razor-Thin Screen Chassis: width 2.24, height 1.44, depth 0.022
-      const screenShape = createRoundedRectShape(2.24, 1.44, 0.06);
-      const screenGeo = new THREE.ExtrudeGeometry(screenShape, {
-        depth: 0.022,
+      // -----------------------------------------------------------------------
+      // 1. CANTILEVERED FORGED ALUMINUM STAND (AUTHENTIC 1:1 ARCHITECTURE)
+      // -----------------------------------------------------------------------
+      const standGroup = new THREE.Group();
+      root.add(standGroup);
+
+      // A. Stand Base Foot: Flat forged aluminum plate resting at bottom (y = -0.68)
+      // Width: 0.76, Thickness: 0.016, Depth (Z): 0.58
+      const footShape = createRoundedRectShape(0.76, 0.58, 0.04);
+      const footGeo = new THREE.ExtrudeGeometry(footShape, {
+        depth: 0.016,
         bevelEnabled: true,
         bevelSegments: 4,
-        bevelSize: 0.006,
-        bevelThickness: 0.006,
+        bevelSize: 0.004,
+        bevelThickness: 0.004,
+      });
+      footGeo.center();
+
+      const standFoot = new THREE.Mesh(footGeo, standMat);
+      standFoot.rotation.x = Math.PI / 2;
+      standFoot.position.set(0, -0.68, 0.04);
+      standFoot.castShadow = true;
+      standGroup.add(standFoot);
+
+      // B. Angled Forged Aluminum Stem rising from rear of foot to balance hinge
+      // Width: 0.38, Thickness: 0.024, Height: 0.72
+      // Rises from y = -0.67 up to y = +0.05 behind the screen chin
+      const stemGeo = new THREE.BoxGeometry(0.38, 0.72, 0.024);
+      const standStem = new THREE.Mesh(stemGeo, standMat);
+      standStem.position.set(0, -0.32, -0.06);
+      standStem.rotation.x = 0.18; // Elegant 10° backward slope for balance
+      standStem.castShadow = true;
+      standGroup.add(standStem);
+
+      // C. Oval Cable Pass-Through Hole in Stem (Centered at y = -0.34)
+      const holeRing = new THREE.Mesh(
+        new THREE.TorusGeometry(0.042, 0.006, 16, 32),
+        standMat
+      );
+      holeRing.position.set(0, -0.34, -0.06);
+      holeRing.rotation.x = 0.18;
+      standGroup.add(holeRing);
+
+      // Braided Power Cord passing through the hole
+      const cordGeo = new THREE.CylinderGeometry(0.012, 0.012, 0.40, 16);
+      const cordMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.8 });
+      const cord = new THREE.Mesh(cordGeo, cordMat);
+      cord.position.set(0, -0.48, -0.04);
+      cord.rotation.x = 0.28;
+      standGroup.add(cord);
+
+      // D. Magnetic Balance Tilt Hinge Barrel at Junction (y = 0.02, z = -0.04)
+      const hinge = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.045, 0.045, 0.032, 32),
+        standMat
+      );
+      hinge.rotation.x = Math.PI / 2;
+      hinge.position.set(0, 0.02, -0.04);
+      standGroup.add(hinge);
+
+      // -----------------------------------------------------------------------
+      // 2. 11.5mm RAZOR-THIN SCREEN CHASSIS (ELEVATED WITH 28cm AIR CLEARANCE)
+      // -----------------------------------------------------------------------
+      const screenGroup = new THREE.Group();
+      screenGroup.position.set(0, 0.32, 0); // Bottom of chin is at y = -0.39; +0.29 clearance above foot!
+      root.add(screenGroup);
+
+      // Ultra-Thin 11.5mm Chassis Unibody: width 2.24, height 1.42, depth 0.018
+      const screenShape = createRoundedRectShape(2.24, 1.42, 0.05);
+      const screenGeo = new THREE.ExtrudeGeometry(screenShape, {
+        depth: 0.018,
+        bevelEnabled: true,
+        bevelSegments: 4,
+        bevelSize: 0.003,
+        bevelThickness: 0.003,
       });
       screenGeo.center();
 
-      const screen = new THREE.Mesh(screenGeo, chassisMat);
-      screen.position.set(0, 0.20, 0);
-      screen.castShadow = true;
-      root.add(screen);
+      const chassisMesh = new THREE.Mesh(screenGeo, chassisMat);
+      chassisMesh.castShadow = true;
+      screenGroup.add(chassisMesh);
 
-      // Chassis front face is at z = +0.014. Chassis back is at z = -0.014.
+      // Front flat face is at z = +0.012. Rear flat face is at z = -0.012.
 
-      // 2. Front 4.5K Retina Display Glass with Iconic White Border Bezel
-      const displayPlane = new THREE.Mesh(new THREE.PlaneGeometry(2.14, 1.18), screenMat);
-      displayPlane.position.set(0, 0.09, 0.015);
-      screen.add(displayPlane);
+      // -----------------------------------------------------------------------
+      // 3. FRONT FACE: ICONIC WHITE GLASS BORDER & RETINA DISPLAY
+      // -----------------------------------------------------------------------
+      // A. Full Front Glass Panel with Iconic Uniform White Perimeter Border
+      const frontGlass = new THREE.Mesh(
+        new THREE.PlaneGeometry(2.18, 1.36),
+        whiteBezelMat
+      );
+      frontGlass.position.set(0, 0, 0.0125);
+      screenGroup.add(frontGlass);
 
-      // 3. Front Color-Matched Satin Aluminum Chin
-      const chin = new THREE.Mesh(new THREE.PlaneGeometry(2.14, 0.21), chassisMat);
-      chin.position.set(0, -0.58, 0.015);
-      screen.add(chin);
+      // B. 4.5K Retina Display Screen Surface (Framed inside the white border)
+      // Display sits on upper portion: width 2.08, height 1.12, centered at y = +0.10
+      const displayPlane = new THREE.Mesh(
+        new THREE.PlaneGeometry(2.08, 1.12),
+        screenMat
+      );
+      displayPlane.position.set(0, 0.10, 0.0130);
+      screenGroup.add(displayPlane);
 
-      // 4. Center Stage Camera with Green Indicator LED
-      const camHousing = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.004, 20), darkInteriorMat);
+      // C. Satin Aluminum Front Chin (Directly below display: width 2.18, height 0.22, y = -0.56)
+      const chinMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(2.18, 0.22),
+        chassisMat
+      );
+      chinMesh.position.set(0, -0.56, 0.0130);
+      screenGroup.add(chinMesh);
+
+      // D. FRONT CHIN MIRRORED CHROME APPLE LOGO (Centered on Chin from Reference Photo)
+      const frontAppleLogo = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.12, 0.12),
+        appleLogoMat
+      );
+      frontAppleLogo.position.set(0, -0.56, 0.0135);
+      screenGroup.add(frontAppleLogo);
+
+      // E. 1080p FaceTime HD Camera & Green Indicator LED in Top White Bezel
+      const camHousing = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.006, 0.006, 0.004, 20),
+        darkInteriorMat
+      );
       camHousing.rotation.x = Math.PI / 2;
-      camHousing.position.set(0, 0.695, 0.0155);
-      screen.add(camHousing);
+      camHousing.position.set(0, 0.67, 0.0135);
+      screenGroup.add(camHousing);
 
-      const camLed = new THREE.Mesh(new THREE.CylinderGeometry(0.002, 0.002, 0.004, 12), new THREE.MeshStandardMaterial({ color: 0x22c55e, emissive: 0x22c55e, emissiveIntensity: 0.8 }));
+      const camLed = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.002, 0.002, 0.004, 12),
+        new THREE.MeshStandardMaterial({ color: 0x22c55e, emissive: 0x22c55e, emissiveIntensity: 0.9 })
+      );
       camLed.rotation.x = Math.PI / 2;
-      camLed.position.set(0.025, 0.695, 0.0155);
-      screen.add(camLed);
+      camLed.position.set(0.025, 0.67, 0.0135);
+      screenGroup.add(camLed);
 
-      // 5. Mirror High-Gloss Apple Logo on Rear Face (z = -0.014)
-      const appleLogoTex = createAppleLogoTexture();
-      const appleLogoMat = new THREE.MeshPhysicalMaterial({
-        map: appleLogoTex,
-        transparent: true,
-        metalness: 0.98,
-        roughness: 0.04,
-        clearcoat: 1.0,
+      // -----------------------------------------------------------------------
+      // 4. REAR FACE: SATIN SILVER BACK WITH BOLD CHROME APPLE LOGO
+      // -----------------------------------------------------------------------
+      // Rear Flat Face at z = -0.0125
+      // A. Large High-Gloss Mirror Chrome Apple Logo (Centered from Reference Photo)
+      const rearAppleLogo = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.36, 0.36),
+        appleLogoMat
+      );
+      rearAppleLogo.position.set(0, 0.22, -0.0130);
+      rearAppleLogo.rotation.y = Math.PI;
+      screenGroup.add(rearAppleLogo);
+
+      // B. Circular Magnetic MagSafe Power Port
+      const magSafePort = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.026, 0.026, 0.006, 24),
+        standMat
+      );
+      magSafePort.rotation.x = Math.PI / 2;
+      magSafePort.position.set(0, -0.22, -0.0130);
+      screenGroup.add(magSafePort);
+
+      // C. Dual Thunderbolt 4 / USB-C Ports on Lower-Right Rear (Matching Photo)
+      [0.04, 0.12].forEach((offset) => {
+        const port = new THREE.Mesh(
+          new THREE.BoxGeometry(0.016, 0.042, 0.006),
+          darkInteriorMat
+        );
+        port.position.set(0.72 + offset, -0.42, -0.0130);
+        screenGroup.add(port);
       });
-      const appleLogoMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.32, 0.32), appleLogoMat);
-      appleLogoMesh.position.set(0, 0.14, -0.015);
-      appleLogoMesh.rotation.y = Math.PI;
-      screen.add(appleLogoMesh);
 
-      // 6. Rear I/O: 4x Thunderbolt 4 / USB-C Ports + Magnetic Power Socket
-      [-0.14, -0.05, 0.05, 0.14].forEach((px) => {
-        const portWell = new THREE.Mesh(new THREE.BoxGeometry(0.020, 0.050, 0.006), darkInteriorMat);
-        portWell.position.set(0.68 + px, -0.38, -0.015);
-        screen.add(portWell);
-      });
-
-      // Magnetic Circular MagSafe Power Port
-      const pwrRing = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.006, 24), standMat);
-      pwrRing.rotation.x = Math.PI / 2;
-      pwrRing.position.set(0, -0.22, -0.015);
-      screen.add(pwrRing);
-
-      // 7. Cantilevered Forged Aluminum Stand
-      const standPole = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.74, 0.034), standMat);
-      standPole.position.set(0, -0.48, -0.12);
-      standPole.rotation.x = 0.20;
-      root.add(standPole);
-
-      // Stand Base Foot resting solidly on pedestal at y = -0.52
-      const standBase = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.020, 0.60), standMat);
-      standBase.position.set(0, -0.52, 0.16);
-      standBase.castShadow = true;
-      root.add(standBase);
+      // D. Recessed Circular Power Button on Lower-Left Rear
+      const pwrButton = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.018, 0.018, 0.004, 20),
+        standMat
+      );
+      pwrButton.rotation.x = Math.PI / 2;
+      pwrButton.position.set(-0.82, -0.42, -0.0130);
+      screenGroup.add(pwrButton);
 
       break;
     }
 
-    // -------------------------------------------------------------------------
-    // 6. 75" QNED 4K SMART TV (Vivid 4K HDR Panel with webOS 23 Dock)
-    // -------------------------------------------------------------------------
     case "tv75": {
       // Gunmetal Anodized Aluminum Outer Bezel Trim
       const tvFrameMat = new THREE.MeshPhysicalMaterial({
