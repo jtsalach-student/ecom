@@ -866,9 +866,9 @@ function RefinedProduct3DStage({
       const modelRoot = new THREE.Group();
       const deviceControllers = buildRefinedHardwareCAD(modelRoot, slide.deviceModel, slide.accentColor);
 
-      // AUTOMATIC BOUNDING-BOX NORMALIZATION & PHYSICAL TURNTABLE GROUNDING:
-      // Calibrates every 3D model to uniform visual scale (1.95 units) and grounds its lowest point
-      // solidly on the showroom turntable surface (y = -1.08) with zero floating gap.
+      // AUTOMATIC BOUNDING-BOX NORMALIZATION & ELEVATED ZERO-GRAVITY HOVERING:
+      // Suspends the CAD model higher above the showroom turntable disc,
+      // creating an elevated, floating showcase with the illuminated halo ring rotating below.
       modelRoot.updateMatrixWorld(true);
       const box = new THREE.Box3().setFromObject(modelRoot);
       const size = new THREE.Vector3();
@@ -880,12 +880,13 @@ function RefinedProduct3DStage({
       const targetScale = 1.95 / (maxDim || 1);
 
       uniformWrapper = new THREE.Group();
-      // Center horizontally on (X, Z) and ground vertically so the lowest point touches the turntable
+      // Center horizontally on (X, Z) and ground vertically with an elevated floating hover
       modelRoot.position.set(-center.x, -box.min.y, -center.z);
       uniformWrapper.scale.setScalar(targetScale);
       
-      const PEDESTAL_SURFACE_Y = -1.08;
-      uniformWrapper.position.set(0, PEDESTAL_SURFACE_Y, 0);
+      // Floats gracefully ~30cm above the turntable surface (-1.08)
+      const FLOAT_ELEVATION_Y = -0.74;
+      uniformWrapper.position.set(0, FLOAT_ELEVATION_Y, 0);
       uniformWrapper.add(modelRoot);
 
       // Initial 35° Hero Angle
@@ -980,7 +981,7 @@ function RefinedProduct3DStage({
             }
           }
 
-          uniformWrapper.position.y = -1.08;
+          uniformWrapper.position.y = -0.74 + Math.sin(Date.now() * 0.0016) * 0.028;
 
           // Synchronize Showroom Turntable Disc with Product Orbit
           if (pedestalControls) {
@@ -1788,86 +1789,197 @@ function createSurfaceScreenTexture(): THREE.CanvasTexture {
   const ctx = canvas.getContext("2d");
   if (!ctx) return new THREE.CanvasTexture(canvas);
 
-  // Windows 11 Copilot+ Lake & Mountain Bloom Landscape
-  const skyGrad = ctx.createLinearGradient(0, 0, 0, 450);
-  skyGrad.addColorStop(0, "#4895ef");
-  skyGrad.addColorStop(0.6, "#a0c4e2");
-  skyGrad.addColorStop(1, "#f3f8fc");
+  // AUTHENTIC WINDOWS 11 COPILOT+ MOUNTAIN LAKE WALLPAPER (From Reference Photo)
+  // Radiant Sky Gradient
+  const skyGrad = ctx.createLinearGradient(0, 0, 0, 420);
+  skyGrad.addColorStop(0, "#3a86c8");
+  skyGrad.addColorStop(0.5, "#7eb4e2");
+  skyGrad.addColorStop(0.85, "#cde4f7");
+  skyGrad.addColorStop(1, "#f0f7fd");
   ctx.fillStyle = skyGrad;
-  ctx.fillRect(0, 0, 1024, 450);
+  ctx.fillRect(0, 0, 1024, 420);
 
-  // Pristine Turquoise Mountain Lake
-  const lakeGrad = ctx.createLinearGradient(0, 450, 0, 680);
-  lakeGrad.addColorStop(0, "#0077b6");
-  lakeGrad.addColorStop(0.5, "#0096c7");
-  lakeGrad.addColorStop(1, "#48cae4");
-  ctx.fillStyle = lakeGrad;
-  ctx.fillRect(0, 450, 1024, 230);
-
-  // Mountain Silhouette
-  ctx.fillStyle = "#2c4c68";
+  // Distant Snow-Capped Mountain Ridge (Matching reference photo)
+  ctx.fillStyle = "#335574";
   ctx.beginPath();
-  ctx.moveTo(0, 450);
-  ctx.lineTo(180, 320);
-  ctx.lineTo(340, 410);
-  ctx.lineTo(540, 270);
-  ctx.lineTo(760, 420);
-  ctx.lineTo(920, 310);
-  ctx.lineTo(1024, 390);
-  ctx.lineTo(1024, 450);
+  ctx.moveTo(0, 420);
+  ctx.lineTo(80, 360);
+  ctx.lineTo(190, 310);
+  ctx.lineTo(310, 380);
+  ctx.lineTo(460, 260);
+  ctx.lineTo(580, 340);
+  ctx.lineTo(720, 280);
+  ctx.lineTo(880, 390);
+  ctx.lineTo(1024, 320);
+  ctx.lineTo(1024, 420);
   ctx.closePath();
   ctx.fill();
 
-  // Windows 11 Floating Centered Start Menu Window
+  // White Snow Caps on Mountain Peaks
+  ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
   ctx.beginPath();
-  ctx.roundRect(332, 280, 360, 310, 16);
-  ctx.fillStyle = "rgba(240, 245, 250, 0.92)";
+  ctx.moveTo(190, 310);
+  ctx.lineTo(210, 335);
+  ctx.lineTo(170, 335);
+  ctx.closePath();
   ctx.fill();
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+
+  ctx.beginPath();
+  ctx.moveTo(460, 260);
+  ctx.lineTo(495, 305);
+  ctx.lineTo(430, 305);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(720, 280);
+  ctx.lineTo(755, 325);
+  ctx.lineTo(690, 325);
+  ctx.closePath();
+  ctx.fill();
+
+  // Pristine Turquoise Mountain Lake Reflection
+  const lakeGrad = ctx.createLinearGradient(0, 420, 0, 680);
+  lakeGrad.addColorStop(0, "#10689b");
+  lakeGrad.addColorStop(0.4, "#198bb4");
+  lakeGrad.addColorStop(0.7, "#2aa8c8");
+  lakeGrad.addColorStop(1, "#4ac4dc");
+  ctx.fillStyle = lakeGrad;
+  ctx.fillRect(0, 420, 1024, 260);
+
+  // Grassy Shoreline on Lower Right (Matching photo)
+  ctx.fillStyle = "#4d7c0f";
+  ctx.beginPath();
+  ctx.moveTo(680, 520);
+  ctx.bezierCurveTo(780, 480, 920, 500, 1024, 480);
+  ctx.lineTo(1024, 630);
+  ctx.lineTo(680, 630);
+  ctx.closePath();
+  ctx.fill();
+
+  // Desktop Icons on Upper Left (Recycle Bin, Microsoft Edge)
+  ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+  ctx.font = "24px sans-serif";
+  ctx.fillText("🗑️", 36, 52);
+  ctx.font = "11px system-ui, sans-serif";
+  ctx.fillText("Recycle Bin", 24, 72);
+
+  ctx.font = "24px sans-serif";
+  ctx.fillText("🌐", 36, 112);
+  ctx.font = "11px system-ui, sans-serif";
+  ctx.fillText("Microsoft Edge", 18, 132);
+
+  // Centered Floating Acrylic Windows 11 Start Menu Window
+  ctx.save();
+  ctx.shadowColor = "rgba(0, 0, 0, 0.28)";
+  ctx.shadowBlur = 28;
+  ctx.shadowOffsetY = 12;
+
+  ctx.beginPath();
+  ctx.roundRect(324, 210, 376, 390, 18);
+  ctx.fillStyle = "rgba(244, 248, 252, 0.94)";
+  ctx.fill();
+  ctx.restore();
+
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
-  // Search Bar inside Start Menu
+  // Start Menu Search Bar ("Type here to search")
   ctx.beginPath();
-  ctx.roundRect(352, 296, 320, 34, 17);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+  ctx.roundRect(344, 228, 336, 36, 18);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.98)";
   ctx.fill();
-  ctx.fillStyle = "#64748b";
-  ctx.font = "13px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.textAlign = "left";
-  ctx.fillText("🔍 Search apps, files, web...", 372, 318);
+  ctx.strokeStyle = "rgba(100, 116, 139, 0.2)";
+  ctx.stroke();
 
-  // Pinned App Grid
-  const appColors = ["#0284c7", "#22c55e", "#ea580c", "#8b5cf6", "#ec4899", "#3b82f6"];
+  ctx.fillStyle = "#64748b";
+  ctx.font = "12px system-ui, -apple-system, sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("🔍  Type here to search...", 364, 251);
+
+  // "Pinned" Header
+  ctx.fillStyle = "#1e293b";
+  ctx.font = "bold 13px system-ui, sans-serif";
+  ctx.fillText("Pinned", 348, 286);
+  ctx.fillStyle = "#0284c7";
+  ctx.font = "11px system-ui, sans-serif";
+  ctx.textAlign = "right";
+  ctx.fillText("All apps >", 670, 286);
+
+  // Microsoft 365 Pinned App Grid (Edge, Word, Excel, PowerPoint, Mail, Settings, Xbox, Store)
+  const officeApps = [
+    { name: "Edge", icon: "🌐", bg: "#0284c7" },
+    { name: "Word", icon: "📄", bg: "#2563eb" },
+    { name: "Excel", icon: "📊", bg: "#16a34a" },
+    { name: "PowerPoint", icon: "📈", bg: "#ea580c" },
+    { name: "Mail", icon: "✉️", bg: "#0284c7" },
+    { name: "Settings", icon: "⚙️", bg: "#475569" },
+    { name: "Xbox", icon: "🎮", bg: "#16a34a" },
+    { name: "Store", icon: "🛍️", bg: "#0284c7" },
+  ];
   for (let r = 0; r < 2; r++) {
-    for (let c = 0; c < 3; c++) {
-      const x = 370 + c * 105;
-      const y = 350 + r * 65;
+    for (let c = 0; c < 4; c++) {
+      const idx = r * 4 + c;
+      const x = 352 + c * 82;
+      const y = 300 + r * 60;
       ctx.beginPath();
-      ctx.roundRect(x, y, 40, 40, 10);
-      ctx.fillStyle = appColors[r * 3 + c];
+      ctx.roundRect(x, y, 36, 36, 9);
+      ctx.fillStyle = officeApps[idx].bg;
       ctx.fill();
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "16px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(officeApps[idx].icon, x + 18, y + 24);
+
+      ctx.fillStyle = "#334155";
+      ctx.font = "10px system-ui, sans-serif";
+      ctx.fillText(officeApps[idx].name, x + 18, y + 49);
     }
   }
 
-  // Windows 11 Centered Taskbar at Bottom
-  ctx.fillStyle = "rgba(235, 242, 250, 0.85)";
-  ctx.fillRect(0, 628, 1024, 52);
+  // "Recommended" Section
+  ctx.fillStyle = "#1e293b";
+  ctx.font = "bold 12px system-ui, sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("Recommended", 348, 442);
 
-  // Centered Icons (Windows Logo, Copilot AI, Search, Explorer, Edge)
-  const taskIcons = ["⊞", "AI", "🔍", "📁", "🌐"];
-  const startX = 428;
-  for (let i = 0; i < taskIcons.length; i++) {
-    const x = startX + i * 38;
+  const recFiles = ["Gadget Master Accra.docx", "Surface Laptop 7 Specs.xlsx"];
+  recFiles.forEach((file, fi) => {
+    ctx.fillStyle = "#64748b";
+    ctx.font = "11px system-ui, sans-serif";
+    ctx.fillText("📁  " + file, 352, 468 + fi * 22);
+  });
+
+  // Windows 11 Centered Taskbar at Bottom
+  ctx.fillStyle = "rgba(240, 245, 252, 0.90)";
+  ctx.fillRect(0, 626, 1024, 54);
+  ctx.strokeStyle = "rgba(226, 232, 240, 0.8)";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(0, 626, 1024, 1);
+
+  // Centered Taskbar Icons (Windows logo, Search, Copilot, Task View, Explorer, Edge, Store)
+  const taskbarIcons = ["⊞", "🔍", "AI", "📁", "🌐", "🛍️"];
+  const tbStartX = 412;
+  taskbarIcons.forEach((icon, i) => {
+    const x = tbStartX + i * 36;
     ctx.beginPath();
-    ctx.roundRect(x, 636, 32, 32, 8);
-    ctx.fillStyle = i === 1 ? "#0284c7" : "rgba(100, 116, 139, 0.15)";
+    ctx.roundRect(x, 634, 32, 32, 8);
+    ctx.fillStyle = i === 2 ? "#0284c7" : "rgba(100, 116, 139, 0.12)";
     ctx.fill();
-    ctx.fillStyle = i === 1 ? "#ffffff" : "#1e293b";
-    ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
+
+    ctx.fillStyle = i === 2 ? "#ffffff" : "#1e293b";
+    ctx.font = "bold 13px system-ui, sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(taskIcons[i], x + 16, 656);
-  }
+    ctx.fillText(icon, x + 16, 655);
+  });
+
+  // System Tray at Bottom Right: Wi-Fi, Sound, Battery, 9:36 AM
+  ctx.fillStyle = "#475569";
+  ctx.font = "12px system-ui, sans-serif";
+  ctx.textAlign = "right";
+  ctx.fillText("📶 🔊 🔋  9:36 AM", 1000, 656);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -2941,34 +3053,34 @@ function buildRefinedHardwareCAD(
     // 3. MICROSOFT SURFACE LAPTOP 7 (CNC Aluminum Unibody with Copilot Key)
     // -------------------------------------------------------------------------
     case "surface7": {
-      // Platinum Anodized Aircraft Aluminum
+      // Platinum Anodized Aircraft Aluminum (Matching authentic reference photo)
       const aluminumMat = new THREE.MeshPhysicalMaterial({
-        color: 0xd6dade,
+        color: 0xdee3e8, // Satin Platinum Aluminum
         metalness: 0.94,
         roughness: 0.16,
-        clearcoat: 0.35,
-        clearcoatRoughness: 0.15,
+        clearcoat: 0.42,
+        clearcoatRoughness: 0.12,
       });
 
-      // Dark Matte PBT Keycap Material
+      // Dark Matte PBT Keycap Material (Dark graphite chiclet keys)
       const darkKeyMat = new THREE.MeshStandardMaterial({
-        color: 0x1c2026,
-        metalness: 0.25,
+        color: 0x181c22,
+        metalness: 0.22,
         roughness: 0.65,
       });
 
-      // Precision Haptic Glass Trackpad
+      // Precision Haptic Glass Trackpad Material (Silky matte platinum glass)
       const trackpadMat = new THREE.MeshPhysicalMaterial({
-        color: 0xc8ced4,
-        metalness: 0.32,
-        roughness: 0.1,
-        clearcoat: 0.9,
+        color: 0xc8d0d8,
+        metalness: 0.28,
+        roughness: 0.12,
+        clearcoat: 0.92,
         clearcoatRoughness: 0.08,
       });
 
       // Dark Cavity / Port Interior Material
       const interiorMat = new THREE.MeshStandardMaterial({
-        color: 0x080a0e,
+        color: 0x090b10,
         roughness: 0.92,
       });
 
@@ -2979,162 +3091,169 @@ function buildRefinedHardwareCAD(
         roughness: 0.1,
       });
 
+      // Dedicated Glowing Copilot Key Material (Electric Blue)
+      const copilotKeyMat = new THREE.MeshStandardMaterial({
+        color: 0x0284c7,
+        emissive: 0x0284c7,
+        emissiveIntensity: 0.95,
+        metalness: 0.3,
+        roughness: 0.35,
+      });
+
       const screenTex = createSurfaceScreenTexture();
       const screenMat = new THREE.MeshPhysicalMaterial({
         map: screenTex,
-        roughness: 0.04,
+        roughness: 0.03,
         metalness: 0.05,
         clearcoat: 1.0,
         emissiveMap: screenTex,
         emissive: new THREE.Color(0xffffff),
-        emissiveIntensity: 0.36,
+        emissiveIntensity: 0.42,
       });
 
-      // 1. Base Assembly (Group positioned at base level)
+      // 1. Base Assembly (Group positioned at base level, top surface flat at y = 0.0)
       const baseGroup = new THREE.Group();
-      baseGroup.position.set(0, -0.40, 0);
       root.add(baseGroup);
 
-      // Tapered Aerodynamic CNC Aluminum Base: width 2.12, height 0.044, depth 1.44
-      const baseShape = createRoundedRectShape(2.12, 1.44, 0.07);
+      // Tapered Aerodynamic CNC Aluminum Base: width 2.12, depth (Z) 1.44, corner radius 0.045
+      const baseShape = createRoundedRectShape(2.12, 1.44, 0.045);
       const baseGeo = new THREE.ExtrudeGeometry(baseShape, {
-        depth: 0.044,
+        depth: 0.042,
         bevelEnabled: true,
         bevelSegments: 4,
-        bevelSize: 0.010,
-        bevelThickness: 0.010,
+        bevelSize: 0.008,
+        bevelThickness: 0.008,
       });
       baseGeo.center();
 
       const baseMesh = new THREE.Mesh(baseGeo, aluminumMat);
       baseMesh.rotation.x = Math.PI / 2;
+      baseMesh.position.set(0, -0.029, 0); // Flat top surface at exactly y = 0.0
       baseMesh.castShadow = true;
       baseGroup.add(baseMesh);
 
-      // Top surface of base is at y = +0.022. Front lip is at z = +0.72. Rear hinge is at z = -0.72.
-
-      // Chamfered Front Lip Thumb Notch (Single-finger lid opener)
-      const notchGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.016, 24, 1, false, 0, Math.PI);
+      // Chamfered Front Lip Thumb Notch (Single-finger lid opener at front z = +0.72)
+      const notchGeo = new THREE.CylinderGeometry(0.14, 0.14, 0.016, 24, 1, false, 0, Math.PI);
       const notch = new THREE.Mesh(notchGeo, aluminumMat);
       notch.rotation.z = Math.PI;
-      notch.position.set(0, 0.018, 0.72);
+      notch.position.set(0, -0.004, 0.72);
       baseGroup.add(notch);
 
-      // Recessed Milled Keyboard Deck Well (under screen at z = -0.20)
+      // Recessed Milled Keyboard Deck Well (recessed into base top at y = 0.001)
       const deckWell = new THREE.Mesh(
-        new THREE.BoxGeometry(1.78, 0.004, 0.68),
-        new THREE.MeshStandardMaterial({ color: 0x22262e, roughness: 0.8 })
+        new THREE.BoxGeometry(1.76, 0.004, 0.68),
+        new THREE.MeshStandardMaterial({ color: 0x1a1e24, roughness: 0.85 })
       );
-      deckWell.position.set(0, 0.023, -0.20);
+      deckWell.position.set(0, 0.001, -0.20);
       baseGroup.add(deckWell);
 
-      // Discrete Keycap Rows (6 Realistic Rows with Copilot Key)
+      // 6 Full Realistic Rows of Discrete Chiclet Keycaps (Protruding cleanly to y = 0.007)
       const rowConfigs = [
-        { z: -0.48, count: 14, depth: 0.065, wRatio: 1.0 },  // Function Row
-        { z: -0.38, count: 14, depth: 0.080, wRatio: 1.0 },  // Number Row
-        { z: -0.28, count: 14, depth: 0.080, wRatio: 1.0 },  // QWERTY Row
-        { z: -0.18, count: 13, depth: 0.080, wRatio: 1.08 }, // Home Row
-        { z: -0.08, count: 12, depth: 0.080, wRatio: 1.16 }, // Bottom Alpha Row
+        { z: -0.48, count: 14, depth: 0.062, wRatio: 1.0 },  // Function Row (Esc, F1-F12, Del)
+        { z: -0.38, count: 14, depth: 0.078, wRatio: 1.0 },  // Number Row
+        { z: -0.28, count: 14, depth: 0.078, wRatio: 1.0 },  // QWERTY Row
+        { z: -0.18, count: 13, depth: 0.078, wRatio: 1.08 }, // Home Row
+        { z: -0.08, count: 12, depth: 0.078, wRatio: 1.16 }, // Bottom Alpha Row
       ];
 
       rowConfigs.forEach((row) => {
-        const keyWidth = (1.70 / row.count) * 0.92;
-        const startX = -0.80 + keyWidth / 2;
+        const keyWidth = (1.68 / row.count) * 0.92;
+        const startX = -0.79 + keyWidth / 2;
         for (let i = 0; i < row.count; i++) {
-          const keyGeo = new THREE.BoxGeometry(keyWidth * row.wRatio, 0.008, row.depth * 0.92);
+          const keyGeo = new THREE.BoxGeometry(keyWidth * row.wRatio, 0.009, row.depth * 0.92);
           const key = new THREE.Mesh(keyGeo, darkKeyMat);
-          key.position.set(startX + i * (keyWidth * row.wRatio * 1.08), 0.026, row.z);
+          key.position.set(startX + i * (keyWidth * row.wRatio * 1.08), 0.007, row.z);
           baseGroup.add(key);
         }
       });
 
-      // Bottom Row (Spacebar, Modifiers & Dedicated Copilot Key at z = +0.02)
-      const spacebar = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.008, 0.080), darkKeyMat);
-      spacebar.position.set(-0.06, 0.026, 0.02);
+      // Bottom Row (Spacebar, Modifiers, and Dedicated Copilot Key at z = +0.02)
+      const spacebar = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.009, 0.078), darkKeyMat);
+      spacebar.position.set(-0.06, 0.007, 0.02);
       baseGroup.add(spacebar);
 
-      // Dedicated Glowing Copilot Key
-      const copilotMat = new THREE.MeshStandardMaterial({
-        color: 0x0284c7,
-        emissive: 0x0284c7,
-        emissiveIntensity: 0.8,
-        metalness: 0.3,
-        roughness: 0.4,
-      });
-      const copilotKey = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.008, 0.080), copilotMat);
-      copilotKey.position.set(0.32, 0.026, 0.02);
+      // Dedicated Glowing Copilot Key (Between right Alt and arrow cluster)
+      const copilotKey = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.009, 0.078), copilotKeyMat);
+      copilotKey.position.set(0.32, 0.007, 0.02);
       baseGroup.add(copilotKey);
 
-      // Modifier keys
+      // Modifier Keys
       [-0.72, -0.60, -0.48, -0.36, 0.20, 0.44, 0.56, 0.68].forEach((kx) => {
-        const modKey = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.008, 0.080), darkKeyMat);
-        modKey.position.set(kx, 0.026, 0.02);
+        const modKey = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.009, 0.078), darkKeyMat);
+        modKey.position.set(kx, 0.007, 0.02);
         baseGroup.add(modKey);
       });
 
-      // Precision Glass Haptic Trackpad at FRONT palm rest (z = +0.40)
-      const trackpadBorder = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.003, 0.48), interiorMat);
-      trackpadBorder.position.set(0, 0.023, 0.40);
+      // Precision Glass Haptic Trackpad at Front Palm Rest (Centered at z = +0.40)
+      const trackpadBorder = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.002, 0.48), interiorMat);
+      trackpadBorder.position.set(0, 0.001, 0.40);
       baseGroup.add(trackpadBorder);
 
       const trackpad = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.005, 0.46), trackpadMat);
-      trackpad.position.set(0, 0.025, 0.40);
+      trackpad.position.set(0, 0.003, 0.40);
       baseGroup.add(trackpad);
 
       // Left Rail Ports (2x USB-C USB4, 1x USB-A 3.1, 1x 3.5mm jack)
       [-0.30, -0.16].forEach((pz) => {
-        const usbc = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.022, 0.075), interiorMat);
-        usbc.position.set(-1.062, 0.005, pz);
+        const usbc = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.020, 0.072), interiorMat);
+        usbc.position.set(-1.062, -0.012, pz);
         baseGroup.add(usbc);
 
         const tongue = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.005, 0.040), metalPinMat);
-        tongue.position.set(-1.062, 0.005, pz);
+        tongue.position.set(-1.062, -0.012, pz);
         baseGroup.add(tongue);
       });
 
       // USB-A 3.1
-      const usba = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.024, 0.11), interiorMat);
-      usba.position.set(-1.062, 0.005, 0.02);
+      const usba = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.022, 0.105), interiorMat);
+      usba.position.set(-1.062, -0.012, 0.02);
       baseGroup.add(usba);
 
-      // 3.5mm audio jack
+      // 3.5mm Audio Jack
       const audioJack = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.016, 16), interiorMat);
       audioJack.rotation.z = Math.PI / 2;
-      audioJack.position.set(-1.062, 0.005, 0.18);
+      audioJack.position.set(-1.062, -0.012, 0.18);
       baseGroup.add(audioJack);
 
       // Right Rail: Surface Connect Magnetic Charging Strip
-      const surfConnect = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.022, 0.20), interiorMat);
-      surfConnect.position.set(1.062, 0.005, -0.20);
+      const surfConnect = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.020, 0.20), interiorMat);
+      surfConnect.position.set(1.062, -0.012, -0.20);
       baseGroup.add(surfConnect);
 
       // 4 Silicone Isolation Feet on Underside
       [-0.85, 0.85].forEach((fx) => {
         [-0.55, 0.55].forEach((fz) => {
-          const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.006, 16), new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.9 }));
-          foot.position.set(fx, -0.023, fz);
+          const foot = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.032, 0.032, 0.006, 16),
+            new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.9 })
+          );
+          foot.position.set(fx, -0.061, fz);
           baseGroup.add(foot);
         });
       });
 
-      // Continuous Friction Piano Hinge Barrel at rear
-      const hinge = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 1.94, 32), aluminumMat);
+      // Continuous Piano Friction Hinge Barrel at Rear (y = 0.006, z = -0.71)
+      const hinge = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.016, 0.016, 1.94, 32),
+        aluminumMat
+      );
       hinge.rotation.z = Math.PI / 2;
-      hinge.position.set(0, -0.38, -0.71);
+      hinge.position.set(0, 0.006, -0.71);
       root.add(hinge);
 
-      // Display Lid (Pivots at rear hinge)
+      // Display Lid Assembly (Pivots at Rear Hinge Barrel)
       const lidGroup = new THREE.Group();
-      lidGroup.position.set(0, -0.38, -0.71);
+      lidGroup.position.set(0, 0.006, -0.71);
       root.add(lidGroup);
 
-      const lidShape = createRoundedRectShape(2.12, 1.44, 0.07);
+      // 15" 3:2 PixelSense Flow Display Lid: width 2.12, height 1.44, depth 0.020
+      const lidShape = createRoundedRectShape(2.12, 1.44, 0.045);
       const lidGeo = new THREE.ExtrudeGeometry(lidShape, {
-        depth: 0.024,
+        depth: 0.020,
         bevelEnabled: true,
         bevelSegments: 4,
-        bevelSize: 0.008,
-        bevelThickness: 0.008,
+        bevelSize: 0.005,
+        bevelThickness: 0.005,
       });
       lidGeo.center();
 
@@ -3143,24 +3262,39 @@ function buildRefinedHardwareCAD(
       lidMesh.castShadow = true;
       lidGroup.add(lidMesh);
 
-      // Display Screen on Front Face (z = +0.014)
+      // 3:2 Display Screen Plane on Front Face (z = +0.016)
       const lidScreen = new THREE.Mesh(new THREE.PlaneGeometry(2.04, 1.36), screenMat);
-      lidScreen.position.set(0, 0.72, 0.014);
+      lidScreen.position.set(0, 0.72, 0.016);
       lidGroup.add(lidScreen);
 
-      // Top Bezel Studio Camera & Windows Hello IR Sensor
+      // Top Bezel: FHD Studio Camera + Windows Hello IR Sensor + Dual Mics
       const camLens = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.004, 16), interiorMat);
       camLens.rotation.x = Math.PI / 2;
-      camLens.position.set(0, 1.412, 0.015);
+      camLens.position.set(0, 1.412, 0.017);
       lidGroup.add(camLens);
 
-      const irSensor = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.004, 16), new THREE.MeshStandardMaterial({ color: 0x3b0764, roughness: 0.2 }));
+      const irSensor = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.005, 0.005, 0.004, 16),
+        new THREE.MeshStandardMaterial({ color: 0x3b0764, roughness: 0.2 })
+      );
       irSensor.rotation.x = Math.PI / 2;
-      irSensor.position.set(0.04, 1.412, 0.015);
+      irSensor.position.set(0.04, 1.412, 0.017);
       lidGroup.add(irSensor);
 
-      // Mirror 4-Square Microsoft Chrome Logo on Rear Face (z = -0.014)
-      const chromeSquareMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 0.98, roughness: 0.04, clearcoat: 1.0 });
+      [-0.06, 0.08].forEach((mx) => {
+        const mic = new THREE.Mesh(new THREE.CylinderGeometry(0.003, 0.003, 0.004, 12), interiorMat);
+        mic.rotation.x = Math.PI / 2;
+        mic.position.set(mx, 1.412, 0.017);
+        lidGroup.add(mic);
+      });
+
+      // 4-Square Mirror Chrome Microsoft Logo on Rear Face (z = -0.016)
+      const chromeSquareMat = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        metalness: 0.98,
+        roughness: 0.04,
+        clearcoat: 1.0,
+      });
       const sqSize = 0.075;
       const sqOffset = 0.042;
       [
@@ -3170,23 +3304,20 @@ function buildRefinedHardwareCAD(
         [sqOffset, -sqOffset],
       ].forEach(([sx, sy]) => {
         const sq = new THREE.Mesh(new THREE.PlaneGeometry(sqSize, sqSize), chromeSquareMat);
-        sq.position.set(sx, 0.72 + sy, -0.014);
+        sq.position.set(sx, 0.72 + sy, -0.016);
         sq.rotation.y = Math.PI;
         lidGroup.add(sq);
       });
 
-      // Controller: Lid Angle
+      // Interactive Lid Angle Controller
       controllers.setLidAngle = (deg: number) => {
         lidGroup.rotation.x = -((180 - deg) * Math.PI) / 180;
       };
-      controllers.setLidAngle(115);
+      controllers.setLidAngle(115); // Signature 115° open hero angle
 
       break;
     }
 
-    // -------------------------------------------------------------------------
-    // 4. JBL BAR 800 MK2 (Soundbar with Detachable Surrounds & 10" Wireless Sub)
-    // -------------------------------------------------------------------------
     case "jbl800": {
       // Acoustic Perforated Micro-Mesh Titanium Grille
       const meshMat = new THREE.MeshPhysicalMaterial({
