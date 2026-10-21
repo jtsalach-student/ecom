@@ -7,6 +7,7 @@ import { CartDrawer } from "../components/CartDrawer";
 import { AiAssistantModal } from "../components/AiAssistantModal";
 import { WarrantyLookupModal } from "../components/WarrantyLookupModal";
 import { InteractiveRotatingHeroCarousel } from "../components/InteractiveRotatingHeroCarousel";
+import { FloatingProductsConstellation } from "../components/FloatingProductsConstellation";
 import { useCart } from "../context/CartContext";
 import {
   SEED_PRODUCTS,
@@ -147,7 +148,15 @@ export default function StorefrontHomePage() {
       {/* Main Content Area */}
       <main className="flex-1">
         {/* ========================================================================= */}
-        {/* 1. HERO CAROUSEL: Intact Rotating Assembled Products                      */}
+        {/* 1. FLOATING PRODUCTS CONSTELLATION: Refero Shop Style Organic Zero-Gravity */}
+        {/* ========================================================================= */}
+        <FloatingProductsConstellation
+          products={SEED_PRODUCTS}
+          onOpenProductModal={(product) => setActiveModalProduct(product)}
+        />
+
+        {/* ========================================================================= */}
+        {/* 2. HERO CAROUSEL: Intact Rotating Assembled Products                      */}
         {/* ========================================================================= */}
         <InteractiveRotatingHeroCarousel
           products={SEED_PRODUCTS}
