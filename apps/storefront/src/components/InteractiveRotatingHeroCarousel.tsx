@@ -1494,95 +1494,112 @@ function createFold6InnerScreenTexture(): THREE.CanvasTexture {
   const ctx = canvas.getContext("2d");
   if (!ctx) return new THREE.CanvasTexture(canvas);
 
-  // Deep OLED true black base
-  ctx.fillStyle = "#040508";
+  // Pure AMOLED Deep Black Base
+  ctx.fillStyle = "#020306";
   ctx.fillRect(0, 0, 1024, 1024);
 
-  // GALAXY Z FOLD6 SILK ORIGAMI BUTTERFLY WINGS WALLPAPER
-  // Dual-wing multi-layered radiant origami petals
+  // AUTHENTIC GALAXY Z FOLD6 ORIGAMI BUTTERFLY WINGS WALLPAPER (From Reference Photo)
   ctx.save();
-  // Left Wing (Cool cyan, sapphire, and electric blue silk)
-  const leftGrad = ctx.createLinearGradient(512, 512, 100, 250);
-  leftGrad.addColorStop(0, "rgba(59, 130, 246, 0.95)");
-  leftGrad.addColorStop(0.35, "rgba(99, 102, 241, 0.85)");
-  leftGrad.addColorStop(0.7, "rgba(139, 92, 246, 0.65)");
+  // Left Wing: Golden Amber Core fanning into Radiant Sapphire Blue
+  const leftGrad = ctx.createRadialGradient(480, 512, 20, 320, 480, 420);
+  leftGrad.addColorStop(0, "rgba(251, 191, 36, 1.0)"); // Radiant Golden Amber
+  leftGrad.addColorStop(0.22, "rgba(245, 158, 11, 0.95)"); // Deep Gold
+  leftGrad.addColorStop(0.48, "rgba(37, 99, 235, 0.9)"); // Cobalt Blue
+  leftGrad.addColorStop(0.72, "rgba(30, 58, 138, 0.7)"); // Sapphire
   leftGrad.addColorStop(1, "rgba(2, 6, 23, 0)");
 
   ctx.beginPath();
   ctx.moveTo(512, 512);
-  ctx.bezierCurveTo(450, 320, 260, 220, 180, 340);
-  ctx.bezierCurveTo(120, 440, 280, 680, 512, 512);
+  ctx.bezierCurveTo(440, 240, 220, 180, 140, 320);
+  ctx.bezierCurveTo(80, 460, 220, 720, 512, 512);
   ctx.fillStyle = leftGrad;
   ctx.fill();
 
-  // Right Wing (Warm amber, molten gold, and champagne silk)
-  const rightGrad = ctx.createLinearGradient(512, 512, 900, 750);
-  rightGrad.addColorStop(0, "rgba(245, 158, 11, 0.95)");
-  rightGrad.addColorStop(0.4, "rgba(234, 88, 12, 0.85)");
-  rightGrad.addColorStop(0.75, "rgba(217, 70, 239, 0.65)");
+  // Right Wing: Mirror Silk Folds with Glowing Iridescent Violet & Electric Blue
+  const rightGrad = ctx.createRadialGradient(544, 512, 20, 700, 480, 420);
+  rightGrad.addColorStop(0, "rgba(251, 191, 36, 0.9)"); // Warm Amber Accent
+  rightGrad.addColorStop(0.25, "rgba(124, 58, 237, 0.85)"); // Vibrant Violet
+  rightGrad.addColorStop(0.55, "rgba(59, 130, 246, 0.85)"); // Electric Cyan/Blue
+  rightGrad.addColorStop(0.80, "rgba(29, 78, 216, 0.65)"); // Deep Blue
   rightGrad.addColorStop(1, "rgba(2, 6, 23, 0)");
 
   ctx.beginPath();
   ctx.moveTo(512, 512);
-  ctx.bezierCurveTo(580, 340, 760, 240, 840, 360);
-  ctx.bezierCurveTo(900, 460, 740, 700, 512, 512);
+  ctx.bezierCurveTo(584, 240, 804, 180, 884, 320);
+  ctx.bezierCurveTo(944, 460, 804, 720, 512, 512);
   ctx.fillStyle = rightGrad;
   ctx.fill();
 
   // Core Iridescent Fold Highlight
-  const coreGrad = ctx.createRadialGradient(512, 512, 10, 512, 512, 280);
-  coreGrad.addColorStop(0, "rgba(255, 255, 255, 0.9)");
-  coreGrad.addColorStop(0.25, "rgba(251, 191, 36, 0.8)");
-  coreGrad.addColorStop(0.6, "rgba(96, 165, 250, 0.5)");
+  const coreGrad = ctx.createRadialGradient(512, 512, 10, 512, 512, 240);
+  coreGrad.addColorStop(0, "rgba(255, 255, 255, 0.95)");
+  coreGrad.addColorStop(0.2, "rgba(254, 240, 138, 0.85)");
+  coreGrad.addColorStop(0.5, "rgba(96, 165, 250, 0.5)");
   coreGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
   ctx.fillStyle = coreGrad;
   ctx.beginPath();
-  ctx.arc(512, 512, 280, 0, Math.PI * 2);
+  ctx.arc(512, 512, 240, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 
-  // Subtle Hinge Center Seam Guide
-  const creaseGrad = ctx.createLinearGradient(508, 0, 516, 0);
-  creaseGrad.addColorStop(0, "rgba(255, 255, 255, 0)");
-  creaseGrad.addColorStop(0.5, "rgba(255, 255, 255, 0.06)");
-  creaseGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
+  // Subtle Center Hinge Crease Shadow & Reflection
+  const creaseGrad = ctx.createLinearGradient(506, 0, 518, 0);
+  creaseGrad.addColorStop(0, "rgba(0, 0, 0, 0.35)");
+  creaseGrad.addColorStop(0.5, "rgba(255, 255, 255, 0.12)");
+  creaseGrad.addColorStop(1, "rgba(0, 0, 0, 0.35)");
   ctx.fillStyle = creaseGrad;
-  ctx.fillRect(508, 0, 8, 1024);
+  ctx.fillRect(506, 0, 12, 1024);
 
-  // Status Bar at Top
+  // Top Status Bar (Matching reference photo: 10:09 left, 72% battery right)
   ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 24px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.font = "bold 22px system-ui, -apple-system, sans-serif";
   ctx.textAlign = "left";
-  ctx.fillText("10:09", 56, 58);
+  ctx.fillText("10:09", 48, 48);
+
   ctx.textAlign = "right";
-  ctx.font = "bold 20px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillText("5G • 100%", 968, 58);
+  ctx.fillText("72%", 976, 48);
+  // Battery outline
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(912, 32, 24, 14);
+  ctx.fillStyle = "#22c55e";
+  ctx.fillRect(914, 34, 16, 10);
 
-  // Minimalist Clock & Date
-  ctx.textAlign = "center";
-  ctx.font = "200 96px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillStyle = "#ffffff";
-  ctx.fillText("10:09", 512, 340);
+  // Authentic One UI 6 App Dock at Bottom (6 Icons exactly from reference photo)
+  // 1: Phone (green), 2: Messages (blue/white), 3: Chrome (multi), 4: Notes (orange), 5: Gallery (pink flower), 6: Camera (red/magenta)
+  const dockIcons = [
+    { bg: "#22c55e", glyph: "📞" },
+    { bg: "#3b82f6", glyph: "💬" },
+    { bg: "#ea580c", glyph: "🌐" },
+    { bg: "#f59e0b", glyph: "📝" },
+    { bg: "#ec4899", glyph: "🌸" },
+    { bg: "#ef4444", glyph: "📷" },
+  ];
+  const dockStartX = 256;
+  const iconSize = 72;
+  const iconSpacing = 88;
 
-  ctx.font = "500 24px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-  ctx.fillText("Wednesday, October 21 • Accra 29°C", 512, 390);
-
-  // Samsung One UI App Dock at Bottom (6 rounded icons)
-  const appDockColors = ["#22c55e", "#3b82f6", "#ea580c", "#f59e0b", "#ec4899", "#ef4444"];
-  const appDockLabels = ["Phone", "Chat", "Chrome", "Notes", "Gallery", "Camera"];
-  const startX = 262;
-  for (let i = 0; i < 6; i++) {
-    const x = startX + i * 86;
+  dockIcons.forEach((icon, i) => {
+    const x = dockStartX + i * iconSpacing;
+    const y = 880;
     ctx.beginPath();
-    ctx.roundRect(x, 900, 68, 68, 20);
-    ctx.fillStyle = appDockColors[i];
+    ctx.roundRect(x, y, iconSize, iconSize, 22);
+    ctx.fillStyle = icon.bg;
     ctx.fill();
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
+
+    ctx.font = "32px sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(appDockLabels[i], x + 34, 940);
-  }
+    ctx.textBaseline = "middle";
+    ctx.fillText(icon.glyph, x + iconSize / 2, y + iconSize / 2);
+  });
+
+  // Samsung 3-Button Navigation Bar at very bottom (||| , ◻ , <)
+  ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+  ctx.font = "bold 20px system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("|||", 420, 995);
+  ctx.fillText("◻", 512, 995);
+  ctx.fillText("<", 604, 995);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -1596,50 +1613,84 @@ function createFold6CoverScreenTexture(): THREE.CanvasTexture {
   const ctx = canvas.getContext("2d");
   if (!ctx) return new THREE.CanvasTexture(canvas);
 
-  ctx.fillStyle = "#05070a";
+  // Deep Navy/Black AMOLED base
+  ctx.fillStyle = "#040711";
   ctx.fillRect(0, 0, 512, 1024);
 
-  // Vertical Cover Silk Gradient
-  const grad = ctx.createLinearGradient(0, 0, 512, 1024);
-  grad.addColorStop(0, "rgba(59, 130, 246, 0.65)");
-  grad.addColorStop(0.5, "rgba(139, 92, 246, 0.55)");
-  grad.addColorStop(1, "rgba(245, 158, 11, 0.5)");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, 512, 1024);
+  // AUTHENTIC GALAXY Z FOLD6 COVER WALLPAPER: Giant Glowing Amber/Gold and Blue Numeral "6"
+  ctx.save();
+  // Sweeping outer blue ribbon
+  const ribbonBlue = ctx.createLinearGradient(60, 300, 450, 850);
+  ribbonBlue.addColorStop(0, "rgba(59, 130, 246, 0.95)");
+  ribbonBlue.addColorStop(0.5, "rgba(37, 99, 235, 0.85)");
+  ribbonBlue.addColorStop(1, "rgba(29, 78, 216, 0.4)");
 
-  // Status Bar
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 22px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.textAlign = "left";
-  ctx.fillText("10:09", 40, 52);
-  ctx.textAlign = "right";
-  ctx.fillText("5G 100%", 472, 52);
-
-  // Lockscreen Clock
-  ctx.textAlign = "center";
-  ctx.font = "200 90px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillStyle = "#ffffff";
-  ctx.fillText("10:09", 256, 320);
-
-  ctx.font = "500 22px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-  ctx.fillText("Wed, Oct 21 • 29°C", 256, 370);
-
-  // Notification Pill
   ctx.beginPath();
-  ctx.roundRect(56, 460, 400, 72, 20);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.14)";
-  ctx.fill();
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+  ctx.arc(256, 580, 190, 0, Math.PI * 2);
+  ctx.lineWidth = 55;
+  ctx.strokeStyle = ribbonBlue;
   ctx.stroke();
 
-  ctx.textAlign = "left";
-  ctx.font = "bold 18px -apple-system, BlinkMacSystemFont, sans-serif";
+  // Curving upward stem of the "6"
+  ctx.beginPath();
+  ctx.moveTo(110, 520);
+  ctx.bezierCurveTo(110, 340, 260, 220, 420, 240);
+  ctx.lineWidth = 52;
+  ctx.strokeStyle = ribbonBlue;
+  ctx.stroke();
+
+  // Glowing Amber/Gold Inner Curve (matching reference photo)
+  const ribbonGold = ctx.createLinearGradient(120, 680, 360, 480);
+  ribbonGold.addColorStop(0, "rgba(245, 158, 11, 0.95)");
+  ribbonGold.addColorStop(0.5, "rgba(251, 191, 36, 0.85)");
+  ribbonGold.addColorStop(1, "rgba(59, 130, 246, 0)");
+
+  ctx.beginPath();
+  ctx.arc(256, 580, 160, Math.PI * 0.6, Math.PI * 1.5);
+  ctx.lineWidth = 36;
+  ctx.strokeStyle = ribbonGold;
+  ctx.stroke();
+  ctx.restore();
+
+  // Top Status Bar (10:09, 72%)
   ctx.fillStyle = "#ffffff";
-  ctx.fillText("WhatsApp • Gadget Master", 84, 495);
-  ctx.font = "14px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
-  ctx.fillText("Accra East Legon warranty confirmed", 84, 518);
+  ctx.font = "bold 20px system-ui, -apple-system, sans-serif";
+  ctx.textAlign = "right";
+  ctx.fillText("72%", 472, 48);
+
+  // Center Digital Clock & Date (Matching reference photo)
+  ctx.textAlign = "center";
+  ctx.font = "300 78px system-ui, -apple-system, sans-serif";
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText("10:09", 256, 340);
+
+  ctx.font = "400 18px system-ui, -apple-system, sans-serif";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+  ctx.fillText("Wed, October 17", 256, 380);
+
+  // Notification icons row
+  ctx.font = "16px sans-serif";
+  ctx.fillText("💬 ✉️ 🌐 ⚙️", 256, 412);
+
+  // Bottom Lockscreen Shortcuts: Phone on left, Camera on right
+  ctx.beginPath();
+  ctx.arc(64, 940, 26, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+  ctx.fill();
+  ctx.font = "24px sans-serif";
+  ctx.fillText("📞", 64, 948);
+
+  ctx.beginPath();
+  ctx.arc(448, 940, 26, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+  ctx.fill();
+  ctx.fillText("📷", 448, 948);
+
+  // Bottom swipe bar
+  ctx.beginPath();
+  ctx.roundRect(196, 990, 120, 4, 2);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+  ctx.fill();
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -2232,327 +2283,397 @@ function buildRefinedHardwareCAD(
     // 1. SAMSUNG GALAXY Z FOLD6 (Dual Folding Armor Aluminum Chassis)
     // -------------------------------------------------------------------------
     case "fold6": {
-      // Armor Aluminum Frame Material (Silver Shadow with Physical Clearcoat)
+      // Silver Shadow Armor Aluminum Material (Matching authentic reference photo)
       const armorAluminumMat = new THREE.MeshPhysicalMaterial({
-        color: 0x9ca3af,
+        color: 0xc4cdd6, // Satin Silver Shadow
         metalness: 0.94,
-        roughness: 0.16,
-        clearcoat: 0.35,
+        roughness: 0.18,
+        clearcoat: 0.45,
         clearcoatRoughness: 0.12,
       });
 
-      // Frosted Silk Glass Rear Material
+      // Frosted Silk Matte Glass Rear Panel Material
       const frostedGlassMat = new THREE.MeshPhysicalMaterial({
-        color: 0xbac3ce,
-        metalness: 0.16,
+        color: 0xd6dde4,
+        metalness: 0.20,
         roughness: 0.32,
-        clearcoat: 0.45,
+        clearcoat: 0.55,
+        clearcoatRoughness: 0.15,
       });
 
-      // Antenna Band Polymer Material
+      // Polished Bright Aluminum Camera Bezel Rings
+      const camRingMat = new THREE.MeshPhysicalMaterial({
+        color: 0xe2e8f0,
+        metalness: 0.96,
+        roughness: 0.10,
+        clearcoat: 0.8,
+      });
+
+      // Deep Sapphire Optical Camera Glass with Anti-Reflective Sheen
+      const lensGlassMat = new THREE.MeshPhysicalMaterial({
+        color: 0x02050e,
+        metalness: 0.98,
+        roughness: 0.02,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.02,
+        reflectivity: 0.98,
+      });
+
+      // Stepped Dark Titanium Lens Barrel & Port Cavity Material
+      const darkInteriorMat = new THREE.MeshStandardMaterial({
+        color: 0x090b10,
+        roughness: 0.92,
+      });
+
+      // Antenna Isolation Polymer Bands (Grey lines on frame)
       const antennaMat = new THREE.MeshStandardMaterial({
-        color: 0x5a636e,
-        roughness: 0.8,
+        color: 0x6e7784,
+        roughness: 0.75,
       });
 
-      // Dark Interior Port & Speaker Slot Material
-      const interiorMat = new THREE.MeshStandardMaterial({
-        color: 0x0c0e12,
-        roughness: 0.9,
-      });
-
-      // Emissive OLED Gloss Display Materials
+      // Emissive Fold 6 Displays
       const innerScreenTex = createFold6InnerScreenTexture();
       const innerScreenMat = new THREE.MeshPhysicalMaterial({
         map: innerScreenTex,
-        roughness: 0.04,
+        roughness: 0.03,
         metalness: 0.05,
         clearcoat: 1.0,
         emissiveMap: innerScreenTex,
         emissive: new THREE.Color(0xffffff),
-        emissiveIntensity: 0.38,
+        emissiveIntensity: 0.42,
       });
 
       const coverScreenTex = createFold6CoverScreenTexture();
       const coverScreenMat = new THREE.MeshPhysicalMaterial({
         map: coverScreenTex,
-        roughness: 0.04,
+        roughness: 0.03,
         metalness: 0.05,
         clearcoat: 1.0,
         emissiveMap: coverScreenTex,
         emissive: new THREE.Color(0xffffff),
-        emissiveIntensity: 0.38,
+        emissiveIntensity: 0.42,
       });
 
-      // Deep Sapphire Optical Camera Lenses with AR coating
-      const lensRingMat = new THREE.MeshPhysicalMaterial({
-        color: 0x6b7280,
-        metalness: 0.96,
-        roughness: 0.12,
-        clearcoat: 0.5,
-      });
-      const lensGlassMat = new THREE.MeshPhysicalMaterial({
-        color: 0x050711,
-        metalness: 0.98,
-        roughness: 0.02,
-        clearcoat: 1.0,
-        clearcoatRoughness: 0.03,
-        reflectivity: 0.98,
-      });
+      // Phone Root Group (Positioned in Flex Mode standing on turntable at y = 0)
+      const phoneRoot = new THREE.Group();
+      phoneRoot.position.set(0, 0.88, 0);
+      root.add(phoneRoot);
 
-      // Center Polished Hinge Spine with Samsung Laser Engraving & End Caps
+      // FOLD 6 SIGNATURE CRISP BOX-CUT CORNERS (Micro corner radius = 0.008)
+      // Width = 0.76 (per wing), Height = 1.76, Corner Radius = 0.008
+      const wingShape = createRoundedRectShape(0.76, 1.76, 0.008);
+
+      // Wing Extrusion: Depth = 0.022, bevel = 0.003 -> Total thickness = 0.028 (5.6mm ultra-thin)
+      const wingGeo = new THREE.ExtrudeGeometry(wingShape, {
+        depth: 0.022,
+        bevelEnabled: true,
+        bevelSegments: 4,
+        bevelSize: 0.003,
+        bevelThickness: 0.003,
+      });
+      wingGeo.center();
+
+      // Dual-Rail Flex Hinge Spine at Center Junction (x = 0)
       const spineTex = createSamsungSpineTexture();
       const spineMat = new THREE.MeshPhysicalMaterial({
         map: spineTex,
         color: 0xffffff,
-        metalness: 0.94,
-        roughness: 0.18,
-        clearcoat: 0.3,
+        metalness: 0.95,
+        roughness: 0.16,
+        clearcoat: 0.5,
       });
-      const hingeGeo = new THREE.CylinderGeometry(0.022, 0.022, 1.80, 32);
-      const hingeMesh = new THREE.Mesh(hingeGeo, spineMat);
-      hingeMesh.position.set(0, 0, -0.016);
+      // Flat-backed architectural hinge cylinder matching reference photo
+      const hingeMesh = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.016, 0.016, 1.76, 32),
+        spineMat
+      );
+      hingeMesh.position.set(0, 0, -0.014);
       hingeMesh.castShadow = true;
-      root.add(hingeMesh);
+      phoneRoot.add(hingeMesh);
 
-      // Hinge End Caps (Top & Bottom)
-      [-0.90, 0.90].forEach((y) => {
-        const capGeo = new THREE.CylinderGeometry(0.024, 0.024, 0.018, 32);
-        const cap = new THREE.Mesh(capGeo, armorAluminumMat);
-        cap.position.set(0, y, -0.016);
-        root.add(cap);
+      // Top and Bottom Flush Hinge End Caps
+      [-0.88, 0.88].forEach((yPos) => {
+        const cap = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.018, 0.018, 0.012, 32),
+          armorAluminumMat
+        );
+        cap.position.set(0, yPos, -0.014);
+        phoneRoot.add(cap);
       });
 
-      // LEFT WING (Pivots at x = 0)
+      // -----------------------------------------------------------------------
+      // LEFT WING (Pivots at x = 0; Holds Left Inner Screen + Rear Triple Camera)
+      // -----------------------------------------------------------------------
       const leftWing = new THREE.Group();
-      root.add(leftWing);
+      phoneRoot.add(leftWing);
 
-      // Left Slab Body: width 0.76, height 1.78, depth 0.036
-      const slabShape = createRoundedRectShape(0.76, 1.78, 0.034);
-      const leftSlabGeo = new THREE.ExtrudeGeometry(slabShape, {
-        depth: 0.036,
-        bevelEnabled: true,
-        bevelSegments: 4,
-        steps: 1,
-        bevelSize: 0.008,
-        bevelThickness: 0.008,
-      });
-      leftSlabGeo.center();
-
-      const leftSlab = new THREE.Mesh(leftSlabGeo, armorAluminumMat);
+      const leftSlab = new THREE.Mesh(wingGeo, armorAluminumMat);
       leftSlab.position.set(-0.38, 0, 0);
       leftSlab.castShadow = true;
       leftWing.add(leftSlab);
 
-      // Antenna Bands on Left Slab
+      // Antenna Bands on Left Frame (Thin grey polymer isolation cuts)
       [-0.22, -0.62].forEach((xPos) => {
-        const bandGeo = new THREE.BoxGeometry(0.014, 0.028, 0.054);
-        const topBand = new THREE.Mesh(bandGeo, antennaMat);
-        topBand.position.set(xPos, 0.895, 0);
-        leftWing.add(topBand);
+        const band = new THREE.Mesh(new THREE.BoxGeometry(0.010, 0.020, 0.030), antennaMat);
+        band.position.set(xPos, 0.882, 0);
+        leftWing.add(band);
 
-        const botBand = new THREE.Mesh(bandGeo, antennaMat);
-        botBand.position.set(xPos, -0.895, 0);
+        const botBand = new THREE.Mesh(new THREE.BoxGeometry(0.010, 0.020, 0.030), antennaMat);
+        botBand.position.set(xPos, -0.882, 0);
         leftWing.add(botBand);
       });
 
-      // Top Speaker Grille on Left Slab
-      for (let i = 0; i < 4; i++) {
-        const slot = new THREE.Mesh(new THREE.BoxGeometry(0.020, 0.010, 0.024), interiorMat);
-        slot.position.set(-0.46 + i * 0.036, 0.898, 0);
-        leftWing.add(slot);
+      // Top & Bottom CNC Speaker Grille Slits on Left Slab
+      for (let i = 0; i < 5; i++) {
+        const tSlot = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.008, 0.016), darkInteriorMat);
+        tSlot.position.set(-0.48 + i * 0.032, 0.882, 0);
+        leftWing.add(tSlot);
+
+        const bSlot = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.008, 0.016), darkInteriorMat);
+        bSlot.position.set(-0.48 + i * 0.032, -0.882, 0);
+        leftWing.add(bSlot);
       }
 
-      // Bottom Speaker Grille on Left Slab
-      for (let i = 0; i < 4; i++) {
-        const slot = new THREE.Mesh(new THREE.BoxGeometry(0.020, 0.010, 0.024), interiorMat);
-        slot.position.set(-0.46 + i * 0.036, -0.898, 0);
-        leftWing.add(slot);
+      // Left Half of Inner 7.6" AMOLED Display (UV mapped strictly to left [0.0, 0.5])
+      const innerLeftScreenGeo = new THREE.PlaneGeometry(0.75, 1.745);
+      const leftUvs = innerLeftScreenGeo.attributes.uv;
+      for (let i = 0; i < leftUvs.count; i++) {
+        leftUvs.setX(i, leftUvs.getX(i) * 0.5);
       }
+      leftUvs.needsUpdate = true;
 
-      // Left Half of Inner 7.6" OLED Display (Front Face at z = +0.023)
-      const innerLeftScreenGeo = new THREE.PlaneGeometry(0.75, 1.76);
       const innerLeftScreen = new THREE.Mesh(innerLeftScreenGeo, innerScreenMat);
-      innerLeftScreen.position.set(-0.375, 0, 0.023);
+      innerLeftScreen.position.set(-0.375, 0, 0.0142);
       leftWing.add(innerLeftScreen);
 
-      // Raised Protective Screen Bumper Lip (0.8mm rim)
-      const bumperMat = new THREE.MeshStandardMaterial({ color: 0x1f242c, roughness: 0.7 });
-      const topBumper = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.012, 0.004), bumperMat);
-      topBumper.position.set(-0.375, 0.886, 0.024);
-      leftWing.add(topBumper);
+      // Raised Protective Screen Bumper Rim (0.8mm Black TPU Bezel)
+      const bumperMat = new THREE.MeshStandardMaterial({ color: 0x14181f, roughness: 0.8 });
+      const topBumperL = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.010, 0.003), bumperMat);
+      topBumperL.position.set(-0.375, 0.875, 0.0146);
+      leftWing.add(topBumperL);
 
-      const botBumper = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.012, 0.004), bumperMat);
-      botBumper.position.set(-0.375, -0.886, 0.024);
-      leftWing.add(botBumper);
+      const botBumperL = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.010, 0.003), bumperMat);
+      botBumperL.position.set(-0.375, -0.875, 0.0146);
+      leftWing.add(botBumperL);
 
-      // Rear Frosted Silk Glass on Left Slab (Back Face at z = -0.023)
-      const leftRearGlass = new THREE.Mesh(new THREE.PlaneGeometry(0.74, 1.76), frostedGlassMat);
-      leftRearGlass.position.set(-0.38, 0, -0.023);
+      const sideBumperL = new THREE.Mesh(new THREE.BoxGeometry(0.010, 1.75, 0.003), bumperMat);
+      sideBumperL.position.set(-0.755, 0, 0.0146);
+      leftWing.add(sideBumperL);
+
+      // Rear Frosted Silk Matte Glass Panel on Left Slab (Back Face at z = -0.0142)
+      const leftRearGlass = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 1.745), frostedGlassMat);
+      leftRearGlass.position.set(-0.38, 0, -0.0142);
       leftRearGlass.rotation.y = Math.PI;
       leftWing.add(leftRearGlass);
 
-      // Raised Camera Island Base Plateau (Armor Aluminum Squircle on Rear)
-      const camPlateauShape = createRoundedRectShape(0.18, 0.74, 0.07);
+      // Subtle Laser-Etched "SAMSUNG" Logo at Lower Rear Back
+      const rearLogo = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.24, 0.04),
+        new THREE.MeshStandardMaterial({ color: 0x8a94a2, roughness: 0.4 })
+      );
+      rearLogo.position.set(-0.38, -0.62, -0.0145);
+      rearLogo.rotation.y = Math.PI;
+      leftWing.add(rearLogo);
+
+      // -----------------------------------------------------------------------
+      // AUTHENTIC FOLD 6 REAR CAMERA ISLAND (From Reference Photo)
+      // -----------------------------------------------------------------------
+      // Elongated Satin Silver Pill Plateau in Top-Left Corner
+      const camPlateauShape = createRoundedRectShape(0.22, 0.74, 0.10);
       const camPlateauGeo = new THREE.ExtrudeGeometry(camPlateauShape, {
-        depth: 0.014,
+        depth: 0.010,
         bevelEnabled: true,
         bevelSegments: 4,
-        bevelSize: 0.006,
-        bevelThickness: 0.006,
+        bevelSize: 0.004,
+        bevelThickness: 0.004,
       });
       camPlateauGeo.center();
 
       const camPlateau = new THREE.Mesh(camPlateauGeo, armorAluminumMat);
-      camPlateau.position.set(-0.54, 0.36, -0.034);
+      camPlateau.position.set(-0.52, 0.44, -0.0215);
       camPlateau.rotation.y = Math.PI;
       leftWing.add(camPlateau);
 
-      // Plateau outer face is at z = -0.044
-      // Triple Vertically Stacked ProVisual Camera Island Rings (protruding cleanly outward)
-      const cameraY = [0.58, 0.36, 0.14];
-      cameraY.forEach((yPos) => {
-        // Outer knurled beveled metallic ring
-        const outerRingGeo = new THREE.CylinderGeometry(0.058, 0.058, 0.022, 32);
-        const ring = new THREE.Mesh(outerRingGeo, lensRingMat);
-        ring.rotation.x = Math.PI / 2;
-        ring.position.set(-0.54, yPos, -0.052);
+      // 3 Giant Raised Beveled Camera Rings Stacked Vertically
+      const camYPositions = [0.66, 0.44, 0.22];
+      camYPositions.forEach((yPos) => {
+        const ringGroup = new THREE.Group();
+        ringGroup.position.set(-0.52, yPos, -0.027);
+        ringGroup.rotation.x = Math.PI / 2;
 
-        // Stepped inner dark lens barrel
-        const innerRingGeo = new THREE.CylinderGeometry(0.048, 0.048, 0.023, 32);
-        const innerRing = new THREE.Mesh(innerRingGeo, interiorMat);
-        ring.add(innerRing);
+        // 1. Outer Polished Silver Aluminum Beveled Ring
+        const outerBezel = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.065, 0.065, 0.022, 32),
+          camRingMat
+        );
+        ringGroup.add(outerBezel);
 
-        // Deep optical sapphire lens glass with AR highlight
-        const lensGeo = new THREE.CylinderGeometry(0.042, 0.042, 0.024, 32);
-        const lens = new THREE.Mesh(lensGeo, lensGlassMat);
-        ring.add(lens);
+        // 2. Stepped Inner Dark Titanium Barrel
+        const innerBarrel = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.054, 0.054, 0.023, 32),
+          darkInteriorMat
+        );
+        ringGroup.add(innerBarrel);
 
-        // Concentric aperture iris ring
-        const irisGeo = new THREE.RingGeometry(0.016, 0.036, 32);
-        const irisMat = new THREE.MeshBasicMaterial({ color: 0x020408, side: THREE.DoubleSide });
-        const iris = new THREE.Mesh(irisGeo, irisMat);
-        iris.position.z = 0.0125;
-        ring.add(iris);
+        // 3. Deep Sapphire Optical Glass Lens with Anti-Reflective Coating
+        const lensElement = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.046, 0.046, 0.024, 32),
+          lensGlassMat
+        );
+        ringGroup.add(lensElement);
 
-        leftWing.add(ring);
+        // 4. Concentric Aperture Diaphragm Iris
+        const iris = new THREE.Mesh(
+          new THREE.RingGeometry(0.018, 0.040, 32),
+          new THREE.MeshBasicMaterial({ color: 0x010306, side: THREE.DoubleSide })
+        );
+        iris.position.y = 0.0125;
+        iris.rotation.x = -Math.PI / 2;
+        ringGroup.add(iris);
+
+        leftWing.add(ringGroup);
       });
 
-      // True Tone Dual-LED Flash
-      const flashRing = new THREE.Mesh(new THREE.CylinderGeometry(0.020, 0.020, 0.008, 24), lensRingMat);
-      flashRing.rotation.x = Math.PI / 2;
-      flashRing.position.set(-0.40, 0.48, -0.025);
-      const flash = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.016, 0.016, 0.009, 16),
-        new THREE.MeshStandardMaterial({ color: 0xfff5df, emissive: 0xffeab3, emissiveIntensity: 0.9 })
+      // True Tone Dual-LED Flash with Concentric Silver Ring (To the right of the top lens)
+      const flashRing = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.022, 0.022, 0.006, 24),
+        camRingMat
       );
-      flashRing.add(flash);
+      flashRing.rotation.x = Math.PI / 2;
+      flashRing.position.set(-0.36, 0.66, -0.016);
       leftWing.add(flashRing);
 
-      // Camera Island Microphone Hole
-      const camMic = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.008, 16), interiorMat);
+      const flashCore = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.016, 0.016, 0.007, 16),
+        new THREE.MeshStandardMaterial({ color: 0xfff3d6, emissive: 0xffe6a3, emissiveIntensity: 1.2 })
+      );
+      flashRing.add(flashCore);
+
+      // Rear Studio Microphone Pinhole
+      const camMic = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.004, 0.004, 0.006, 16),
+        darkInteriorMat
+      );
       camMic.rotation.x = Math.PI / 2;
-      camMic.position.set(-0.40, 0.24, -0.024);
+      camMic.position.set(-0.36, 0.34, -0.016);
       leftWing.add(camMic);
 
-      // RIGHT WING (Pivots at x = 0)
+      // -----------------------------------------------------------------------
+      // RIGHT WING (Pivots at x = 0; Holds Right Inner Screen + Outer Cover Display)
+      // -----------------------------------------------------------------------
       const rightWing = new THREE.Group();
-      root.add(rightWing);
+      phoneRoot.add(rightWing);
 
-      const rightSlabGeo = new THREE.ExtrudeGeometry(slabShape, {
-        depth: 0.036,
-        bevelEnabled: true,
-        bevelSegments: 4,
-        steps: 1,
-        bevelSize: 0.008,
-        bevelThickness: 0.008,
-      });
-      rightSlabGeo.center();
-
-      const rightSlab = new THREE.Mesh(rightSlabGeo, armorAluminumMat);
+      const rightSlab = new THREE.Mesh(wingGeo, armorAluminumMat);
       rightSlab.position.set(0.38, 0, 0);
       rightSlab.castShadow = true;
       rightWing.add(rightSlab);
 
-      // Antenna Bands on Right Slab
+      // Antenna Bands on Right Frame
       [0.22, 0.62].forEach((xPos) => {
-        const bandGeo = new THREE.BoxGeometry(0.014, 0.028, 0.054);
-        const topBand = new THREE.Mesh(bandGeo, antennaMat);
-        topBand.position.set(xPos, 0.895, 0);
-        rightWing.add(topBand);
+        const band = new THREE.Mesh(new THREE.BoxGeometry(0.010, 0.020, 0.030), antennaMat);
+        band.position.set(xPos, 0.882, 0);
+        rightWing.add(band);
 
-        const botBand = new THREE.Mesh(bandGeo, antennaMat);
-        botBand.position.set(xPos, -0.895, 0);
+        const botBand = new THREE.Mesh(new THREE.BoxGeometry(0.010, 0.020, 0.030), antennaMat);
+        botBand.position.set(xPos, -0.882, 0);
         rightWing.add(botBand);
       });
 
-      // Right Half of Inner Display (Front Face at z = +0.023)
-      const innerRightScreenGeo = new THREE.PlaneGeometry(0.75, 1.76);
+      // Right Half of Inner 7.6" AMOLED Display (UV mapped strictly to right [0.5, 1.0])
+      const innerRightScreenGeo = new THREE.PlaneGeometry(0.75, 1.745);
+      const rightUvs = innerRightScreenGeo.attributes.uv;
+      for (let i = 0; i < rightUvs.count; i++) {
+        rightUvs.setX(i, 0.5 + rightUvs.getX(i) * 0.5);
+      }
+      rightUvs.needsUpdate = true;
+
       const innerRightScreen = new THREE.Mesh(innerRightScreenGeo, innerScreenMat);
-      innerRightScreen.position.set(0.375, 0, 0.023);
+      innerRightScreen.position.set(0.375, 0, 0.0142);
       rightWing.add(innerRightScreen);
 
-      // Under-Display Selfie Camera Aperture on Right Half
-      const udcDot = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.004, 16), new THREE.MeshStandardMaterial({ color: 0x090c12, roughness: 0.5 }));
+      // Under-Display Selfie Camera Aperture on Right Half (Subtle UDC circle)
+      const udcDot = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.007, 0.007, 0.003, 16),
+        new THREE.MeshStandardMaterial({ color: 0x090c12, roughness: 0.6 })
+      );
       udcDot.rotation.x = Math.PI / 2;
-      udcDot.position.set(0.56, 0.72, 0.024);
+      udcDot.position.set(0.56, 0.74, 0.0145);
       rightWing.add(udcDot);
 
-      // TPU Bumper Lip on Right Wing
-      const rTopBumper = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.012, 0.004), bumperMat);
-      rTopBumper.position.set(0.375, 0.886, 0.024);
-      rightWing.add(rTopBumper);
+      // Protective Bumper Rim on Right Wing
+      const topBumperR = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.010, 0.003), bumperMat);
+      topBumperR.position.set(0.375, 0.875, 0.0146);
+      rightWing.add(topBumperR);
 
-      const rBotBumper = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.012, 0.004), bumperMat);
-      rBotBumper.position.set(0.375, -0.886, 0.024);
-      rightWing.add(rBotBumper);
+      const botBumperR = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.010, 0.003), bumperMat);
+      botBumperR.position.set(0.375, -0.875, 0.0146);
+      rightWing.add(botBumperR);
 
-      const rSideBumper = new THREE.Mesh(new THREE.BoxGeometry(0.012, 1.78, 0.004), bumperMat);
-      rSideBumper.position.set(0.755, 0, 0.024);
-      rightWing.add(rSideBumper);
+      const sideBumperR = new THREE.Mesh(new THREE.BoxGeometry(0.010, 1.75, 0.003), bumperMat);
+      sideBumperR.position.set(0.755, 0, 0.0146);
+      rightWing.add(sideBumperR);
 
-      // Rear 6.3" Outer Cover Screen on Right Slab (Back Face at z = -0.023)
-      const rightCoverScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.74, 1.76), coverScreenMat);
-      rightCoverScreen.position.set(0.38, 0, -0.023);
+      // Outer 6.3" Dynamic AMOLED Cover Screen on Rear of Right Slab (at z = -0.0142)
+      const rightCoverScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 1.745), coverScreenMat);
+      rightCoverScreen.position.set(0.38, 0, -0.0142);
       rightCoverScreen.rotation.y = Math.PI;
       rightWing.add(rightCoverScreen);
 
       // Cover Screen Punch-Hole Selfie Camera
-      const coverPunch = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.006, 16), interiorMat);
+      const coverPunch = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.011, 0.011, 0.005, 16),
+        darkInteriorMat
+      );
       coverPunch.rotation.x = Math.PI / 2;
-      coverPunch.position.set(0.38, 0.72, -0.024);
+      coverPunch.position.set(0.38, 0.74, -0.0146);
       rightWing.add(coverPunch);
 
       // Top Earpiece Speaker Slit on Cover Glass Edge
-      const earpiece = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.006, 0.005), interiorMat);
-      earpiece.position.set(0.38, 0.875, -0.024);
+      const earpiece = new THREE.Mesh(
+        new THREE.BoxGeometry(0.12, 0.005, 0.004),
+        darkInteriorMat
+      );
+      earpiece.position.set(0.38, 0.865, -0.0146);
       rightWing.add(earpiece);
 
       // Right Frame Controls: Recessed Fingerprint Power Key & Volume Rocker
-      const buttonMat = new THREE.MeshPhysicalMaterial({ color: 0x828d99, metalness: 0.96, roughness: 0.14 });
-      const pwrKey = new THREE.Mesh(new THREE.BoxGeometry(0.010, 0.22, 0.022), buttonMat);
-      pwrKey.position.set(0.764, 0.15, 0);
+      const buttonMat = new THREE.MeshPhysicalMaterial({ color: 0x8e9aa8, metalness: 0.95, roughness: 0.15 });
+
+      // Recessed Power / Fingerprint Key Well
+      const pwrWell = new THREE.Mesh(new THREE.BoxGeometry(0.005, 0.22, 0.016), darkInteriorMat);
+      pwrWell.position.set(0.762, 0.15, 0);
+      rightWing.add(pwrWell);
+
+      const pwrKey = new THREE.Mesh(new THREE.BoxGeometry(0.006, 0.20, 0.014), buttonMat);
+      pwrKey.position.set(0.763, 0.15, 0);
       rightWing.add(pwrKey);
 
-      const volKey = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.26, 0.022), buttonMat);
-      volKey.position.set(0.764, 0.44, 0);
+      // Raised Volume Rocker
+      const volKey = new THREE.Mesh(new THREE.BoxGeometry(0.010, 0.26, 0.018), buttonMat);
+      volKey.position.set(0.764, 0.46, 0);
       rightWing.add(volKey);
 
-      // SIM Tray Slot
-      const simSlot = new THREE.Mesh(new THREE.BoxGeometry(0.004, 0.22, 0.010), interiorMat);
+      // SIM Tray Slot on Right Rail
+      const simSlot = new THREE.Mesh(new THREE.BoxGeometry(0.004, 0.20, 0.008), darkInteriorMat);
       simSlot.position.set(0.762, -0.32, 0);
       rightWing.add(simSlot);
 
-      // Bottom USB-C Port
-      const usbcHousing = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.016, 0.030), interiorMat);
-      usbcHousing.position.set(0.38, -0.898, 0);
+      // Bottom USB-C Port Receptacle & Metallic Tongue
+      const usbcHousing = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.016, 0.022), darkInteriorMat);
+      usbcHousing.position.set(0.38, -0.882, 0);
       rightWing.add(usbcHousing);
 
-      const usbcTongue = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.004, 0.012), armorAluminumMat);
-      usbcTongue.position.set(0.38, -0.898, 0);
+      const usbcTongue = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.004, 0.010), armorAluminumMat);
+      usbcTongue.position.set(0.38, -0.882, 0);
       rightWing.add(usbcTongue);
 
-      // Interactive Folding Angle Controller
+      // Primary Microphone Hole at Bottom
+      const botMic = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, 0.010, 16), darkInteriorMat);
+      botMic.position.set(0.24, -0.882, 0);
+      rightWing.add(botMic);
+
+      // Interactive Dynamic Folding Angle Controller
       controllers.setFoldAngle = (deg: number) => {
         const rad = (deg * Math.PI) / 180;
         const foldOffset = (Math.PI - rad) / 2;
@@ -2560,12 +2681,12 @@ function buildRefinedHardwareCAD(
         rightWing.rotation.y = -foldOffset;
       };
 
+      // Default Showcase Hero Angle: Open in majestic Flex Mode (155°)
+      controllers.setFoldAngle(155);
+
       break;
     }
 
-    // -------------------------------------------------------------------------
-    // 2. APPLE IPHONE 16 PRO MAX (Grade 5 Titanium & Ceramic Shield)
-    // -------------------------------------------------------------------------
     case "iphone16": {
       // Satin Brushed Grade 5 Titanium Frame Material (Desert Titanium)
       const titaniumMat = new THREE.MeshPhysicalMaterial({
