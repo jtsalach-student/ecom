@@ -31,6 +31,8 @@ import { ProductListing } from "@gcp/contracts";
 export interface CarouselSlide {
   id: string;
   badge: string;
+  headlinePrefix: string;
+  headlineAccent: string;
   title: string;
   subtitle: string;
   benefit: string;
@@ -81,6 +83,8 @@ export function InteractiveRotatingHeroCarousel({
     {
       id: "slide-fold6",
       badge: "Galaxy AI & Dual AMOLED",
+      headlinePrefix: "Ultra-slim engineering.",
+      headlineAccent: "Unfolds infinite possibility.",
       title: foldProduct?.name || "Samsung Galaxy Z Fold6",
       subtitle: foldProduct?.shortDescription || "7.6\" Foldable 120Hz Dynamic AMOLED & Snapdragon 8 Gen 3",
       benefit: foldProduct?.description || "Ultra-slim foldable engineering with dual displays, Armor Aluminum hinge, and Galaxy AI multi-window productivity.",
@@ -130,6 +134,8 @@ export function InteractiveRotatingHeroCarousel({
     {
       id: "slide-iphone",
       badge: "Aerospace Grade 5 Titanium",
+      headlinePrefix: "Grade 5 Titanium.",
+      headlineAccent: "Pro power in your palm.",
       title: iphoneProduct?.name || "Apple iPhone 16 Pro Max",
       subtitle: iphoneProduct?.shortDescription || "A18 Pro 3nm Silicon & 5x Optical Periscope",
       benefit: iphoneProduct?.description || "Lightweight titanium construction, 6.9\" Super Retina XDR ProMotion, Camera Control sensor button, and 48MP Fusion imaging.",
@@ -173,6 +179,8 @@ export function InteractiveRotatingHeroCarousel({
     {
       id: "slide-surface",
       badge: "Copilot+ PC Intelligence",
+      headlinePrefix: "Copilot+ PC speed.",
+      headlineAccent: "Intelligence that never sleeps.",
       title: surfaceProduct?.name || "Surface Laptop 7th Edition 15\"",
       subtitle: surfaceProduct?.shortDescription || "Snapdragon X Elite 12-Core Ultrabook",
       benefit: surfaceProduct?.description || "Ultra-fast on-device AI acceleration, 120Hz PixelSense Flow Touchscreen, 1TB Gen 4 SSD, and unprecedented 22-hour battery life.",
@@ -216,6 +224,8 @@ export function InteractiveRotatingHeroCarousel({
     {
       id: "slide-jbl-bar",
       badge: "True Dolby Atmos 3D",
+      headlinePrefix: "True Dolby Atmos 3D.",
+      headlineAccent: "Cinema that surrounds you.",
       title: jblBarProduct?.name || "JBL Bar 800 MK2 Surround",
       subtitle: jblBarProduct?.shortDescription || "720W 5.1.2-Channel Cinema System",
       benefit: jblBarProduct?.description || "Pure cinema immersion with detachable wireless battery-powered rear surround speakers and massive 10-inch down-firing wireless subwoofer.",
@@ -259,6 +269,8 @@ export function InteractiveRotatingHeroCarousel({
     {
       id: "slide-imac",
       badge: "Apple M4 Silicon",
+      headlinePrefix: "4.5K Retina brilliance.",
+      headlineAccent: "Apple M4 in vibrant color.",
       title: imacProduct?.name || "Apple iMac 24-inch M4",
       subtitle: imacProduct?.shortDescription || "All-in-One Power with 4.5K Retina Brilliance",
       benefit: imacProduct?.description || "The ultimate desktop centerpiece. 16GB unified memory, 12MP Center Stage camera with Desk View, and Studio-quality acoustics.",
@@ -296,6 +308,8 @@ export function InteractiveRotatingHeroCarousel({
     {
       id: "slide-lg-qned",
       badge: "Quantum Dot NanoCell",
+      headlinePrefix: "Quantum Dot cinema.",
+      headlineAccent: "Every single frame alive.",
       title: tvProduct?.name || "LG 75\" QNED70 4K Smart TV",
       subtitle: tvProduct?.shortDescription || "α5 Gen6 AI Processor & webOS 23",
       benefit: tvProduct?.description || "Expansive 75-inch living room theatre with richer, deeper colors, Game Optimizer, Active HDR10 Pro, and Magic Remote voice control.",
@@ -327,6 +341,8 @@ export function InteractiveRotatingHeroCarousel({
     {
       id: "slide-tcl-ac",
       badge: "Smart Inverter Energy Saving",
+      headlinePrefix: "Smart AI Inverter.",
+      headlineAccent: "Pure cool comfort in 30 seconds.",
       title: acProduct?.name || "TCL 1.5HP Smart Inverter AC",
       subtitle: acProduct?.shortDescription || "Fast 30-Second Cooling & TitanGold Protection",
       benefit: acProduct?.description || "12,000 BTU cooling efficiency with AI inverter energy savings up to 60%, TitanGold anti-corrosion condenser fins, and quiet operation.",
@@ -398,103 +414,117 @@ export function InteractiveRotatingHeroCarousel({
       onMouseLeave={() => setIsPaused(false)}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Main Carousel Hero Card */}
-        <div className="relative rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800/80 bg-gradient-to-br from-white via-slate-50 to-[#FFF7EE] dark:from-[#111827] dark:via-[#0F172A] dark:to-[#17120C] shadow-card dark:shadow-cardDark transition-colors duration-300">
-          {/* Subtle Dynamic Ambient Glow */}
+        {/* Main Carousel Hero Card - Refero Museum Gallery Vitrine */}
+        <div className="relative rounded-[32px] sm:rounded-[36px] overflow-hidden ring-1 ring-black/[0.06] dark:ring-white/[0.08] bg-[#fafafc] dark:bg-[#0a0d14] shadow-[0_24px_60px_-15px_rgba(0,0,0,0.06)] dark:shadow-[0_24px_60px_-15px_rgba(0,0,0,0.6)] transition-all duration-500">
+          {/* Subtle Dynamic Ambient Color Aura */}
           <div
-            className="absolute -top-32 -right-32 w-96 h-96 rounded-full blur-3xl pointer-events-none opacity-25 dark:opacity-20 transition-all duration-700"
+            className="absolute -top-40 -right-40 w-[480px] h-[480px] rounded-full blur-[100px] pointer-events-none opacity-20 dark:opacity-15 transition-all duration-1000 ease-out"
+            style={{ backgroundColor: activeSlide.accentColor }}
+          />
+          <div
+            className="absolute -bottom-40 -left-40 w-[360px] h-[360px] rounded-full blur-[90px] pointer-events-none opacity-10 dark:opacity-10 transition-all duration-1000 ease-out"
             style={{ backgroundColor: activeSlide.accentColor }}
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 items-center min-h-[560px] lg:min-h-[620px]">
-            {/* Left Column: Stable Content & Product Information */}
+            {/* Left Column: Refero Typographic Architecture & Curated Specs */}
             <div className="lg:col-span-6 p-6 sm:p-10 lg:p-12 z-10 flex flex-col justify-between h-full">
-              <div>
-                {/* Category & Badge */}
-                <div className="flex flex-wrap items-center gap-2 mb-4">
-                  <span className="px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase orange-gradient-badge">
-                    <Sparkles className="w-3 h-3 inline mr-1 text-[#FF8A00]" />
+              <div className="space-y-4">
+                {/* Refero Micro-Kicker / Eyebrow */}
+                <div className="flex items-center gap-2 text-[11px] font-bold tracking-[0.18em] uppercase text-slate-500 dark:text-slate-400">
+                  <span
+                    className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold"
+                    style={{
+                      backgroundColor: `${activeSlide.accentColor}18`,
+                      color: activeSlide.accentColor,
+                    }}
+                  >
+                    <Sparkles className="w-2.5 h-2.5" />
                     {activeSlide.badge}
                   </span>
-                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                    {activeSlide.category}
-                  </span>
+                  <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700" />
+                  <span>{activeSlide.category}</span>
                 </div>
 
-                {/* Product Title & Subtitle */}
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
-                  {activeSlide.title}
-                </h1>
-                <p className="text-sm sm:text-base font-semibold text-[#FF8A00] dark:text-[#FFA336] mt-1">
-                  {activeSlide.subtitle}
-                </p>
+                {/* Editorial Master Headline with Tinted Verb */}
+                <div className="pt-1">
+                  <h1 className="text-3xl sm:text-4xl lg:text-[40px] font-extrabold tracking-[-0.035em] text-[#1d1d1f] dark:text-white leading-[1.12]">
+                    {activeSlide.headlinePrefix}{" "}
+                    <span
+                      className="transition-colors duration-500"
+                      style={{ color: activeSlide.accentColor }}
+                    >
+                      {activeSlide.headlineAccent}
+                    </span>
+                  </h1>
+                  <p className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 mt-2">
+                    {activeSlide.title} &bull; {activeSlide.subtitle}
+                  </p>
+                </div>
 
                 {/* Verified Benefit Description */}
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-3 leading-relaxed max-w-xl">
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl font-normal">
                   {activeSlide.benefit}
                 </p>
 
-                {/* Specification Highlights Grid */}
-                <div className="grid grid-cols-2 gap-2.5 sm:gap-3 my-5 max-w-lg">
+                {/* Minimalist Apple Glass Spec Chips */}
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-3 py-1 max-w-lg">
                   {activeSlide.specs.map((spec, i) => (
                     <div
                       key={i}
-                      className="px-3 py-2 rounded-xl bg-slate-100/80 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/50 backdrop-blur-sm"
+                      className="px-3.5 py-2.5 rounded-2xl bg-white/80 dark:bg-slate-900/60 ring-1 ring-black/[0.05] dark:ring-white/[0.07] backdrop-blur-md shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-all hover:ring-black/[0.12] dark:hover:ring-white/[0.15]"
                     >
-                      <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                      <div className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-[0.08em]">
                         {spec.label}
                       </div>
-                      <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 mt-0.5 truncate">
+                      <div className="text-xs sm:text-sm font-bold text-[#1d1d1f] dark:text-slate-100 mt-0.5 truncate">
                         {spec.value}
                       </div>
                     </div>
                   ))}
                 </div>
 
-                {/* Verified Hardware Details Callout List */}
-                <div className="hidden sm:flex flex-col gap-1.5 mb-5 p-3 rounded-2xl bg-slate-50/80 dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-800/60 text-xs">
-                  <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200 text-[11px] uppercase tracking-wider">
-                    <Info className="w-3.5 h-3.5 text-[#FF8A00]" />
-                    <span>Engineered Details</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {activeSlide.hotspots.map((hs) => (
-                      <span
-                        key={hs.id}
-                        className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[11px] font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1"
-                      >
-                        <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                        {hs.title}
-                      </span>
-                    ))}
-                  </div>
+                {/* Engineered Details Floating Badges */}
+                <div className="hidden sm:flex flex-wrap items-center gap-1.5 pt-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mr-1 flex items-center gap-1">
+                    <Info className="w-3 h-3 text-[#0071e3]" /> Hardware:
+                  </span>
+                  {activeSlide.hotspots.map((hs) => (
+                    <span
+                      key={hs.id}
+                      className="px-2.5 py-1 rounded-full bg-white/70 dark:bg-slate-800/70 ring-1 ring-black/[0.04] dark:ring-white/[0.06] text-[11px] font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1 shadow-sm"
+                    >
+                      <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                      {hs.title}
+                    </span>
+                  ))}
                 </div>
               </div>
 
-              {/* Price & Action CTAs */}
-              <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4">
+              {/* Price & Refero Apple Action Pills */}
+              <div className="pt-6 mt-4 border-t border-black/[0.05] dark:border-white/[0.06] flex flex-wrap items-center justify-between gap-4">
                 <div>
-                  <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <div className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-[0.14em]">
                     Official Showroom Price
                   </div>
-                  <div className="flex items-baseline gap-2">
+                  <div className="flex items-baseline gap-2.5 mt-0.5">
                     {activeSlide.priceGhs ? (
-                      <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-mono">
+                      <span className="text-2xl sm:text-3xl font-extrabold text-[#1d1d1f] dark:text-white tracking-tight">
                         GHS {activeSlide.priceGhs.toLocaleString()}
                       </span>
                     ) : (
-                      <span className="text-xl font-bold text-slate-800 dark:text-slate-200">
+                      <span className="text-xl font-bold text-[#1d1d1f] dark:text-white">
                         Call for Pricing
                       </span>
                     )}
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20">
                       East Legon Stock
                     </span>
                   </div>
                 </div>
 
-                {/* CTAs */}
-                <div className="flex items-center gap-2.5 sm:gap-3">
+                {/* CTAs: Apple Signal Blue Pill + Neutral Action */}
+                <div className="flex items-center gap-2.5">
                   {activeSlide.matchedProduct?.variants?.[0] && (
                     <button
                       onClick={() => {
@@ -505,7 +535,7 @@ export function InteractiveRotatingHeroCarousel({
                         );
                         setIsCartOpen(true);
                       }}
-                      className="flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-[#FF8A00] hover:bg-[#EA580C] text-white shadow-md hover:shadow-orangeGlow transition-all active:scale-95"
+                      className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-xs sm:text-sm bg-[#0071e3] hover:bg-[#0077ed] text-white shadow-[0_4px_14px_rgba(0,113,227,0.35)] hover:shadow-[0_6px_20px_rgba(0,113,227,0.45)] transition-all active:scale-95 cursor-pointer"
                     >
                       <ShoppingBag className="w-4 h-4" />
                       <span>Add to Cart</span>
@@ -519,9 +549,9 @@ export function InteractiveRotatingHeroCarousel({
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white border border-slate-700 transition-all hover:scale-105"
+                    className="flex items-center gap-2 px-4 sm:px-5 py-3 rounded-full font-semibold text-xs sm:text-sm bg-white dark:bg-slate-800/90 hover:bg-[#f2f2f6] dark:hover:bg-slate-700 text-[#1d1d1f] dark:text-white ring-1 ring-black/[0.08] dark:ring-white/[0.1] shadow-sm transition-all hover:scale-[1.02] active:scale-95"
                   >
-                    <MessageCircle className="w-4 h-4 text-emerald-400" />
+                    <MessageCircle className="w-4 h-4 text-emerald-500" />
                     <span className="hidden sm:inline">WhatsApp</span>
                   </a>
                 </div>
@@ -529,7 +559,7 @@ export function InteractiveRotatingHeroCarousel({
             </div>
 
             {/* Right Column: Uniform Interactive 3D Showcase & Responsive Studio Gallery */}
-            <div className="lg:col-span-6 p-2 sm:p-4 lg:p-6 flex flex-col justify-between relative min-h-[480px] sm:min-h-[540px] lg:min-h-[620px]">
+            <div className="lg:col-span-6 p-3 sm:p-5 lg:p-7 flex flex-col justify-between relative min-h-[480px] sm:min-h-[540px] lg:min-h-[620px]">
               <RefinedProduct3DStage
                 key={`stage-${activeSlide.id}`}
                 slide={activeSlide}
@@ -540,18 +570,18 @@ export function InteractiveRotatingHeroCarousel({
             </div>
           </div>
 
-          {/* Carousel Navigation Toolbar */}
-          <div className="px-6 py-3.5 bg-slate-100/90 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-            {/* Pagination Dots */}
+          {/* Carousel Navigation Toolbar - Apple Museum Minimalist Dock */}
+          <div className="px-6 sm:px-8 py-3.5 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md border-t border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between">
+            {/* Pagination Indicators */}
             <div className="flex items-center gap-2">
               {slides.map((slide, idx) => (
                 <button
                   key={slide.id}
                   onClick={() => setCurrentIndex(idx)}
-                  className={`h-2 transition-all rounded-full ${
+                  className={`h-1.5 transition-all duration-300 rounded-full cursor-pointer ${
                     idx === currentIndex
-                      ? "w-7 bg-[#FF8A00]"
-                      : "w-2 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-600"
+                      ? "w-8 bg-[#0071e3]"
+                      : "w-2 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-500"
                   }`}
                   aria-label={`Go to slide ${idx + 1}: ${slide.title}`}
                   aria-current={idx === currentIndex ? "true" : undefined}
@@ -563,7 +593,7 @@ export function InteractiveRotatingHeroCarousel({
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setIsPaused(!isPaused)}
-                className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors"
+                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer"
                 title={isPaused ? "Resume Autoplay" : "Pause Autoplay"}
               >
                 {isPaused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
@@ -571,14 +601,14 @@ export function InteractiveRotatingHeroCarousel({
 
               <button
                 onClick={prevSlide}
-                className="p-2 rounded-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:border-[#FF8A00] dark:hover:border-[#FF8A00] shadow-sm transition-all active:scale-95"
+                className="w-8 h-8 rounded-full bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 ring-1 ring-black/[0.06] dark:ring-white/[0.08] hover:ring-[#0071e3] shadow-sm flex items-center justify-center transition-all active:scale-95 cursor-pointer"
                 aria-label="Previous Slide"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={nextSlide}
-                className="p-2 rounded-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:border-[#FF8A00] dark:hover:border-[#FF8A00] shadow-sm transition-all active:scale-95"
+                className="w-8 h-8 rounded-full bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 ring-1 ring-black/[0.06] dark:ring-white/[0.08] hover:ring-[#0071e3] shadow-sm flex items-center justify-center transition-all active:scale-95 cursor-pointer"
                 aria-label="Next Slide"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -1055,11 +1085,14 @@ function RefinedProduct3DStage({
   return (
     <div className="w-full h-full flex flex-col justify-between select-none">
       {/* 1. HEADER RIBBON: Placed strictly ABOVE the viewport (Zero text over product) */}
-      <div className="w-full flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-200/80 dark:border-slate-800/80">
+      <div className="w-full flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-black/[0.04] dark:border-white/[0.06]">
         {/* Left: Live Status Pill */}
         <div className="flex items-center gap-1.5">
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-slate-900/90 dark:bg-slate-800/90 text-white shadow-sm border border-slate-700/60">
-            <Compass className="w-3.5 h-3.5 text-[#FF8A00] animate-spin-slow" />
+          <div className="flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[11px] font-mono font-medium bg-white/80 dark:bg-slate-800/80 text-[#1d1d1f] dark:text-white shadow-sm ring-1 ring-black/[0.06] dark:ring-white/[0.08] backdrop-blur-md">
+            <Compass
+              className="w-3.5 h-3.5 animate-spin-slow"
+              style={{ color: slide.accentColor }}
+            />
             <span>
               {stageMode === "cad3d"
                 ? `${viewAngleDeg}° • ${
@@ -1079,14 +1112,14 @@ function RefinedProduct3DStage({
         </div>
 
         {/* Center: Clean Inspection Mode Switcher */}
-        <div className="flex items-center bg-slate-100 dark:bg-slate-800/90 p-1 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="flex items-center bg-black/[0.04] dark:bg-white/[0.06] p-1 rounded-full ring-1 ring-black/[0.04] dark:ring-white/[0.06]">
           <button
             type="button"
             onClick={() => onSetStageMode("cad3d")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
               stageMode === "cad3d"
-                ? "bg-[#FF8A00] text-white shadow-sm"
-                : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                ? "bg-[#0071e3] text-white shadow-sm"
+                : "text-slate-600 dark:text-slate-400 hover:text-[#1d1d1f] dark:hover:text-white"
             }`}
           >
             <Box className="w-3.5 h-3.5" />
@@ -1095,10 +1128,10 @@ function RefinedProduct3DStage({
           <button
             type="button"
             onClick={() => onSetStageMode("gallery")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
               stageMode === "gallery"
-                ? "bg-[#FF8A00] text-white shadow-sm"
-                : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                ? "bg-[#0071e3] text-white shadow-sm"
+                : "text-slate-600 dark:text-slate-400 hover:text-[#1d1d1f] dark:hover:text-white"
             }`}
           >
             <Camera className="w-3.5 h-3.5" />
@@ -1108,11 +1141,11 @@ function RefinedProduct3DStage({
 
         {/* Right: Zoom / View Toolbar */}
         {stageMode === "cad3d" ? (
-          <div className="flex items-center gap-1 bg-white/90 dark:bg-slate-900/90 p-1 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div className="flex items-center gap-1 bg-white/80 dark:bg-slate-800/80 p-1 rounded-full ring-1 ring-black/[0.06] dark:ring-white/[0.08] shadow-sm backdrop-blur-md">
             <button
               type="button"
               onClick={handleZoomOut}
-              className="p-1 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="p-1 rounded-full text-slate-600 dark:text-slate-300 hover:bg-black/[0.05] dark:hover:bg-white/[0.1] transition-colors cursor-pointer"
               title="Zoom Out"
             >
               <ZoomOut className="w-3.5 h-3.5" />
@@ -1123,16 +1156,16 @@ function RefinedProduct3DStage({
             <button
               type="button"
               onClick={handleZoomIn}
-              className="p-1 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="p-1 rounded-full text-slate-600 dark:text-slate-300 hover:bg-black/[0.05] dark:hover:bg-white/[0.1] transition-colors cursor-pointer"
               title="Zoom In"
             >
               <ZoomIn className="w-3.5 h-3.5" />
             </button>
-            <div className="w-[1px] h-3.5 bg-slate-200 dark:bg-slate-700 mx-0.5" />
+            <div className="w-[1px] h-3.5 bg-black/[0.08] dark:bg-white/[0.1] mx-0.5" />
             <button
               type="button"
               onClick={handleFocusMacroOptics}
-              className="px-2 py-0.5 rounded-lg text-[10px] font-bold text-slate-700 dark:text-slate-200 hover:bg-[#FF8A00] hover:text-white transition-all"
+              className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold text-slate-700 dark:text-slate-300 hover:bg-[#0071e3] hover:text-white transition-all cursor-pointer"
               title="Zoom to sapphire camera optics"
             >
               Optics
@@ -1140,15 +1173,15 @@ function RefinedProduct3DStage({
             <button
               type="button"
               onClick={handleFocusHingeOrProfile}
-              className="px-2 py-0.5 rounded-lg text-[10px] font-bold text-slate-700 dark:text-slate-200 hover:bg-[#FF8A00] hover:text-white transition-all"
-              title="Zoom to hinge and ports"
+              className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold text-slate-700 dark:text-slate-300 hover:bg-[#0071e3] hover:text-white transition-all cursor-pointer"
+              title="Zoom to hinge and profile"
             >
               Hinge
             </button>
             <button
               type="button"
               onClick={handleResetZoom}
-              className="p-1 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors"
+              className="p-1 rounded-full text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors cursor-pointer"
               title="Reset View to 1.0x"
             >
               <RotateCcw className="w-3 h-3" />
@@ -1156,14 +1189,14 @@ function RefinedProduct3DStage({
           </div>
         ) : (
           /* Gallery Mode View Switcher */
-          <div className="flex items-center gap-1 bg-white/90 dark:bg-slate-900/90 p-1 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div className="flex items-center gap-1 bg-white/80 dark:bg-slate-800/80 p-1 rounded-full ring-1 ring-black/[0.06] dark:ring-white/[0.08] shadow-sm backdrop-blur-md">
             <button
               type="button"
               onClick={() => setIsRearView(false)}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+              className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                 !isRearView
-                  ? "bg-[#FF8A00] text-white shadow-sm"
-                  : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                  ? "bg-[#0071e3] text-white shadow-sm"
+                  : "text-slate-600 dark:text-slate-400 hover:text-[#1d1d1f] dark:hover:text-white"
               }`}
             >
               Front Screen
@@ -1172,10 +1205,10 @@ function RefinedProduct3DStage({
               <button
                 type="button"
                 onClick={() => setIsRearView(true)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                   isRearView
-                    ? "bg-[#FF8A00] text-white shadow-sm"
-                    : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                    ? "bg-[#0071e3] text-white shadow-sm"
+                    : "text-slate-600 dark:text-slate-400 hover:text-[#1d1d1f] dark:hover:text-white"
                 }`}
               >
                 Rear Hardware
@@ -1187,7 +1220,7 @@ function RefinedProduct3DStage({
 
       {/* 2. MAIN PRODUCT VIEWPORT (100% UNIMPEDED & UNIFORM DIMENSION) */}
       {/* Zero text, zero badges, zero buttons float over the product or image! */}
-      <div className="relative w-full h-[320px] sm:h-[380px] lg:h-[420px] my-2.5 rounded-2xl overflow-hidden flex items-center justify-center bg-gradient-to-b from-slate-100/40 via-white/20 to-slate-200/40 dark:from-[#0d131f]/70 dark:via-[#111827]/40 dark:to-[#090d15]/80 border border-slate-200/70 dark:border-slate-800/70 shadow-inner">
+      <div className="relative w-full h-[320px] sm:h-[380px] lg:h-[420px] my-3 rounded-[24px] sm:rounded-[28px] overflow-hidden flex items-center justify-center bg-gradient-to-b from-white/95 via-[#f8f8fa]/90 to-[#ececf0]/95 dark:from-[#0d121c]/90 dark:via-[#090d14]/90 dark:to-[#05070c]/90 ring-1 ring-black/[0.04] dark:ring-white/[0.06] shadow-[inset_0_1px_4px_rgba(0,0,0,0.03)]">
         {stageMode === "cad3d" ? (
           webGlFailed ? (
             <div className="w-full h-full max-w-[340px] sm:max-w-[400px] flex items-center justify-center p-3">
@@ -1216,9 +1249,9 @@ function RefinedProduct3DStage({
       </div>
 
       {/* 3. FOOTER CONTROLS DOCK: Placed strictly BELOW the viewport */}
-      <div className="w-full flex flex-col gap-2 pt-2 border-t border-slate-200/80 dark:border-slate-800/80">
+      <div className="w-full flex flex-col gap-2 pt-2 border-t border-black/[0.04] dark:border-white/[0.06]">
         {/* Row 1: Camera Angle Presets & Interactive Moving Hardware Controls */}
-        <div className="flex flex-wrap items-center justify-between gap-1.5 px-3 py-2 rounded-xl bg-slate-100/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-1.5 px-3 py-2 rounded-2xl bg-white/70 dark:bg-slate-900/60 ring-1 ring-black/[0.04] dark:ring-white/[0.06] backdrop-blur-md shadow-sm">
           {stageMode === "cad3d" ? (
             <>
               {/* Auto Spin & Angle Presets */}
@@ -1230,42 +1263,42 @@ function RefinedProduct3DStage({
                     setIsAutoSpinning(next);
                     autoSpinRef.current = next;
                   }}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all shadow-sm ${
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold transition-all shadow-sm cursor-pointer ${
                     isAutoSpinning
-                      ? "bg-[#FF8A00] text-white"
-                      : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700"
+                      ? "bg-[#0071e3] text-white"
+                      : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-[#1d1d1f] dark:hover:text-white ring-1 ring-black/[0.06] dark:ring-white/[0.08]"
                   }`}
                   title="360 Continuous Auto-Spin"
                 >
-                  <RotateCw className={`w-3 h-3 ${isAutoSpinning ? "animate-spin" : "text-[#FF8A00]"}`} />
+                  <RotateCw className={`w-3 h-3 ${isAutoSpinning ? "animate-spin" : "text-[#0071e3]"}`} />
                   <span>{isAutoSpinning ? "Pause 360°" : "Auto 360°"}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => resetAngleRef.current?.(35)}
-                  className="px-2 py-1 rounded-lg text-[11px] font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 transition-all shadow-sm"
+                  className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-[#1d1d1f] dark:hover:text-white ring-1 ring-black/[0.06] dark:ring-white/[0.08] transition-all shadow-sm cursor-pointer"
                 >
                   Hero 45°
                 </button>
                 <button
                   type="button"
                   onClick={() => resetAngleRef.current?.(0)}
-                  className="px-2 py-1 rounded-lg text-[11px] font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 transition-all shadow-sm"
+                  className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-[#1d1d1f] dark:hover:text-white ring-1 ring-black/[0.06] dark:ring-white/[0.08] transition-all shadow-sm cursor-pointer"
                 >
                   Front
                 </button>
                 <button
                   type="button"
                   onClick={() => resetAngleRef.current?.(90)}
-                  className="px-2 py-1 rounded-lg text-[11px] font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 transition-all shadow-sm"
+                  className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-[#1d1d1f] dark:hover:text-white ring-1 ring-black/[0.06] dark:ring-white/[0.08] transition-all shadow-sm cursor-pointer"
                 >
                   Profile
                 </button>
                 <button
                   type="button"
                   onClick={() => resetAngleRef.current?.(180)}
-                  className="px-2 py-1 rounded-lg text-[11px] font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 transition-all shadow-sm"
+                  className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-[#1d1d1f] dark:hover:text-white ring-1 ring-black/[0.06] dark:ring-white/[0.08] transition-all shadow-sm cursor-pointer"
                 >
                   Rear
                 </button>
@@ -1274,16 +1307,16 @@ function RefinedProduct3DStage({
               {/* Device-Specific Moving Hardware Controls */}
               {slide.deviceModel === "fold6" && (
                 <div className="flex items-center gap-1 text-[11px]">
-                  <span className="font-bold text-slate-500 flex items-center gap-1">
-                    <Sliders className="w-3 h-3 text-[#FF8A00]" /> Hinge:
+                  <span className="font-semibold text-slate-400 flex items-center gap-1">
+                    <Sliders className="w-3 h-3 text-[#0071e3]" /> Hinge:
                   </span>
                   <button
                     type="button"
                     onClick={() => handleSetFoldAngle(25)}
-                    className={`px-2 py-0.5 rounded font-bold transition-all ${
+                    className={`px-2 py-0.5 rounded-full font-semibold transition-all cursor-pointer ${
                       foldAngleState <= 35
-                        ? "bg-[#FF8A00] text-white"
-                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                        ? "bg-[#0071e3] text-white"
+                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 ring-1 ring-black/[0.06] dark:ring-white/[0.08]"
                     }`}
                   >
                     Closed
@@ -1291,10 +1324,10 @@ function RefinedProduct3DStage({
                   <button
                     type="button"
                     onClick={() => handleSetFoldAngle(90)}
-                    className={`px-2 py-0.5 rounded font-bold transition-all ${
+                    className={`px-2 py-0.5 rounded-full font-semibold transition-all cursor-pointer ${
                       foldAngleState > 70 && foldAngleState < 120
-                        ? "bg-[#FF8A00] text-white"
-                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                        ? "bg-[#0071e3] text-white"
+                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 ring-1 ring-black/[0.06] dark:ring-white/[0.08]"
                     }`}
                   >
                     90° Flex
@@ -1302,10 +1335,10 @@ function RefinedProduct3DStage({
                   <button
                     type="button"
                     onClick={() => handleSetFoldAngle(152)}
-                    className={`px-2 py-0.5 rounded font-bold transition-all ${
+                    className={`px-2 py-0.5 rounded-full font-semibold transition-all cursor-pointer ${
                       foldAngleState > 140 && foldAngleState < 170
-                        ? "bg-[#FF8A00] text-white"
-                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                        ? "bg-[#0071e3] text-white"
+                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 ring-1 ring-black/[0.06] dark:ring-white/[0.08]"
                     }`}
                   >
                     150° Hero
@@ -1313,10 +1346,10 @@ function RefinedProduct3DStage({
                   <button
                     type="button"
                     onClick={() => handleSetFoldAngle(180)}
-                    className={`px-2 py-0.5 rounded font-bold transition-all ${
+                    className={`px-2 py-0.5 rounded-full font-semibold transition-all cursor-pointer ${
                       foldAngleState >= 175
-                        ? "bg-[#FF8A00] text-white"
-                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                        ? "bg-[#0071e3] text-white"
+                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 ring-1 ring-black/[0.06] dark:ring-white/[0.08]"
                     }`}
                   >
                     180° Flat
@@ -1326,16 +1359,16 @@ function RefinedProduct3DStage({
 
               {slide.deviceModel === "surface7" && (
                 <div className="flex items-center gap-1 text-[11px]">
-                  <span className="font-bold text-slate-500 flex items-center gap-1">
-                    <Sliders className="w-3 h-3 text-[#FF8A00]" /> Lid:
+                  <span className="font-semibold text-slate-400 flex items-center gap-1">
+                    <Sliders className="w-3 h-3 text-[#0071e3]" /> Lid:
                   </span>
                   <button
                     type="button"
                     onClick={() => handleSetLidAngle(115)}
-                    className={`px-2.5 py-0.5 rounded font-bold transition-all ${
+                    className={`px-2.5 py-0.5 rounded-full font-semibold transition-all cursor-pointer ${
                       lidAngleState === 115
-                        ? "bg-[#FF8A00] text-white"
-                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                        ? "bg-[#0071e3] text-white"
+                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 ring-1 ring-black/[0.06] dark:ring-white/[0.08]"
                     }`}
                   >
                     115° Work View
@@ -1343,10 +1376,10 @@ function RefinedProduct3DStage({
                   <button
                     type="button"
                     onClick={() => handleSetLidAngle(140)}
-                    className={`px-2.5 py-0.5 rounded font-bold transition-all ${
+                    className={`px-2.5 py-0.5 rounded-full font-semibold transition-all cursor-pointer ${
                       lidAngleState === 140
-                        ? "bg-[#FF8A00] text-white"
-                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                        ? "bg-[#0071e3] text-white"
+                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 ring-1 ring-black/[0.06] dark:ring-white/[0.08]"
                     }`}
                   >
                     140° Wide
@@ -1356,16 +1389,16 @@ function RefinedProduct3DStage({
 
               {slide.deviceModel === "jbl800" && (
                 <div className="flex items-center gap-1 text-[11px]">
-                  <span className="font-bold text-slate-500 flex items-center gap-1">
-                    <Sliders className="w-3 h-3 text-[#FF8A00]" /> Surrounds:
+                  <span className="font-semibold text-slate-400 flex items-center gap-1">
+                    <Sliders className="w-3 h-3 text-[#0071e3]" /> Surrounds:
                   </span>
                   <button
                     type="button"
                     onClick={handleToggleSurrounds}
-                    className={`px-2.5 py-0.5 rounded font-bold transition-all ${
+                    className={`px-2.5 py-0.5 rounded-full font-semibold transition-all cursor-pointer ${
                       !surroundDocked
-                        ? "bg-[#FF8A00] text-white shadow-sm"
-                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                        ? "bg-[#0071e3] text-white shadow-sm"
+                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 ring-1 ring-black/[0.06] dark:ring-white/[0.08]"
                     }`}
                   >
                     {surroundDocked ? "Detach Surrounds (5.1.2 Setup)" : "Dock to Soundbar"}
@@ -1375,10 +1408,10 @@ function RefinedProduct3DStage({
             </>
           ) : (
             <div className="w-full flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
-              <span className="font-semibold">
+              <span className="font-medium">
                 Official manufacturer studio catalog photograph &bull; Accra East Legon Stock
               </span>
-              <span className="font-bold text-[#FF8A00]">Authentic 1:1 Scale</span>
+              <span className="font-semibold text-[#0071e3]">Authentic 1:1 Scale</span>
             </div>
           )}
         </div>
@@ -1386,7 +1419,7 @@ function RefinedProduct3DStage({
         {/* Row 2: Engineered Feature Hotspot Badges */}
         <div className="flex flex-wrap items-center justify-between gap-1.5 px-2">
           <div className="flex flex-wrap items-center gap-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mr-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">
               Inspect:
             </span>
             {slide.hotspots.map((hs) => (
@@ -1394,10 +1427,10 @@ function RefinedProduct3DStage({
                 key={hs.id}
                 type="button"
                 onClick={() => setActiveHotspotId(activeHotspotId === hs.id ? null : hs.id)}
-                className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${
+                className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold transition-all cursor-pointer ${
                   activeHotspotId === hs.id
-                    ? "bg-[#FF8A00] text-white shadow-sm"
-                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                    ? "bg-[#0071e3] text-white shadow-sm"
+                    : "bg-white/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 ring-1 ring-black/[0.05] dark:ring-white/[0.06] hover:bg-slate-100 dark:hover:bg-slate-700"
                 }`}
               >
                 {hs.badge}
@@ -1405,14 +1438,14 @@ function RefinedProduct3DStage({
             ))}
           </div>
 
-          <span className="text-[10px] font-semibold text-slate-400">
+          <span className="text-[10px] font-medium text-slate-400">
             Scroll to zoom &bull; Drag to rotate
           </span>
         </div>
 
         {/* Row 3: Hotspot Info Drawer (Renders cleanly underneath dock, NEVER over product) */}
         {activeHotspotId && (
-          <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md animate-fadeIn text-left">
+          <div className="p-3.5 rounded-2xl bg-white/95 dark:bg-slate-900/95 ring-1 ring-black/[0.06] dark:ring-white/[0.08] shadow-lg animate-fadeIn text-left backdrop-blur-md">
             {(() => {
               const hs = slide.hotspots.find((h) => h.id === activeHotspotId);
               if (!hs) return null;
@@ -1423,7 +1456,7 @@ function RefinedProduct3DStage({
                       <span className="text-xs font-bold text-slate-900 dark:text-white">
                         {hs.title}
                       </span>
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#FF8A00]/10 text-[#FF8A00]">
+                      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#0071e3]/10 text-[#0071e3]">
                         {hs.badge}
                       </span>
                     </div>
@@ -1434,7 +1467,7 @@ function RefinedProduct3DStage({
                   <button
                     type="button"
                     onClick={() => setActiveHotspotId(null)}
-                    className="text-[10px] font-bold text-[#FF8A00] hover:underline shrink-0"
+                    className="text-[10px] font-bold text-[#0071e3] hover:underline shrink-0 cursor-pointer"
                   >
                     Close
                   </button>
