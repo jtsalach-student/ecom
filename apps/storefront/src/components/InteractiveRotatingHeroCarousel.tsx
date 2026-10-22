@@ -793,7 +793,7 @@ function RefinedProduct3DStage({
   const updateSurroundsRef = useRef<((docked: boolean) => void) | null>(null);
 
   // Zoom & Camera Target References
-  const targetDistRef = useRef(3.4);
+  const targetDistRef = useRef(3.5);
   const targetYRef = useRef(0);
 
   useEffect(() => {
@@ -877,14 +877,20 @@ function RefinedProduct3DStage({
       box.getCenter(center);
 
       const maxDim = Math.max(size.x, size.y, size.z);
-      const targetScale = 1.95 / (maxDim || 1);
+      // DEVICE-AWARE SCALING & PERFECT FRAMING:
+      // For portrait devices (phones like Fold 6 and iPhone 16 Pro Max), height is dominant.
+      // Scaling by 1.95 causes the top of the phone to reach +1.24, touching/exceeding camera frustum bounds.
+      // An optimal height target of 1.48 guarantees the phone has generous breathing headroom (0.53 units),
+      // optical center aligned at y = 0, and stays 100% inside frame from all rotation and drag angles!
+      const isPortrait = size.y > size.x * 0.9;
+      const targetScale = isPortrait ? (1.48 / (size.y || 1)) : (1.90 / (maxDim || 1));
 
       uniformWrapper = new THREE.Group();
       // Center horizontally on (X, Z) and ground vertically with an elevated floating hover
       modelRoot.position.set(-center.x, -box.min.y, -center.z);
       uniformWrapper.scale.setScalar(targetScale);
       
-      // Floats gracefully ~30cm above the turntable surface (-1.08)
+      // Floats gracefully ~34cm above the turntable surface (-1.08)
       const FLOAT_ELEVATION_Y = -0.74;
       uniformWrapper.position.set(0, FLOAT_ELEVATION_Y, 0);
       uniformWrapper.add(modelRoot);
@@ -944,7 +950,7 @@ function RefinedProduct3DStage({
         e.preventDefault();
         const delta = e.deltaY * 0.0028;
         targetDistRef.current = Math.max(1.3, Math.min(4.5, targetDistRef.current + delta));
-        setZoomLevel(Number((3.4 / targetDistRef.current).toFixed(1)));
+        setZoomLevel(Number((3.5 / targetDistRef.current).toFixed(1)));
       };
 
       container.addEventListener("wheel", handleWheel, { passive: false });
@@ -1055,7 +1061,7 @@ function RefinedProduct3DStage({
   // Zoom Controls Handlers
   const handleZoomIn = () => {
     targetDistRef.current = Math.max(1.3, targetDistRef.current - 0.5);
-    setZoomLevel(Number((3.4 / targetDistRef.current).toFixed(1)));
+    setZoomLevel(Number((3.5 / targetDistRef.current).toFixed(1)));
   };
 
   const handleZoomOut = () => {
@@ -1064,7 +1070,7 @@ function RefinedProduct3DStage({
   };
 
   const handleResetZoom = () => {
-    targetDistRef.current = 3.4;
+    targetDistRef.current = 3.5;
     targetYRef.current = 0;
     setZoomLevel(1.0);
     resetAngleRef.current?.(35);
@@ -1789,197 +1795,184 @@ function createSurfaceScreenTexture(): THREE.CanvasTexture {
   const ctx = canvas.getContext("2d");
   if (!ctx) return new THREE.CanvasTexture(canvas);
 
-  // AUTHENTIC WINDOWS 11 COPILOT+ MOUNTAIN LAKE WALLPAPER (From Reference Photo)
-  // Radiant Sky Gradient
-  const skyGrad = ctx.createLinearGradient(0, 0, 0, 420);
-  skyGrad.addColorStop(0, "#3a86c8");
-  skyGrad.addColorStop(0.5, "#7eb4e2");
-  skyGrad.addColorStop(0.85, "#cde4f7");
-  skyGrad.addColorStop(1, "#f0f7fd");
-  ctx.fillStyle = skyGrad;
-  ctx.fillRect(0, 0, 1024, 420);
+  // AUTHENTIC WINDOWS 11 COPILOT+ BLOOM WALLPAPER
+  // Deep Midnight Slate & Radiant Ambient Glow Backdrop
+  const bgGrad = ctx.createRadialGradient(512, 360, 40, 512, 340, 600);
+  bgGrad.addColorStop(0, "#1e293b"); // Ambient central glow
+  bgGrad.addColorStop(0.45, "#0f172a"); // Deep navy slate
+  bgGrad.addColorStop(0.85, "#090d16"); // Midnight graphite
+  bgGrad.addColorStop(1, "#05070a");
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, 1024, 680);
 
-  // Distant Snow-Capped Mountain Ridge (Matching reference photo)
-  ctx.fillStyle = "#335574";
-  ctx.beginPath();
-  ctx.moveTo(0, 420);
-  ctx.lineTo(80, 360);
-  ctx.lineTo(190, 310);
-  ctx.lineTo(310, 380);
-  ctx.lineTo(460, 260);
-  ctx.lineTo(580, 340);
-  ctx.lineTo(720, 280);
-  ctx.lineTo(880, 390);
-  ctx.lineTo(1024, 320);
-  ctx.lineTo(1024, 420);
-  ctx.closePath();
-  ctx.fill();
-
-  // White Snow Caps on Mountain Peaks
-  ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-  ctx.beginPath();
-  ctx.moveTo(190, 310);
-  ctx.lineTo(210, 335);
-  ctx.lineTo(170, 335);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(460, 260);
-  ctx.lineTo(495, 305);
-  ctx.lineTo(430, 305);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(720, 280);
-  ctx.lineTo(755, 325);
-  ctx.lineTo(690, 325);
-  ctx.closePath();
-  ctx.fill();
-
-  // Pristine Turquoise Mountain Lake Reflection
-  const lakeGrad = ctx.createLinearGradient(0, 420, 0, 680);
-  lakeGrad.addColorStop(0, "#10689b");
-  lakeGrad.addColorStop(0.4, "#198bb4");
-  lakeGrad.addColorStop(0.7, "#2aa8c8");
-  lakeGrad.addColorStop(1, "#4ac4dc");
-  ctx.fillStyle = lakeGrad;
-  ctx.fillRect(0, 420, 1024, 260);
-
-  // Grassy Shoreline on Lower Right (Matching photo)
-  ctx.fillStyle = "#4d7c0f";
-  ctx.beginPath();
-  ctx.moveTo(680, 520);
-  ctx.bezierCurveTo(780, 480, 920, 500, 1024, 480);
-  ctx.lineTo(1024, 630);
-  ctx.lineTo(680, 630);
-  ctx.closePath();
-  ctx.fill();
-
-  // Desktop Icons on Upper Left (Recycle Bin, Microsoft Edge)
-  ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-  ctx.font = "24px sans-serif";
-  ctx.fillText("🗑️", 36, 52);
-  ctx.font = "11px system-ui, sans-serif";
-  ctx.fillText("Recycle Bin", 24, 72);
-
-  ctx.font = "24px sans-serif";
-  ctx.fillText("🌐", 36, 112);
-  ctx.font = "11px system-ui, sans-serif";
-  ctx.fillText("Microsoft Edge", 18, 132);
-
-  // Centered Floating Acrylic Windows 11 Start Menu Window
+  // Multi-Layered Iridescent Crystalline Bloom Petals (Official Copilot+ Signature)
   ctx.save();
-  ctx.shadowColor = "rgba(0, 0, 0, 0.28)";
-  ctx.shadowBlur = 28;
-  ctx.shadowOffsetY = 12;
-
+  // Ambient Bloom Aura
+  const auraGrad = ctx.createRadialGradient(512, 300, 20, 512, 300, 280);
+  auraGrad.addColorStop(0, "rgba(56, 189, 248, 0.40)"); // Cyan glow
+  auraGrad.addColorStop(0.4, "rgba(168, 85, 247, 0.28)"); // Violet aura
+  auraGrad.addColorStop(0.8, "rgba(37, 99, 235, 0.12)"); // Blue edge
+  auraGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+  ctx.fillStyle = auraGrad;
   ctx.beginPath();
-  ctx.roundRect(324, 210, 376, 390, 18);
-  ctx.fillStyle = "rgba(244, 248, 252, 0.94)";
+  ctx.arc(512, 300, 280, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Petal 1: Left Sweeping Royal Blue & Violet Petal
+  ctx.beginPath();
+  ctx.moveTo(512, 420);
+  ctx.bezierCurveTo(340, 390, 220, 280, 290, 160);
+  ctx.bezierCurveTo(360, 60, 500, 140, 512, 260);
+  ctx.closePath();
+  const p1Grad = ctx.createLinearGradient(250, 100, 512, 420);
+  p1Grad.addColorStop(0, "rgba(147, 51, 234, 0.95)"); // Royal Violet
+  p1Grad.addColorStop(0.5, "rgba(59, 130, 246, 0.90)"); // Sapphire
+  p1Grad.addColorStop(1, "rgba(30, 64, 175, 0.80)");
+  ctx.fillStyle = p1Grad;
+  ctx.fill();
+
+  // Petal 2: Right Sweeping Electric Cyan & Teal Petal
+  ctx.beginPath();
+  ctx.moveTo(512, 420);
+  ctx.bezierCurveTo(680, 400, 800, 290, 740, 160);
+  ctx.bezierCurveTo(670, 60, 530, 130, 512, 260);
+  ctx.closePath();
+  const p2Grad = ctx.createLinearGradient(740, 100, 512, 420);
+  p2Grad.addColorStop(0, "rgba(56, 189, 248, 0.95)"); // Electric Cyan
+  p2Grad.addColorStop(0.5, "rgba(20, 184, 166, 0.90)"); // Radiant Teal
+  p2Grad.addColorStop(1, "rgba(37, 99, 235, 0.85)");
+  ctx.fillStyle = p2Grad;
+  ctx.fill();
+
+  // Petal 3: Center Crest Flared Satin Petal with Golden Amber Rim
+  ctx.beginPath();
+  ctx.moveTo(420, 360);
+  ctx.bezierCurveTo(460, 180, 500, 90, 512, 80);
+  ctx.bezierCurveTo(530, 90, 570, 180, 610, 360);
+  ctx.bezierCurveTo(560, 410, 470, 410, 420, 360);
+  ctx.closePath();
+  const p3Grad = ctx.createLinearGradient(512, 80, 512, 410);
+  p3Grad.addColorStop(0, "rgba(245, 158, 11, 0.92)"); // Golden Amber Crest
+  p3Grad.addColorStop(0.35, "rgba(236, 72, 153, 0.90)"); // Magenta Heart
+  p3Grad.addColorStop(0.75, "rgba(99, 102, 241, 0.88)"); // Indigo Body
+  p3Grad.addColorStop(1, "rgba(30, 58, 138, 0.85)");
+  ctx.fillStyle = p3Grad;
+  ctx.fill();
+
+  // Petal 4: Foreground Translucent Overlapping Ribbon Swirl
+  ctx.beginPath();
+  ctx.moveTo(460, 410);
+  ctx.bezierCurveTo(380, 310, 420, 220, 490, 200);
+  ctx.bezierCurveTo(560, 180, 620, 260, 560, 390);
+  ctx.closePath();
+  const p4Grad = ctx.createLinearGradient(400, 200, 600, 400);
+  p4Grad.addColorStop(0, "rgba(255, 255, 255, 0.85)"); // Crystal highlight
+  p4Grad.addColorStop(0.4, "rgba(56, 189, 248, 0.80)");
+  p4Grad.addColorStop(1, "rgba(139, 92, 246, 0.65)");
+  ctx.fillStyle = p4Grad;
   ctx.fill();
   ctx.restore();
 
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-
-  // Start Menu Search Bar ("Type here to search")
-  ctx.beginPath();
-  ctx.roundRect(344, 228, 336, 36, 18);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.98)";
-  ctx.fill();
-  ctx.strokeStyle = "rgba(100, 116, 139, 0.2)";
-  ctx.stroke();
-
-  ctx.fillStyle = "#64748b";
-  ctx.font = "12px system-ui, -apple-system, sans-serif";
-  ctx.textAlign = "left";
-  ctx.fillText("🔍  Type here to search...", 364, 251);
-
-  // "Pinned" Header
-  ctx.fillStyle = "#1e293b";
+  // Copilot+ PC Watermark Emblem (Bottom Right)
+  ctx.save();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.40)";
   ctx.font = "bold 13px system-ui, sans-serif";
-  ctx.fillText("Pinned", 348, 286);
-  ctx.fillStyle = "#0284c7";
-  ctx.font = "11px system-ui, sans-serif";
   ctx.textAlign = "right";
-  ctx.fillText("All apps >", 670, 286);
+  ctx.fillText("Copilot+ PC  |  Snapdragon X Elite", 996, 608);
+  ctx.restore();
 
-  // Microsoft 365 Pinned App Grid (Edge, Word, Excel, PowerPoint, Mail, Settings, Xbox, Store)
-  const officeApps = [
-    { name: "Edge", icon: "🌐", bg: "#0284c7" },
-    { name: "Word", icon: "📄", bg: "#2563eb" },
-    { name: "Excel", icon: "📊", bg: "#16a34a" },
-    { name: "PowerPoint", icon: "📈", bg: "#ea580c" },
-    { name: "Mail", icon: "✉️", bg: "#0284c7" },
-    { name: "Settings", icon: "⚙️", bg: "#475569" },
-    { name: "Xbox", icon: "🎮", bg: "#16a34a" },
-    { name: "Store", icon: "🛍️", bg: "#0284c7" },
+  // Windows 11 Centered Floating Acrylic Taskbar
+  const tbX = 272;
+  const tbY = 626;
+  const tbW = 480;
+  const tbH = 46;
+
+  ctx.save();
+  ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
+  ctx.shadowBlur = 16;
+  ctx.shadowOffsetY = 4;
+
+  ctx.beginPath();
+  ctx.roundRect(tbX, tbY, tbW, tbH, 12);
+  ctx.fillStyle = "rgba(15, 23, 42, 0.78)";
+  ctx.fill();
+  ctx.restore();
+
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.22)";
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Taskbar Center Icons (Windows, Search, Task View, Explorer, Edge, Copilot, Store)
+  const taskbarIcons = [
+    { label: "⊞", color: "#38bdf8", isWin: true },
+    { label: "🔍", color: "#e2e8f0" },
+    { label: "🗔", color: "#94a3b8" },
+    { label: "📁", color: "#f59e0b", active: true },
+    { label: "🌐", color: "#0ea5e9", active: true },
+    { label: "✨", color: "#ec4899", isCopilot: true, active: true },
+    { label: "🛍️", color: "#38bdf8" },
+    { label: "💬", color: "#22c55e" },
   ];
-  for (let r = 0; r < 2; r++) {
-    for (let c = 0; c < 4; c++) {
-      const idx = r * 4 + c;
-      const x = 352 + c * 82;
-      const y = 300 + r * 60;
+
+  taskbarIcons.forEach((item, i) => {
+    const ix = tbX + 22 + i * 44;
+    const iy = tbY + 23;
+
+    if (item.isWin) {
+      // Windows 11 4-tile logo
+      ctx.fillStyle = "#38bdf8";
+      ctx.fillRect(ix - 8, iy - 8, 7, 7);
+      ctx.fillRect(ix + 1, iy - 8, 7, 7);
+      ctx.fillRect(ix - 8, iy + 1, 7, 7);
+      ctx.fillRect(ix + 1, iy + 1, 7, 7);
+    } else if (item.isCopilot) {
+      // Dedicated glowing Copilot halo ring
       ctx.beginPath();
-      ctx.roundRect(x, y, 36, 36, 9);
-      ctx.fillStyle = officeApps[idx].bg;
+      ctx.arc(ix, iy, 12, 0, Math.PI * 2);
+      const cGrad = ctx.createLinearGradient(ix - 12, iy - 12, ix + 12, iy + 12);
+      cGrad.addColorStop(0, "#38bdf8");
+      cGrad.addColorStop(0.5, "#ec4899");
+      cGrad.addColorStop(1, "#eab308");
+      ctx.fillStyle = cGrad;
       ctx.fill();
 
       ctx.fillStyle = "#ffffff";
-      ctx.font = "16px sans-serif";
+      ctx.font = "bold 13px sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText(officeApps[idx].icon, x + 18, y + 24);
-
-      ctx.fillStyle = "#334155";
-      ctx.font = "10px system-ui, sans-serif";
-      ctx.fillText(officeApps[idx].name, x + 18, y + 49);
+      ctx.fillText("✦", ix, iy + 4);
+    } else {
+      ctx.font = "18px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(item.label, ix, iy + 6);
     }
-  }
 
-  // "Recommended" Section
-  ctx.fillStyle = "#1e293b";
-  ctx.font = "bold 12px system-ui, sans-serif";
+    // Running indicator dot
+    if (item.active) {
+      ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+      ctx.beginPath();
+      ctx.roundRect(ix - 4, tbY + 41, 8, 2.5, 1.25);
+      ctx.fill();
+    }
+  });
+
+  // Search Box next to Start
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(tbX + 372, tbY + 8, 92, 30, 8);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.10)";
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+  ctx.font = "11px system-ui, sans-serif";
   ctx.textAlign = "left";
-  ctx.fillText("Recommended", 348, 442);
+  ctx.fillText("Search...", tbX + 382, tbY + 27);
+  ctx.restore();
 
-  const recFiles = ["Gadget Master Accra.docx", "Surface Laptop 7 Specs.xlsx"];
-  recFiles.forEach((file, fi) => {
-    ctx.fillStyle = "#64748b";
-    ctx.font = "11px system-ui, sans-serif";
-    ctx.fillText("📁  " + file, 352, 468 + fi * 22);
-  });
-
-  // Windows 11 Centered Taskbar at Bottom
-  ctx.fillStyle = "rgba(240, 245, 252, 0.90)";
-  ctx.fillRect(0, 626, 1024, 54);
-  ctx.strokeStyle = "rgba(226, 232, 240, 0.8)";
-  ctx.lineWidth = 1;
-  ctx.strokeRect(0, 626, 1024, 1);
-
-  // Centered Taskbar Icons (Windows logo, Search, Copilot, Task View, Explorer, Edge, Store)
-  const taskbarIcons = ["⊞", "🔍", "AI", "📁", "🌐", "🛍️"];
-  const tbStartX = 412;
-  taskbarIcons.forEach((icon, i) => {
-    const x = tbStartX + i * 36;
-    ctx.beginPath();
-    ctx.roundRect(x, 634, 32, 32, 8);
-    ctx.fillStyle = i === 2 ? "#0284c7" : "rgba(100, 116, 139, 0.12)";
-    ctx.fill();
-
-    ctx.fillStyle = i === 2 ? "#ffffff" : "#1e293b";
-    ctx.font = "bold 13px system-ui, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(icon, x + 16, 655);
-  });
-
-  // System Tray at Bottom Right: Wi-Fi, Sound, Battery, 9:36 AM
-  ctx.fillStyle = "#475569";
-  ctx.font = "12px system-ui, sans-serif";
+  // Bottom Right System Tray
+  ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+  ctx.font = "11px system-ui, sans-serif";
   ctx.textAlign = "right";
-  ctx.fillText("📶 🔊 🔋  9:36 AM", 1000, 656);
+  ctx.fillText("ENG  📶  🔊  🔋 100%   10:24 AM", 1004, 656);
+  ctx.fillText("10/22/2026", 1004, 670);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -1993,119 +1986,150 @@ function createIMacScreenTexture(): THREE.CanvasTexture {
   const ctx = canvas.getContext("2d");
   if (!ctx) return new THREE.CanvasTexture(canvas);
 
-  // AUTHENTIC MACOS SONOMA / SEQUOIA ROLLING HILLS WALLPAPER (From Reference Photo)
-  // Radiant Azure Sky to Deep Blue Ocean Gradient
-  const skyGrad = ctx.createLinearGradient(0, 0, 1024, 400);
-  skyGrad.addColorStop(0, "#0284c7"); // Deep Azure Sky
-  skyGrad.addColorStop(0.4, "#2563eb"); // Royal Blue
-  skyGrad.addColorStop(0.75, "#4f46e5"); // Indigo
-  skyGrad.addColorStop(1, "#0f172a"); // Deep Navy
+  // AUTHENTIC MACOS SONOMA / SEQUOIA LIQUID SILK DUNES WALLPAPER
+  // Deep Rich Azure to Indigo Horizon Sky
+  const skyGrad = ctx.createLinearGradient(0, 0, 1024, 420);
+  skyGrad.addColorStop(0, "#081329"); // Deep Celestial Navy
+  skyGrad.addColorStop(0.35, "#1d4ed8"); // Cobalt Azure
+  skyGrad.addColorStop(0.7, "#0284c7"); // Sky Blue
+  skyGrad.addColorStop(1, "#38bdf8"); // Cyan Horizon
   ctx.fillStyle = skyGrad;
   ctx.fillRect(0, 0, 1024, 640);
 
-  // Flowing Emerald Green & Teal Rolling Hills Waves (Lower Half)
+  // Flowing Topographic Liquid Silk Dunes
   ctx.save();
-  const hillGrad = ctx.createLinearGradient(0, 240, 1024, 640);
-  hillGrad.addColorStop(0, "#22c55e"); // Bright Emerald
-  hillGrad.addColorStop(0.35, "#16a34a"); // Lush Green
-  hillGrad.addColorStop(0.7, "#0d9488"); // Teal
-  hillGrad.addColorStop(1, "#065f46"); // Deep Forest
-  ctx.fillStyle = hillGrad;
-
+  // Dune Layer 1: Background Emerald & Teal Wave
   ctx.beginPath();
-  ctx.moveTo(0, 280);
-  ctx.bezierCurveTo(240, 160, 480, 420, 720, 260);
-  ctx.bezierCurveTo(860, 180, 960, 320, 1024, 280);
+  ctx.moveTo(0, 240);
+  ctx.bezierCurveTo(280, 160, 520, 380, 780, 220);
+  ctx.bezierCurveTo(890, 160, 970, 260, 1024, 230);
   ctx.lineTo(1024, 640);
   ctx.lineTo(0, 640);
   ctx.closePath();
+  const d1Grad = ctx.createLinearGradient(0, 200, 1024, 640);
+  d1Grad.addColorStop(0, "#10b981"); // Emerald
+  d1Grad.addColorStop(0.4, "#0d9488"); // Teal
+  d1Grad.addColorStop(0.8, "#0369a1"); // Ocean Blue
+  d1Grad.addColorStop(1, "#0f172a");
+  ctx.fillStyle = d1Grad;
   ctx.fill();
 
-  // Foreground Vibrant Lime Wave
-  const foreGrad = ctx.createLinearGradient(0, 400, 1024, 640);
-  foreGrad.addColorStop(0, "#4ade80");
-  foreGrad.addColorStop(0.5, "#22c55e");
-  foreGrad.addColorStop(1, "#15803d");
-  ctx.fillStyle = foreGrad;
-
+  // Dune Layer 2: Midground Cyan & Royal Sapphire Wave
   ctx.beginPath();
-  ctx.moveTo(0, 440);
-  ctx.bezierCurveTo(320, 340, 620, 540, 1024, 420);
+  ctx.moveTo(0, 360);
+  ctx.bezierCurveTo(320, 260, 600, 480, 1024, 320);
   ctx.lineTo(1024, 640);
   ctx.lineTo(0, 640);
   ctx.closePath();
+  const d2Grad = ctx.createLinearGradient(0, 300, 1024, 640);
+  d2Grad.addColorStop(0, "#06b6d4"); // Vibrant Cyan
+  d2Grad.addColorStop(0.5, "#2563eb"); // Royal Sapphire
+  d2Grad.addColorStop(1, "#1e1b4b"); // Deep Indigo
+  ctx.fillStyle = d2Grad;
+  ctx.fill();
+
+  // Dune Layer 3: Foreground Sunlit Amber Silk Lip
+  ctx.beginPath();
+  ctx.moveTo(0, 480);
+  ctx.bezierCurveTo(360, 420, 680, 560, 1024, 440);
+  ctx.lineTo(1024, 640);
+  ctx.lineTo(0, 640);
+  ctx.closePath();
+  const d3Grad = ctx.createLinearGradient(0, 440, 1024, 640);
+  d3Grad.addColorStop(0, "#38bdf8"); // Bright Sky
+  d3Grad.addColorStop(0.4, "#1d4ed8"); // Sapphire
+  d3Grad.addColorStop(0.7, "#f59e0b"); // Warm Amber Edge
+  d3Grad.addColorStop(1, "#090d16");
+  ctx.fillStyle = d3Grad;
   ctx.fill();
   ctx.restore();
 
-  // Desktop App Icons Grid (4 rows x 6 columns matching reference photo)
-  const desktopApps = [
-    { name: "Mail", icon: "✉️", bg: "#0284c7" },
-    { name: "Messages", icon: "💬", bg: "#22c55e" },
-    { name: "Contacts", icon: "👤", bg: "#d97706" },
-    { name: "Calendar", icon: "📅", bg: "#ef4444" },
-    { name: "Reminders", icon: "📝", bg: "#ea580c" },
-    { name: "Notes", icon: "📒", bg: "#f59e0b" },
-    { name: "Maps", icon: "🗺️", bg: "#10b981" },
-    { name: "Photos", icon: "🌸", bg: "#ec4899" },
-    { name: "FaceTime", icon: "📹", bg: "#22c55e" },
-    { name: "Clock", icon: "⏰", bg: "#0284c7" },
-    { name: "Music", icon: "🎵", bg: "#f43f5e" },
-    { name: "Home", icon: "🏠", bg: "#d97706" },
-    { name: "Stocks", icon: "📈", bg: "#0284c7" },
-    { name: "Podcasts", icon: "🎙️", bg: "#8b5cf6" },
-    { name: "TV", icon: "📺", bg: "#1e293b" },
-    { name: "News", icon: "📰", bg: "#f43f5e" },
-    { name: "App Store", icon: "🅰️", bg: "#0284c7" },
-    { name: "Settings", icon: "⚙️", bg: "#475569" },
-  ];
-
-  const gridStartX = 240;
-  const gridStartY = 160;
-  const colW = 96;
-  const rowH = 72;
-
-  desktopApps.forEach((app, i) => {
-    const col = i % 6;
-    const row = Math.floor(i / 6);
-    const x = gridStartX + col * colW;
-    const y = gridStartY + row * rowH;
-
-    ctx.beginPath();
-    ctx.roundRect(x, y, 44, 44, 12);
-    ctx.fillStyle = app.bg;
-    ctx.fill();
-
-    ctx.font = "22px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(app.icon, x + 22, y + 29);
-
-    ctx.font = "10px system-ui, sans-serif";
-    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-    ctx.fillText(app.name, x + 22, y + 56);
-  });
-
-  // Top macOS Menu Bar
-  ctx.fillStyle = "rgba(15, 23, 42, 0.45)";
+  // Top macOS Translucent Menu Bar
+  ctx.fillStyle = "rgba(15, 23, 42, 0.40)";
   ctx.fillRect(0, 0, 1024, 26);
 
   ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 12px -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, sans-serif";
   ctx.textAlign = "left";
   ctx.fillText("  Finder  File  Edit  View  Go  Window  Help", 18, 18);
 
   ctx.textAlign = "right";
   ctx.font = "12px -apple-system, BlinkMacSystemFont, sans-serif";
-  ctx.fillText("📶  🔋 100%   Mon Oct 21  9:41 AM", 1006, 18);
+  ctx.fillText("🔍  ⚙️  📶  🔋 100%   Mon Oct 22  9:41 AM", 1006, 18);
 
-  // Floating macOS Dock at Bottom (Frosted Glass Acrylic Bar)
+  // Desktop Drive & Files on Right Side
+  ctx.save();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+  ctx.font = "26px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("💾", 964, 76);
+  ctx.font = "11px system-ui, sans-serif";
+  ctx.fillText("Macintosh HD", 964, 96);
+  ctx.restore();
+
+  // Interactive Sonoma Desktop Weather & Calendar Widgets (Right Side)
+  // 1. Weather Widget Card
   ctx.save();
   ctx.shadowColor = "rgba(0, 0, 0, 0.35)";
-  ctx.shadowBlur = 18;
+  ctx.shadowBlur = 16;
   ctx.shadowOffsetY = 6;
+  ctx.beginPath();
+  ctx.roundRect(796, 130, 180, 86, 16);
+  ctx.fillStyle = "rgba(15, 23, 42, 0.55)";
+  ctx.fill();
+  ctx.restore();
+
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 13px system-ui, sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("Accra", 814, 154);
+  ctx.font = "28px system-ui, sans-serif";
+  ctx.fillText("28°", 814, 188);
+  ctx.font = "24px sans-serif";
+  ctx.fillText("☀️", 934, 168);
+  ctx.font = "11px system-ui, sans-serif";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.80)";
+  ctx.fillText("Sunny • H:31° L:23°", 814, 204);
+
+  // 2. Calendar Widget Card
+  ctx.save();
+  ctx.shadowColor = "rgba(0, 0, 0, 0.35)";
+  ctx.shadowBlur = 16;
+  ctx.shadowOffsetY = 6;
+  ctx.beginPath();
+  ctx.roundRect(796, 230, 180, 86, 16);
+  ctx.fillStyle = "rgba(15, 23, 42, 0.55)";
+  ctx.fill();
+  ctx.restore();
+
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  ctx.fillStyle = "#ef4444";
+  ctx.font = "bold 11px system-ui, sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("TUESDAY", 814, 252);
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 26px system-ui, sans-serif";
+  ctx.fillText("22", 814, 282);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.80)";
+  ctx.font = "11px system-ui, sans-serif";
+  ctx.fillText("No upcoming events", 814, 302);
+
+  // Floating macOS Frosted Acrylic Dock at Bottom
+  ctx.save();
+  ctx.shadowColor = "rgba(0, 0, 0, 0.40)";
+  ctx.shadowBlur = 24;
+  ctx.shadowOffsetY = 8;
 
   ctx.beginPath();
-  ctx.roundRect(212, 576, 600, 52, 16);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
+  ctx.roundRect(232, 574, 560, 54, 18);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.30)";
   ctx.fill();
   ctx.restore();
 
@@ -2113,36 +2137,42 @@ function createIMacScreenTexture(): THREE.CanvasTexture {
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  // Dock Icons (Finder, Launchpad, Safari, Mail, Messages, Maps, Photos, FaceTime, Music, App Store, Trash)
+  // 12 Authentic macOS Dock Apps with Running Indicators
   const dockIcons = [
-    { icon: "😀", bg: "#38bdf8" }, // Finder
+    { icon: "😀", bg: "#38bdf8", active: true }, // Finder
     { icon: "🚀", bg: "#818cf8" }, // Launchpad
-    { icon: "🧭", bg: "#0284c7" }, // Safari
+    { icon: "🧭", bg: "#0284c7", active: true }, // Safari
     { icon: "✉️", bg: "#3b82f6" }, // Mail
-    { icon: "💬", bg: "#22c55e" }, // Messages
+    { icon: "💬", bg: "#22c55e", active: true }, // Messages
     { icon: "🗺️", bg: "#10b981" }, // Maps
     { icon: "🌸", bg: "#ec4899" }, // Photos
     { icon: "📹", bg: "#16a34a" }, // FaceTime
-    { icon: "🎵", bg: "#f43f5e" }, // Music
-    { icon: "🎙️", bg: "#8b5cf6" }, // Podcasts
-    { icon: "📺", bg: "#1e293b" }, // TV
-    { icon: "🅰️", bg: "#0284c7" }, // App Store
+    { icon: "🎵", bg: "#f43f5e", active: true }, // Music
+    { icon: "📊", bg: "#06b6d4" }, // Keynote
     { icon: "⚙️", bg: "#475569" }, // Settings
     { icon: "🗑️", bg: "#64748b" }, // Trash
   ];
 
   dockIcons.forEach((app, i) => {
-    const x = 228 + i * 41;
-    const y = 584;
+    const x = 248 + i * 44;
+    const y = 582;
 
     ctx.beginPath();
-    ctx.roundRect(x, y, 36, 36, 10);
+    ctx.roundRect(x, y, 38, 38, 10);
     ctx.fillStyle = app.bg;
     ctx.fill();
 
-    ctx.font = "18px sans-serif";
+    ctx.font = "20px sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(app.icon, x + 18, y + 25);
+    ctx.fillText(app.icon, x + 19, y + 27);
+
+    // Running indicator dot
+    if (app.active) {
+      ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+      ctx.beginPath();
+      ctx.arc(x + 19, 624, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
   });
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -3418,7 +3448,7 @@ function buildRefinedHardwareCAD(
       controllers.setLidAngle = (deg: number) => {
         lidGroup.rotation.x = -((180 - deg) * Math.PI) / 180;
       };
-      controllers.setLidAngle(115); // Signature 115° open hero angle
+      controllers.setLidAngle(104); // Signature 104° open hero angle (optimal vertical visibility)
 
       break;
     }
@@ -3789,13 +3819,9 @@ function buildRefinedHardwareCAD(
       chinMesh.position.set(0, -0.56, 0.0130);
       screenGroup.add(chinMesh);
 
-      // D. FRONT CHIN MIRRORED CHROME APPLE LOGO (Centered on Chin from Reference Photo)
-      const frontAppleLogo = new THREE.Mesh(
-        new THREE.PlaneGeometry(0.12, 0.12),
-        appleLogoMat
-      );
-      frontAppleLogo.position.set(0, -0.56, 0.0135);
-      screenGroup.add(frontAppleLogo);
+      // D. FRONT CHIN: Authentic Clean Satin Aluminum Unibody
+      // Real Apple 24" iMac famously features an unbranded, clean front chin for distraction-free focus,
+      // with the bold mirror-finish Apple logo positioned proudly on the rear chassis.
 
       // E. 1080p FaceTime HD Camera & Green Indicator LED in Top White Bezel
       const camHousing = new THREE.Mesh(
